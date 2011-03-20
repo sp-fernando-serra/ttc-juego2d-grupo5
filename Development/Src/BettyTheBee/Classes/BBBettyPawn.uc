@@ -51,3 +51,4 @@ DefaultProperties
 	End Object
 	CylinderComponent=CollisionCylinder
 }
+
