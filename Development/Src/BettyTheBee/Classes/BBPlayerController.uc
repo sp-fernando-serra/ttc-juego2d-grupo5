@@ -227,6 +227,18 @@ state PlayerWalking{
 	}
 }
 
+
+
+exec function Sword(){
+
+}
+
+
+exec function Granade(){
+
+}
+
+
 DefaultProperties
 {
 	CameraClass=class 'BBMainCamera' //Telling the player controller to use your custom camera script
