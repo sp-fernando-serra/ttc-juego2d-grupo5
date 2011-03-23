@@ -1,5 +1,11 @@
 class BBBettyPawn extends BBPawn;
 
+
+var int itemsMiel;//contador de items 'Mel'
+
+
+
+
 simulated function name GetDefaultCameraMode(PlayerController RequestedBy)
 {
 	return 'ThirdPerson';
@@ -9,6 +15,19 @@ simulated function name GetDefaultCameraMode(PlayerController RequestedBy)
 //	super.Tick(DeltaTime);
 //	`log("PawnRotation="@Rotation);
 //}
+
+
+
+//------------AITOR--------------------------------
+function AddDefaultInventory()
+{
+	InvManager.CreateInventory(class'BettyTheBee.BBGranadeWeapon');
+	InvManager.CreateInventory(class'BettyTheBee.BBSwordWeapon');
+	
+    //InvManager.CreateInventory(class'BettyTheBee.BBSwordWeapon'); //InvManager is the pawn's InventoryManager
+	//InvManager.AddInventory(class'BettyTheBee.BBGranadeWeapon',false);
+}
+//------------AITOR--------------------------------
 
 DefaultProperties
 {
@@ -50,5 +69,12 @@ DefaultProperties
 		CollisionHeight=+0050.000000
 	End Object
 	CylinderComponent=CollisionCylinder
+
+
+	//------------AITOR--------------------------------
+	itemsMiel=0;
+	bCanPickupInventory=true;
+	InventoryManagerClass=class'BettyTheBee.BBInventoryManager';
+	//------------AITOR--------------------------------
 }
 
