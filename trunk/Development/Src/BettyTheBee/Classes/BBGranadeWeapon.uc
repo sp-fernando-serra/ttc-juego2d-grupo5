@@ -1,8 +1,10 @@
 class BBGranadeWeapon extends UDKWeapon;
 
+
+
 simulated function TimeWeaponEquipping()
 {
-    AttachWeaponTo( Instigator.Mesh,'WeaponPoint' );
+    AttachWeaponTo( Instigator.Mesh,'mano_izquierda' );
     super.TimeWeaponEquipping();
 }
 
@@ -10,6 +12,15 @@ simulated function AttachWeaponTo( SkeletalMeshComponent MeshCpnt, optional Name
 {
     MeshCpnt.AttachComponentToSocket(Mesh,SocketName);
 }
+
+simulated function DetachWeapon()
+{
+	Instigator.Mesh.DetachComponent( Mesh );
+	SetBase(None);
+	//Mesh.SetHidden(True);
+	//Mesh.SetLightEnvironment(None);
+}
+
 simulated event SetPosition(UDKPawn Holder)
 {
     local SkeletalMeshComponent compo;
@@ -43,6 +54,7 @@ simulated function ProcessInstantHit(byte FiringMode, ImpactInfo Impact, optiona
     );               
 }
 
+
 DefaultProperties
 {
 
@@ -58,4 +70,5 @@ DefaultProperties
     WeaponFireTypes(0)=EWFT_InstantHit
     FireInterval(0)=0.1
     Spread(0)=0
+
 }

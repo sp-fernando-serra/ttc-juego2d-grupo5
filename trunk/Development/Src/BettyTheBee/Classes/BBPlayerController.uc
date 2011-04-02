@@ -228,14 +228,13 @@ state PlayerWalking{
 }
 
 
-
-exec function Sword(){
-
+exec function GetSword(){
+	BBBettyPawn(Pawn).GetSword();
 }
 
 
-exec function Granade(){
-
+exec function GetGranade(){
+	BBBettyPawn(Pawn).GetGranade();
 }
 
 

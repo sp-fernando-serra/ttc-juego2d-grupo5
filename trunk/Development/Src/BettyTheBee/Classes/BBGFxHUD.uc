@@ -6,6 +6,7 @@ var float LastHealthpc;
 //Create variables to hold references to the Flash MovieClips and Text Fields that will be modified
 var GFxObject mc_vida_mask;
 var GFxObject txt_vida,txt_mum_items;
+var GFxObject txt_1,txt_2,txt_3;
 
 //var BettyGamePlayerController PlayerOwner;
 
@@ -50,8 +51,14 @@ function Init2()
 	//txt_vida =  GetVariableObject("_root.txt_vida");
 	mc_vida_mask =  GetVariableObject("_root.mc_hud_izquierda.mc_vida_mask");
 	txt_mum_items =  GetVariableObject("_root.mc_hud_derecha.txt_mum_items");
+	txt_1 =  GetVariableObject("_root.txt_1");
+	txt_2 =  GetVariableObject("_root.txt_2");
+	txt_3 =  GetVariableObject("_root.txt_3");
+	
 
 }
+
+
 
 //Called every update Tick
 function TickHUD()
@@ -78,6 +85,10 @@ function TickHUD()
 	//mc_vida_mask.SetFloat("_xscale", 20.0f);
 	mc_vida_mask.SetFloat("_xscale", UTP.Health);
 
+	txt_1.SetString("text", string(UTP.InvManager.InventoryChain));
+	txt_2.SetString("text",  string(UTP.InvManager.PendingWeapon));
+	
+	//ASvariables(UTP.InvManager.PendingWeapon.getNom(),string(UTP.InvManager.InventoryChain),UTP.InvManager.PendingWeapon.getNom());
 	/*//If the cached value for Health percentage isn't equal to the current...
 	if (LastHealthpc != getpc2(UTP.Health, UTP.HealthMax))
 	{
@@ -91,6 +102,11 @@ function TickHUD()
 */
 }
 
+function ASvariables(String texto1, String texto2, String texto3)
+{
+     //`log("sendind information to flash with the slots availables");
+     ActionScriptVoid("variables");
+}
 
 
 DefaultProperties

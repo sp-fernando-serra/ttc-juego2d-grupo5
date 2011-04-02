@@ -28,6 +28,7 @@ enum EWeaponFireType
 	EWFT_None
 };
 
+
 /** Current FireMode*/
 var	byte CurrentFireMode;
 
@@ -1892,6 +1893,7 @@ simulated function float GetTargetDistance( )
 
 	return (HitLocation - ProjStart) Dot X;
 }
+
 
 defaultproperties
 {
