@@ -54,7 +54,7 @@ defaultproperties
     End Object
     Mesh=SandboxPawnSkeletalMesh
     Components.Add(SandboxPawnSkeletalMesh)
-    ControllerClass=class'BettyTheBee.BBAIController'
+  //  ControllerClass=class'BettyTheBee.BBAIController'
     //InventoryManagerClass=class'Sandbox.SandboxInventoryManager'
     bJumpCapable=false
     bCanJump=false
@@ -68,11 +68,11 @@ simulated function PostBeginPlay()
 	//if (Controller == none)
 	//	SpawnDefaultController();
 	SetPhysics(PHYS_Walking);
-	if (MyController == none)
+	/*if (MyController == none)
 	{
 		MyController = Spawn(class'BBAIController', self);
 		MyController.SetPawn(self);		
-	}
+	}*/
 
     //I am not using this
 	//MyAnimPlayControl = AnimNodeSequence(MyMesh.Animations.FindAnimNode('AnimAttack'));
