@@ -35,7 +35,6 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 	super.PostInitAnimTree(SkelComp);
 	if (SkelComp == Mesh)
 	{
-		//Animacions = AnimNodeSlot(Mesh.FindAnimNode('SlotName'));
 		node_attack_list = AnimNodeBlendList(Mesh.FindAnimNode('attack_list'));
 		attack_list_anims.AddItem(AnimNodeSequence(Mesh.FindAnimNode('Atacar')));
 }
@@ -90,17 +89,6 @@ function AnimNodeSequence getAttackAnimNode()
 
 
 
-
-/*function float PlayAttackAnimation()
-{
-	local float value;	
-	itemsMiel=itemsMiel+1;	
-	//value = AttackAnimations[0].GetCustomAnimNodeSeq().GetAnimPlaybackLength();
-
-	return value;
-	//return PlayCustomAnim(AttackAnimations[0]);
-}*/
-
 simulated function GetSword()
 {
 	local BBSwordWeapon Inv;
@@ -119,7 +107,6 @@ simulated function GetGranade()
 	break;
 	}
 }
-//------------AITOR--------------------------------
 
 DefaultProperties
 {
@@ -171,6 +158,6 @@ DefaultProperties
 	itemsMiel=0;
 	bCanPickupInventory=true;
 	InventoryManagerClass=class'BettyTheBee.BBInventoryManager';
-
+	
 }
 
