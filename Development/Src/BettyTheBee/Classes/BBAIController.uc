@@ -2,30 +2,23 @@ class BBAIController extends AIController;
 
 var BBEnemyPawn MyEnemyTestPawn;
 var BBPawn thePlayer;
-//var Actor theNoiseMaker;
-//var Vector noisePos;
 
-var () array<NavigationPoint> MyNavigationPoints;
-var NavigationPoint MyNextNavigationPoint;
+
+var () array<BBRoutePoint> MyRoutePoints;
 
 var int actual_node;
 var int last_node;
 
 var float perceptionDistance;
-//var float hearingDistance;
 var float attackDistance;
 var int attackDamage;
 
 var float distanceToPlayer;
-//var float distanceToTargetNodeNearPlayer;
 
-//var Name AnimSetName;
 
-//var bool AttAcking;
 var bool followingPath;
-//var bool noiseHeard;
-//var bool bAggressive;
 var Float IdleInterval;
+var bool bAggressive;
 
 defaultproperties
 {
@@ -40,8 +33,8 @@ function SetPawn(BBEnemyPawn NewPawn)
 {
 	MyEnemyTestPawn = NewPawn;
 	Possess(MyEnemyTestPawn, false);
-	MyNavigationPoints = MyEnemyTestPawn.MyNavigationPoints;
-	//bAggressive = MyEnemyTestPawn.bAggressive;
+	MyRoutePoints = MyEnemyTestPawn.MyRoutePoints;
+	bAggressive = MyEnemyTestPawn.bAggressive;
 	AttackDamage = MyEnemyTestPawn.AttackDamage;
 	AttackDistance = MyEnemyTestPawn.AttackDistance;
 	PerceptionDistance = MyEnemyTestPawn.PerceptionDistance;
@@ -63,12 +56,12 @@ function Possess(Pawn aPawn, bool bVehicleTransition)
 		if (Pawn.Physics == PHYS_Walking)
 		{
 			Pawn.SetPhysics(PHYS_Falling);
-	    }
+		}
     }
 }
 
 
-state Idle
+auto state Idle
 {
 
     event SeePlayer(Pawn SeenPlayer)
@@ -83,14 +76,13 @@ state Idle
     }
 
 Begin:
-    Worldinfo.Game.Broadcast(self, "!!!!!!!  idle  !!!!!!!!");
-
+    Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Starting Idle state");
 	Pawn.Acceleration = vect(0,0,0);
 	MyEnemyTestPawn.SetAttacking(false);
 
 	Sleep(IdleInterval);
 
-	//Worldinfo.Game.Broadcast(self, "!!!!!!!  Going to FollowPath  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+	Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Going to follow path");
 	followingPath = true;
 	actual_node = last_node;
 	GotoState('FollowPath');
@@ -131,15 +123,13 @@ state Chaseplayer
 			MoveTarget = FindPathToward(thePlayer,,perceptionDistance + (perceptionDistance/2));
 			if (MoveTarget != none)
 			{
-				Worldinfo.Game.Broadcast(self, "Moving toward Player");
+				Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Moving toward Player");
 
 				distanceToPlayer = VSize(MoveTarget.Location - Pawn.Location);
 				if (distanceToPlayer < 100)
 					MoveToward(MoveTarget, thePlayer, 20.0f);
 				else
-					MoveToward(MoveTarget, MoveTarget, 20.0f);	
-		
-				//MoveToward(MoveTarget, MoveTarget);
+					MoveToward(MoveTarget, MoveTarget, 20.0f);				
 			}
 			else
 			{
@@ -157,9 +147,9 @@ state Attack
  Begin:
 	Pawn.Acceleration = vect(0,0,0);
 	MyEnemyTestPawn.SetAttacking(true);
-	while(true && thePlayer.Health > 0)
+	while(thePlayer.Health > 0)
 	{   
-		//Worldinfo.Game.Broadcast(self, "Attacking Player");
+		Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Attacking Player");
 
 		distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
         if (distanceToPlayer > attackDistance * 2)
@@ -171,10 +161,11 @@ state Attack
 		Sleep(1);
 	}
 	MyEnemyTestPawn.SetAttacking(false);
+	GotoState('Idle');
 }
 
 
-auto state FollowPath
+state FollowPath
 {
 	event SeePlayer(Pawn SeenPlayer)
 	{
@@ -182,7 +173,7 @@ auto state FollowPath
         distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
         if (distanceToPlayer < perceptionDistance)
         { 
-        	Worldinfo.Game.Broadcast(self, "I can see you!!");
+        	Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": I can see you!!");
 			followingPath = false;
             GotoState('Chaseplayer');
         }
@@ -192,38 +183,34 @@ auto state FollowPath
 
 	while(followingPath)
 	{
-		MoveTarget = MyNavigationPoints[actual_node];
+		MoveTarget = MyRoutePoints[actual_node];
 		
 		if(Pawn.ReachedDestination(MoveTarget))
 		{
-			WorldInfo.Game.Broadcast(self, "Navigation point Reached");
+			WorldInfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Navigation point Reached");
+			
 			actual_node++;
 			
-			if (actual_node >= MyNavigationPoints.Length)
+			if (actual_node >= MyRoutePoints.Length)
 			{
 				actual_node = 0;
 			}
+			
 			last_node = actual_node;
 			
-			MoveTarget = MyNavigationPoints[actual_node];
+			MoveTarget = MyRoutePoints[actual_node];
 		}	
-
+		`Log("Is reachable? " $ ActorReachable(MoveTarget));
 		if (ActorReachable(MoveTarget))
 		{
-			//distanceToPlayer = VSize(MoveTarget.Location - Pawn.Location);
-			//if (distanceToPlayer < perceptionDistance / 3)
-			//	MoveToward(MoveTarget, MyNavigationPoints[actual_node + 1]);	
-			//else
-				MoveToward(MoveTarget, MoveTarget);	
+			MoveToward(MoveTarget, MoveTarget);	
 		}
 		else
 		{
-			MoveTarget = FindPathToward(MyNavigationPoints[actual_node]);
+			MoveTarget = FindPathToward(MyRoutePoints[actual_node]);
+			`Log("MoveTarget? " $ MoveTarget.Name);
 			if (MoveTarget != none)
 			{
-				
-				//SetRotation(RInterpTo(Rotation,Rotator(MoveTarget.Location),Delta,90000,true));
-				
 				MoveToward(MoveTarget, MoveTarget);
 			}
 		}
