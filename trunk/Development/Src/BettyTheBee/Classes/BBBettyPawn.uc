@@ -46,7 +46,7 @@ simulated function StartFire(byte FireModeNum)
 	if(BBSwordWeapon(Weapon).getAnimacioFlag()==false){
 		BBSwordWeapon(Weapon).attackStart();
 		super.StartFire(FireModeNum);
-		`log("StartFire");
+		`log("StartFire");		
 		itemsMiel=itemsMiel+10;
 		node_attack_list.SetActiveChild(1,0.2f);
 	}
@@ -116,8 +116,8 @@ DefaultProperties
 	Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment
 		ModShadowFadeoutTime=0.25
 		MinTimeBetweenFullUpdates=0.2
-		AmbientGlow=(R=.01,G=.01,B=.01,A=1)
-		AmbientShadowColor=(R=0.15,G=0.15,B=0.15)
+		//AmbientGlow=(R=.01,G=.01,B=.01,A=1)
+		//AmbientShadowColor=(R=0.15,G=0.15,B=0.15)
 		LightShadowMode=LightShadow_ModulateBetter
 		ShadowFilterQuality=SFQ_High
 		bSynthesizeSHLight=TRUE
@@ -148,11 +148,11 @@ DefaultProperties
 	Components.Add(InitialSkeletalMesh);
 	CollisionType=COLLIDE_BlockAll
 	Begin Object Name=CollisionCylinder
-		CollisionRadius=+0023.000000
+		CollisionRadius=+0025.000000
 		CollisionHeight=+0050.000000
 	End Object
 	CylinderComponent=CollisionCylinder
-
+	GroundSpeed=300.0
 
 	
 	itemsMiel=0;
