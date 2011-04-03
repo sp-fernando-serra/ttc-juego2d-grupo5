@@ -43,6 +43,10 @@ DefaultProperties
     bJumpCapable=false
     bCanJump=false
     GroundSpeed=200.0 //Making the bot slower than the player
+
+	PerceptionDistance = 750;
+	AttackDistance = 40;
+	AttackDamage = 5;
 }
 
 simulated function PostBeginPlay()
@@ -68,8 +72,24 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 }
 
 state Attacking{
+
 	simulated event doDamage(){
-		Worldinfo.Game.Broadcast(self, Name $ ": Doing Damage");
+		local Vector PinzasStart, PinzasEnd;
+		local Vector HitLocation, HitNormal;
+		local Actor HitActor;
+
+		Worldinfo.Game.Broadcast(self, Name $ ": Calculating Attack Collision");
+		Mesh.GetSocketWorldLocationAndRotation('PinzasInicio' , PinzasStart);
+		Mesh.GetSocketWorldLocationAndRotation('PinzasFinal', PinzasEnd);
+		HitActor = Trace(HitLocation, HitNormal, PinzasEnd, PinzasStart, true);
+		
+		if(HitActor != none){
+			Worldinfo.Game.Broadcast(self, Name $ ": Hit actor "$HitActor.Name);
+			if(HitActor.Class == class'BBBettyPawn'){
+				BBBettyPawn(HitActor).Health -= AttackDamage;
+				Worldinfo.Game.Broadcast(self,BBBettyPawn(HitActor).name $ " Actual Life: "$BBBettyPawn(HitActor).Health);
+			}
+		}
 	}
 	
 	simulated event BeginState(name NextStateName){

@@ -33,7 +33,9 @@ defaultproperties
 	bAvoidLedges=true
 	bStopAtLedges=true
 
-	LedgeCheckThreshold=0.5f	
+	LedgeCheckThreshold=0.5f
+
+	bAggressive = true;
 }
 
 simulated function PostBeginPlay()

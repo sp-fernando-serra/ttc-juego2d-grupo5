@@ -66,13 +66,15 @@ auto state Idle
 
     event SeePlayer(Pawn SeenPlayer)
 	{
-	    thePlayer = BBPawn(SeenPlayer);
-        distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
-        if (distanceToPlayer < perceptionDistance)
-        { 
-        	Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": I can see you!!");
-            GotoState('Chaseplayer');
-        }
+		if(bAggressive){
+			thePlayer = BBPawn(SeenPlayer);
+			distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
+			if (distanceToPlayer < perceptionDistance)
+			{ 
+        		Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": I can see you!!");
+				GotoState('Chaseplayer');
+			}
+		}
     }
 
 Begin:
@@ -151,14 +153,15 @@ state FollowPath
 {
 	event SeePlayer(Pawn SeenPlayer)
 	{
-	    thePlayer = BBBettyPawn(SeenPlayer);
-        distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
-        if (distanceToPlayer < perceptionDistance)
-        { 
-        	Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": I can see you!!");
-			followingPath = false;
-            GotoState('Chaseplayer');
-        }
+	    if(bAggressive){
+			thePlayer = BBPawn(SeenPlayer);
+			distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
+			if (distanceToPlayer < perceptionDistance)
+			{ 
+        		Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": I can see you!!");
+				GotoState('Chaseplayer');
+			}
+		}
     }
 
  Begin:
