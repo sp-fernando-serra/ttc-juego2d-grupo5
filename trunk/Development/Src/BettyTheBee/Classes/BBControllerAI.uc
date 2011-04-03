@@ -1,4 +1,4 @@
-class BBAIController extends AIController;
+class BBControllerAI extends AIController;
 
 var BBEnemyPawn MyEnemyTestPawn;
 var BBPawn thePlayer;
@@ -70,7 +70,7 @@ auto state Idle
         distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
         if (distanceToPlayer < perceptionDistance)
         { 
-        	Worldinfo.Game.Broadcast(self, "I can see you!!");
+        	Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": I can see you!!");
             GotoState('Chaseplayer');
         }
     }
@@ -78,7 +78,7 @@ auto state Idle
 Begin:
     Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Starting Idle state");
 	Pawn.Acceleration = vect(0,0,0);
-	MyEnemyTestPawn.SetAttacking(false);
+	MyEnemyTestPawn.GotoState('Idle');
 
 	Sleep(IdleInterval);
 
@@ -93,7 +93,7 @@ state Chaseplayer
 {
   Begin:
 	
-	MyEnemyTestPawn.SetAttacking(false);
+	MyEnemyTestPawn.GotoState('ChasePlayer');
     Pawn.Acceleration = vect(0,0,1);
 	
     while (Pawn != none && thePlayer.Health > 0)
@@ -105,7 +105,7 @@ state Chaseplayer
 			distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
 			if (distanceToPlayer < attackDistance)
 			{
-				GotoState('Attack');
+				GotoState('Attacking');
 				break;
 			}
 			else //if(distanceToPlayer < 300)
@@ -113,7 +113,7 @@ state Chaseplayer
 				MoveToward(thePlayer, thePlayer, 20.0f);
 				if(Pawn.ReachedDestination(thePlayer))
 				{
-					GotoState('Attack');
+					GotoState('Attacking');
 					break;
 				}
 			}
@@ -142,28 +142,10 @@ state Chaseplayer
     }
 }
 
-state Attack
-{
- Begin:
-	Pawn.Acceleration = vect(0,0,0);
-	MyEnemyTestPawn.SetAttacking(true);
-	while(thePlayer.Health > 0)
-	{   
-		Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Attacking Player");
-
-		distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
-        if (distanceToPlayer > attackDistance * 2)
-        { 
-			MyEnemyTestPawn.SetAttacking(false);
-            GotoState('Chaseplayer');
-			break;
-        }
-		Sleep(1);
-	}
-	MyEnemyTestPawn.SetAttacking(false);
-	GotoState('Idle');
+state Attacking {
+Begin:
+	Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.Name $ ": Bad State");
 }
-
 
 state FollowPath
 {
@@ -200,7 +182,6 @@ state FollowPath
 			
 			MoveTarget = MyRoutePoints[actual_node];
 		}	
-		`Log("Is reachable? " $ ActorReachable(MoveTarget));
 		if (ActorReachable(MoveTarget))
 		{
 			MoveToward(MoveTarget, MoveTarget);	
@@ -208,7 +189,6 @@ state FollowPath
 		else
 		{
 			MoveTarget = FindPathToward(MyRoutePoints[actual_node]);
-			`Log("MoveTarget? " $ MoveTarget.Name);
 			if (MoveTarget != none)
 			{
 				MoveToward(MoveTarget, MoveTarget);

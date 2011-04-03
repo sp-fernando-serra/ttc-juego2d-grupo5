@@ -116,5 +116,5 @@ DefaultProperties
 	//The path to the swf asset we will create later
 	MovieInfo=SwfMovie'BettyInterface.interface_hud.hud'
 	//Just put it in...
-	bGammaCorrection = false
+	//bGammaCorrection = false
 }

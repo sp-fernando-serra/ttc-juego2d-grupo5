@@ -91,12 +91,11 @@ animacio_attack=false;
 
 WeaponRange=110.0
 
-InstantHitDamageTypes(0)=class'UTDmgType_ImpactHam mer'
+InstantHitDamageTypes(0)=class'DmgType_Crushed'
 InstantHitDamage(0)=10
 
 
 bMeleeWeapon=true
-
 	Begin Object class=SkeletalMeshComponent Name=Sword
 	SkeletalMesh=SkeletalMesh'Betty_Player.Tamashinu_sword'
 	HiddenGame=FALSE 
