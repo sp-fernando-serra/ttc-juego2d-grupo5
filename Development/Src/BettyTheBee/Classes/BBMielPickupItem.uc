@@ -28,9 +28,7 @@ DefaultProperties
 		BlockActors=false
         StaticMesh=StaticMesh'EngineMeshes.Sphere'
         bNotifyRigidBodyCollision=true
-		BlockActors=false
-
-    End Object
+	End Object
 	PickupMesh=ItemEsfera
 	Components.Add(ItemEsfera)
 
