@@ -45,5 +45,4 @@ defaultproperties
 	bIgnoreTeamForVoiceChat=true
 	
 	bGivePhysicsGun=false
-	
 }

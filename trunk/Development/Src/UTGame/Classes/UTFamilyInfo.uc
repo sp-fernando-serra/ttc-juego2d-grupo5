@@ -268,8 +268,6 @@ defaultproperties
 	FamilyEmotes[17]=(CategoryName="Inventory", EmoteTag="UseArmor",EmoteAnim="Taunt_FB_BringItOn",bTopHalfEmote=true)
 	FamilyEmotes[18]=(CategoryName="Inventory", EmoteTag="UseHealth",EmoteAnim="Taunt_UB_Flag_Pickup",bTopHalfEmote=true)
 
-	FamilyEmotes[19]=(CategoryName="Melee", EmoteTag="Atacar",EmoteAnim="B_attack_seq")
-
 	NonTeamEmissiveColor=(R=10.0,G=0.2,B=0.2)
 	NonTeamTintColor=(R=4.0,G=2.0,B=0.5)
 

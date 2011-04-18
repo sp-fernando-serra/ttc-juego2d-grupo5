@@ -20,13 +20,11 @@ simulated function name GetDefaultCameraMode(PlayerController RequestedBy)
 //}
 
 
-
-
 function AddDefaultInventory()
 {
 	
-	InvManager.CreateInventory(class'BettyTheBee.BBSwordWeapon');
-	InvManager.CreateInventory(class'BettyTheBee.BBGranadeWeapon');
+	InvManager.CreateInventory(class'BettyTheBee.BBWeaponSword');
+	InvManager.CreateInventory(class'BettyTheBee.BBWeaponGrenade');
 }
 
 
@@ -37,32 +35,81 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 	{
 		node_attack_list = AnimNodeBlendList(Mesh.FindAnimNode('attack_list'));
 		attack_list_anims.AddItem(AnimNodeSequence(Mesh.FindAnimNode('Atacar')));
+		attack_list_anims.AddItem(AnimNodeSequence(Mesh.FindAnimNode('Atacar2')));
 }
 }
 
+//simulated function StartFire(byte FireModeNum)
+//{
+//	if( bNoWeaponFIring )
+//	{
+//		return;
+//	}
+
+//	if( Weapon != None )
+//	{
+//		Weapon.StartFire(FireModeNum);
+//	}
+//}
+
+//simulated function StopFire(byte FireModeNum)
+//{
+//	if( Weapon != None )
+//	{
+//		Weapon.StopFire(FireModeNum);
+//	}
+//}
 simulated function StartFire(byte FireModeNum)
 {
+	//switch (Weapon.Class){
+	//case (class'BBWeaponSword'):
+	//	if(BBWeapon(Weapon).getAnimacioFlag()==false){
+	//	BBWeapon(Weapon).attackStart();
+	//	node_attack_list.SetActiveChild(1,0.2f);
+	//break;
+	//}
+	//case  (class'BBWeaponGrenade'):
+	//	super.StartFire(FireModeNum);
+	//	if(FireModeNum==0)	node_attack_list.SetActiveChild(2,0.2f);
+	//	break;
+	//}
+	if(BBWeapon(Weapon).getAnimacioFlag()==false){
+		BBWeapon(Weapon).attackStart();
+		switch (Weapon.Class){
 
-	if(BBSwordWeapon(Weapon).getAnimacioFlag()==false){
-		BBSwordWeapon(Weapon).attackStart();
-		super.StartFire(FireModeNum);
-		`log("StartFire");		
-		itemsMiel=itemsMiel+10;
-		node_attack_list.SetActiveChild(1,0.2f);
+		case (class'BBWeaponSword'):
+			node_attack_list.SetActiveChild(1,0.2f);
+			break;
+
+		case  (class'BBWeaponGrenade'):
+			super.StartFire(FireModeNum);
+			node_attack_list.SetActiveChild(2,0.2f);
+			break;
+		}
 	}
+
+	
 }
 
-
+//simulated function StopFire(byte firemodenum)
+//{
+//	if(Weapon != None)
+//	{
+//		super.StopFire(FireModeNum);
+//		//BBWeapon(Weapon).attackEnd();
+//	}
+//}
 
 simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float ExcessTime)
 {
-	`log("anim end"@SeqNode@"IN PAWN");
-	// Tell mesh to stop using root motion	
+	//`log("anim end"@SeqNode@"IN PAWN");
+	// Tell mesh to stop using root motion
 	if(SeqNode == getAttackAnimNode())
 	{
+		//Worldinfo.Game.Broadcast(self, Name $ ": 2 ");
 		//Mesh.RootMotionMode = RMM_Ignore;
 		attackAnimEnd();
-		BBSwordWeapon(Weapon).attackEnd();
+		BBWeapon(Weapon).attackEnd();
 	}
 }
 
@@ -75,38 +122,35 @@ simulated function attackAnimEnd()
 function AnimNodeSequence getAttackAnimNode()
 {
 	local int i;
-
 	i = node_attack_list.ActiveChildIndex;
-
 	if(i > 0)
 	{
-		itemsMiel=itemsMiel+500;
 		i = i-1;
 		return attack_list_anims[i];
 	}
 	return None;
 }
 
-
-
 simulated function GetSword()
 {
-	local BBSwordWeapon Inv;
-	foreach InvManager.InventoryActors( class'BBSwordWeapon', Inv )
+	local BBWeaponSword Inv;
+	foreach InvManager.InventoryActors( class'BBWeaponSword', Inv )
 	{
 		InvManager.SetCurrentWeapon( Inv );
 		break;
 	}
 }
-simulated function GetGranade()
+simulated function GetGrenade()
 {
-	local BBGranadeWeapon Inv;
-	foreach InvManager.InventoryActors( class'BBGranadeWeapon', Inv )
+	local BBWeaponGrenade Inv;
+	foreach InvManager.InventoryActors( class'BBWeaponGrenade', Inv )
 	{
 	InvManager.SetCurrentWeapon( Inv );
 	break;
 	}
 }
+
+
 
 DefaultProperties
 {
@@ -139,9 +183,9 @@ DefaultProperties
 		//AnimTreeTemplate=AnimTree'CH_AnimHuman_Tree.AT_CH_Human'
 		//SkeletalMesh=SkeletalMesh'CH_LIAM_Cathode.Mesh.SK_CH_LIAM_Cathode'
 
-		AnimSets(0)=AnimSet'Betty_Player.Betty_walk_Anims'
+		AnimSets(0)=AnimSet'Betty_Player.Betty_AnimSet'
 		AnimTreeTemplate=AnimTree'Betty_Player.AnimTree'
-		SkeletalMesh=SkeletalMesh'Betty_Player.Betty_walk'
+		SkeletalMesh=SkeletalMesh'Betty_Player.Betty_Iddle'
 	End Object
 	//Setting up a proper collision cylinder
 	Mesh=InitialSkeletalMesh;
