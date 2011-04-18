@@ -1,5 +1,4 @@
 class BBEnemyPawnAnt extends BBEnemyPawn placeable;
-
 /** Blend node used for blending attack animations*/
 var AnimNodeBlendList nodeListAttack;
 
@@ -20,7 +19,8 @@ DefaultProperties
 
 	Begin Object Name=CollisionCylinder
 		CollisionHeight=+20.000000
-    end object
+ end object
+	
 	Begin Object class=SkeletalMeshComponent Name=InitialPawnSkeletalMesh
 		CastShadow=true
 		bCastDynamicShadow=true
@@ -47,6 +47,7 @@ DefaultProperties
 	PerceptionDistance = 750;
 	AttackDistance = 40;
 	AttackDamage = 5;
+
 }
 
 simulated function PostBeginPlay()
@@ -78,16 +79,18 @@ state Attacking{
 		local Vector HitLocation, HitNormal;
 		local Actor HitActor;
 
-		Worldinfo.Game.Broadcast(self, Name $ ": Calculating Attack Collision");
+		//Worldinfo.Game.Broadcast(self, Name $ ": Calculating Attack Collision");
+
+		
 		Mesh.GetSocketWorldLocationAndRotation('PinzasInicio' , PinzasStart);
 		Mesh.GetSocketWorldLocationAndRotation('PinzasFinal', PinzasEnd);
 		HitActor = Trace(HitLocation, HitNormal, PinzasEnd, PinzasStart, true);
 		
 		if(HitActor != none){
-			Worldinfo.Game.Broadcast(self, Name $ ": Hit actor "$HitActor.Name);
+			//Worldinfo.Game.Broadcast(self, Name $ ": Hit actor "$HitActor.Name);
 			if(HitActor.Class == class'BBBettyPawn'){
 				BBBettyPawn(HitActor).Health -= AttackDamage;
-				Worldinfo.Game.Broadcast(self,BBBettyPawn(HitActor).name $ " Actual Life: "$BBBettyPawn(HitActor).Health);
+				//Worldinfo.Game.Broadcast(self,BBBettyPawn(HitActor).name $ " Actual Life: "$BBBettyPawn(HitActor).Health);
 			}
 		}
 	}
@@ -105,3 +108,4 @@ Begin:
 	FinishAnim(attackAnim);
 	goto 'Begin';
 }
+

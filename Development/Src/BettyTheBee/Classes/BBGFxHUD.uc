@@ -53,7 +53,7 @@ function Init2()
 	txt_mum_items =  GetVariableObject("_root.mc_hud_derecha.txt_mum_items");
 	txt_1 =  GetVariableObject("_root.txt_1");
 	txt_2 =  GetVariableObject("_root.txt_2");
-	txt_3 =  GetVariableObject("_root.txt_3");
+	//txt_3 =  GetVariableObject("_root.txt_3");
 	
 
 }
@@ -85,10 +85,15 @@ function TickHUD()
 	//mc_vida_mask.SetFloat("_xscale", 20.0f);
 	mc_vida_mask.SetFloat("_xscale", UTP.Health);
 
-	txt_1.SetString("text", string(UTP.InvManager.InventoryChain));
-	txt_2.SetString("text",  string(UTP.InvManager.PendingWeapon));
 	
-	//ASvariables(UTP.InvManager.PendingWeapon.getNom(),string(UTP.InvManager.InventoryChain),UTP.InvManager.PendingWeapon.getNom());
+	//txt_1.SetString("text", string(UTP.Weapon.Class));
+	
+	//txt_2.SetString("text",  string(UTP.InvManager.PendingWeapon));
+	//txt_2.SetString("text",  string(UTP.Weapon));
+	
+	//ASvariables(UTP.InvManager.PendingWeapon.getNom(),string(UTP.InvManager.InventoryChain),"cc");
+	ASvariables( string(UTP.Weapon.Class),"","");
+	
 	/*//If the cached value for Health percentage isn't equal to the current...
 	if (LastHealthpc != getpc2(UTP.Health, UTP.HealthMax))
 	{
@@ -103,6 +108,7 @@ function TickHUD()
 }
 
 function ASvariables(String texto1, String texto2, String texto3)
+//function ASvariables(String texto1)
 {
      //`log("sendind information to flash with the slots availables");
      ActionScriptVoid("variables");

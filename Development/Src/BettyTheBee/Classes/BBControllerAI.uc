@@ -71,20 +71,20 @@ auto state Idle
 			distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
 			if (distanceToPlayer < perceptionDistance)
 			{ 
-        		Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": I can see you!!");
+        		//Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": I can see you!!");
 				GotoState('Chaseplayer');
 			}
 		}
     }
 
 Begin:
-    Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Starting Idle state");
+    //Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Starting Idle state");
 	Pawn.Acceleration = vect(0,0,0);
 	MyEnemyTestPawn.GotoState('Idle');
 
 	Sleep(IdleInterval);
 
-	Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Going to follow path");
+	//Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Going to follow path");
 	followingPath = true;
 	actual_node = last_node;
 	GotoState('FollowPath');
@@ -100,7 +100,7 @@ state Chaseplayer
 	
     while (Pawn != none && thePlayer.Health > 0)
     {
-		Worldinfo.Game.Broadcast(self, "I can see you!!");
+		//Worldinfo.Game.Broadcast(self, "I can see you!!");
 		
 		if (ActorReachable(thePlayer))
 		{
@@ -125,7 +125,7 @@ state Chaseplayer
 			MoveTarget = FindPathToward(thePlayer,,perceptionDistance + (perceptionDistance/2));
 			if (MoveTarget != none)
 			{
-				Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Moving toward Player");
+			//	Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Moving toward Player");
 
 				distanceToPlayer = VSize(MoveTarget.Location - Pawn.Location);
 				if (distanceToPlayer < 100)
@@ -158,7 +158,7 @@ state FollowPath
 			distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
 			if (distanceToPlayer < perceptionDistance)
 			{ 
-        		Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": I can see you!!");
+        		//Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": I can see you!!");
 				GotoState('Chaseplayer');
 			}
 		}
@@ -172,7 +172,7 @@ state FollowPath
 		
 		if(Pawn.ReachedDestination(MoveTarget))
 		{
-			WorldInfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Navigation point Reached");
+			//WorldInfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Navigation point Reached");
 			
 			actual_node++;
 			

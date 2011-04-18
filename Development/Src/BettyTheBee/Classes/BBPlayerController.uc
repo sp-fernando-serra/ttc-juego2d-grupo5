@@ -233,8 +233,64 @@ exec function GetSword(){
 }
 
 
-exec function GetGranade(){
-	BBBettyPawn(Pawn).GetGranade();
+exec function GetGrenade(){
+	BBBettyPawn(Pawn).GetGrenade();
+}
+
+
+
+exec function StartFire( optional byte FireModeNum )
+{
+	if ( WorldInfo.Pauser == PlayerReplicationInfo )
+	{
+		SetPause( false );
+		return;
+	}
+
+	//if ( BBBettyPawn(Pawn) != None && !bCinematicMode && !WorldInfo.bPlayersOnly )
+	//{
+	//	if( BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponSword'){			
+	//		BBBettyPawn(Pawn).StartFire( 0 );
+	//	}
+	//	else BBBettyPawn(Pawn).StartFire( 1 );
+	//}
+	
+	if ( BBBettyPawn(Pawn) != None && !bCinematicMode && !WorldInfo.bPlayersOnly )
+	{
+		if( BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponSword'){			
+			BBBettyPawn(Pawn).StartFire( FireModeNum );
+		}
+	}
+
+}
+
+exec function StopFire( optional byte FireModeNum )
+{	
+	//if ( BBBettyPawn(Pawn) != None )
+	//{
+
+	//	if(BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponGrenade'){
+	//		BBBettyPawn(Pawn).StopFire( 1 );	
+	//		Worldinfo.Game.Broadcast(self, Name $ ": is firing "$BBBettyPawn(Pawn).InvManager.IsPendingFire(BBBettyPawn(Pawn).Weapon,1));
+	//		BBBettyPawn(Pawn).StartFire( 0 );
+		
+
+	//	} 
+	//	//Worldinfo.Game.Broadcast(self, Name $ ": is firing "$BBBettyPawn(Pawn).InvManager.IsPendingFire(BBBettyPawn(Pawn).Weapon,0));
+	//		BBBettyPawn(Pawn).StopFire( 0 );
+		
+	//}
+	
+	if ( BBBettyPawn(Pawn) != None )
+	{
+
+		if(BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponGrenade'){
+			//BBBettyPawn(Pawn).StopFire( FireModeNum );	
+			BBBettyPawn(Pawn).StartFire( FireModeNum );
+		}  
+		BBBettyPawn(Pawn).StopFire( FireModeNum );
+		
+	}
 }
 
 

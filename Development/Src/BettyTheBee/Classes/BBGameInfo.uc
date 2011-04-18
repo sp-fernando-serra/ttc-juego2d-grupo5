@@ -9,5 +9,4 @@ DefaultProperties //Self explanatory
 	//HUDType=class'BettyTheBee.BBHUD'
 	DefaultPawnClass = class 'BettyTheBee.BBBettyPawn' //Setting the Pawn to your custom script
 
-
 }

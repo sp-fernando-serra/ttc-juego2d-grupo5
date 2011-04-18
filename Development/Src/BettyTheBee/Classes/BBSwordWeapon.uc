@@ -5,7 +5,8 @@ var bool animacio_attack;
 
 simulated function TimeWeaponEquipping()
 {
-    AttachWeaponTo( Instigator.Mesh,'mano_izquierda' );
+   // AttachWeaponTo( Instigator.Mesh,'mano_izquierda' );
+	AttachWeaponTo( Instigator.Mesh,'sword_socket' );
     super.TimeWeaponEquipping();
 }
 
@@ -54,7 +55,8 @@ simulated event SetPosition(UDKPawn Holder)
     compo = Holder.Mesh;
     if (compo != none)
     {
-	socket = compo.GetSocketByName('WeaponPoint');
+	//socket = compo.GetSocketByName('WeaponPoint');sword_socket
+	socket = compo.GetSocketByName('sword_socket');
 	if (socket != none)
 	{
 	    FinalLocation = compo.GetBoneLocation(socket.BoneName);
@@ -97,7 +99,7 @@ InstantHitDamage(0)=10
 
 bMeleeWeapon=true
 	Begin Object class=SkeletalMeshComponent Name=Sword
-	SkeletalMesh=SkeletalMesh'Betty_Player.Tamashinu_sword'
+	SkeletalMesh=SkeletalMesh'Betty_Player.Sword'
 	HiddenGame=FALSE 
 	HiddenEditor=FALSE
     end object
