@@ -240,59 +240,146 @@ exec function GetGrenade(){
 
 
 exec function StartFire( optional byte FireModeNum )
-{
-	if ( WorldInfo.Pauser == PlayerReplicationInfo )
-	{
-		SetPause( false );
-		return;
-	}
-
-	//if ( BBBettyPawn(Pawn) != None && !bCinematicMode && !WorldInfo.bPlayersOnly )
-	//{
-	//	if( BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponSword'){			
-	//		BBBettyPawn(Pawn).StartFire( 0 );
-	//	}
-	//	else BBBettyPawn(Pawn).StartFire( 1 );
-	//}
-	
+{	
 	if ( BBBettyPawn(Pawn) != None && !bCinematicMode && !WorldInfo.bPlayersOnly )
 	{
 		if( BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponSword'){			
-			BBBettyPawn(Pawn).StartFire( FireModeNum );
+			BBBettyPawn(Pawn).StartFire( FireModeNum );			
 		}
+		startAttack();
 	}
 
 }
+
 
 exec function StopFire( optional byte FireModeNum )
 {	
-	//if ( BBBettyPawn(Pawn) != None )
-	//{
-
-	//	if(BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponGrenade'){
-	//		BBBettyPawn(Pawn).StopFire( 1 );	
-	//		Worldinfo.Game.Broadcast(self, Name $ ": is firing "$BBBettyPawn(Pawn).InvManager.IsPendingFire(BBBettyPawn(Pawn).Weapon,1));
-	//		BBBettyPawn(Pawn).StartFire( 0 );
-		
-
-	//	} 
-	//	//Worldinfo.Game.Broadcast(self, Name $ ": is firing "$BBBettyPawn(Pawn).InvManager.IsPendingFire(BBBettyPawn(Pawn).Weapon,0));
-	//		BBBettyPawn(Pawn).StopFire( 0 );
-		
-	//}
-	
 	if ( BBBettyPawn(Pawn) != None )
 	{
-
-		if(BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponGrenade'){
-			//BBBettyPawn(Pawn).StopFire( FireModeNum );	
-			BBBettyPawn(Pawn).StartFire( FireModeNum );
-		}  
 		BBBettyPawn(Pawn).StopFire( FireModeNum );
-		
 	}
+	
 }
 
+function startAttack()
+{
+	if( BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponSword'){	
+		PushState('Sword_Attack');
+	}
+	else PushState('Grenade_Attack');
+}
+
+function AnimNodeSequence getActiveAnimNode()
+{
+	local AnimNodeSequence animSeq;
+	animSeq = BBBettyPawn(Pawn).getAttackAnimNode();
+	if(animSeq==None)
+	{
+		return None;
+	}
+	return animSeq;
+}
+
+state Sword_Attack
+{
+	event PushedState()
+	{	
+	}
+	
+	event PoppedState()
+	{
+	}
+	
+	function startAttack()
+	{
+		if(canCombo())	GotoState('Sword_Attack','Combo');
+	}
+	
+	function initialAttack()
+	{
+		BBBettyPawn(Pawn).basicSwordAttack();
+   	}
+   	
+   	function comboAttack()
+   	{
+   		BBBettyPawn(Pawn).comboSwordAttack();
+   	}
+Begin:
+initialAttack();
+FinishAnim(getActiveAnimNode());
+PopState();
+
+Combo:
+comboAttack();
+FinishAnim(getActiveAnimNode());
+PopState();
+
+}
+
+state Grenade_Attack
+{
+	function PlayerMove( float DeltaTime )
+	{
+		local vector X,Y,Z;
+
+		GetAxes(Rotation,X,Y,Z);
+		Acceleration = 0*X + 0*Y + 0*vect(0,0,1);
+		UpdateRotation(DeltaTime);
+
+		if (Role < ROLE_Authority) // then save this move and replicate it
+		{
+			ReplicateMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
+		}
+		else
+		{
+			ProcessMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
+		}
+	}	
+ 
+
+	function prepararAttack()
+	{
+		//aqui calcularem on impactara la granada
+   	}
+
+	function lanzarAttack()
+	{
+		Worldinfo.Game.Broadcast(self, Name $ ": lanzarAttack ");
+		BBBettyPawn(Pawn).GrenadeAttack();
+   	}
+	   	
+	exec function StopFire( optional byte FireModeNum )
+	{	
+		if(BBBettyPawn(Pawn).itemsMiel-5>=0){
+			GotoState('Grenade_Attack','Lanzar');
+			if ( BBBettyPawn(Pawn) != None )
+			{
+			BBBettyPawn(Pawn).StartFire( FireModeNum );
+			BBBettyPawn(Pawn).StopFire( FireModeNum );
+			}
+		}else PopState();
+
+	}
+
+Lanzar:
+lanzarAttack();
+FinishAnim(getActiveAnimNode());
+PopState();
+
+Begin:
+}
+
+function bool canCombo()
+{
+	local BBBettyPawn p;
+	
+	p = BBBettyPawn(Pawn);
+	if(p!=None)
+	{
+		return p.canStartCombo();
+	}
+	return false;
+}
 
 DefaultProperties
 {

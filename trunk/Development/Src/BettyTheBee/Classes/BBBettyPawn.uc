@@ -36,54 +36,57 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 		node_attack_list = AnimNodeBlendList(Mesh.FindAnimNode('attack_list'));
 		attack_list_anims.AddItem(AnimNodeSequence(Mesh.FindAnimNode('Atacar')));
 		attack_list_anims.AddItem(AnimNodeSequence(Mesh.FindAnimNode('Atacar2')));
+		attack_list_anims.AddItem(AnimNodeSequence(Mesh.FindAnimNode('Atacar3')));
 }
 }
 
-//simulated function StartFire(byte FireModeNum)
-//{
-//	if( bNoWeaponFIring )
-//	{
-//		return;
-//	}
 
-//	if( Weapon != None )
-//	{
-//		Weapon.StartFire(FireModeNum);
-//	}
-//}
 
-//simulated function StopFire(byte FireModeNum)
-//{
-//	if( Weapon != None )
-//	{
-//		Weapon.StopFire(FireModeNum);
-//	}
-//}
 simulated function StartFire(byte FireModeNum)
 {
-	//switch (Weapon.Class){
-	//case (class'BBWeaponSword'):
-	//	if(BBWeapon(Weapon).getAnimacioFlag()==false){
-	//	BBWeapon(Weapon).attackStart();
-	//	node_attack_list.SetActiveChild(1,0.2f);
-	//break;
+
+	//if(BBWeapon(Weapon).getAnimacioFlag()==false){
+	//	switch (Weapon.Class){
+
+	//	case (class'BBWeaponSword'):
+			
+	//		break;
+
+	//	case  (class'BBWeaponGrenade'):
+	//		Worldinfo.Game.Broadcast(self, Name $ ": itemsMiel "$itemsMiel);
+	//		if(FireModeNum==0){
+	//			if(itemsMiel-5>=0){
+	//				itemsMiel-=5;
+	//				BBWeapon(Weapon).animAattackStart();
+	//				super.StartFire(FireModeNum);
+	//				node_attack_list.SetActiveChild(3,0.2f);
+	//			}
+	//		}else{
+	//			BBWeaponGrenade(Weapon).calcHitPosition();
+	//		}
+	//		break;
+	//	}
 	//}
-	//case  (class'BBWeaponGrenade'):
-	//	super.StartFire(FireModeNum);
-	//	if(FireModeNum==0)	node_attack_list.SetActiveChild(2,0.2f);
-	//	break;
-	//}
-	if(BBWeapon(Weapon).getAnimacioFlag()==false){
-		BBWeapon(Weapon).attackStart();
+
+		if(BBWeapon(Weapon).getAnimacioFlag()==false){
 		switch (Weapon.Class){
 
 		case (class'BBWeaponSword'):
-			node_attack_list.SetActiveChild(1,0.2f);
+			super.StartFire(FireModeNum);
 			break;
 
 		case  (class'BBWeaponGrenade'):
-			super.StartFire(FireModeNum);
-			node_attack_list.SetActiveChild(2,0.2f);
+			//Worldinfo.Game.Broadcast(self, Name $ ": itemsMiel "$itemsMiel);
+			//if(FireModeNum==0){
+				//if(itemsMiel-5>=0){
+					itemsMiel-=5;
+					//BBWeapon(Weapon).animAattackStart();
+					super.StartFire(FireModeNum);
+					//node_attack_list.SetActiveChild(3,0.2f);
+				//}
+			//}else{
+				//BBWeaponGrenade(Weapon).calcHitPosition();
+			//}
 			break;
 		}
 	}
@@ -91,33 +94,64 @@ simulated function StartFire(byte FireModeNum)
 	
 }
 
-//simulated function StopFire(byte firemodenum)
-//{
-//	if(Weapon != None)
-//	{
-//		super.StopFire(FireModeNum);
-//		//BBWeapon(Weapon).attackEnd();
-//	}
-//}
-
-simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float ExcessTime)
+simulated function basicSwordAttack()
 {
-	//`log("anim end"@SeqNode@"IN PAWN");
-	// Tell mesh to stop using root motion
-	if(SeqNode == getAttackAnimNode())
-	{
-		//Worldinfo.Game.Broadcast(self, Name $ ": 2 ");
-		//Mesh.RootMotionMode = RMM_Ignore;
-		attackAnimEnd();
-		BBWeapon(Weapon).attackEnd();
+	if(BBWeapon(Weapon).getAnimacioFlag()==false){		
+		BBWeapon(Weapon).animAttackStart();
+		node_attack_list.SetActiveChild(1,0.2f);
 	}
 }
 
-simulated function attackAnimEnd()
+simulated function comboSwordAttack()
 {
-	//`log("resetting attack animation back to movement anims");
-	node_attack_list.SetActiveChild(0,0.2f);
+	
+	local int i;
+	BBWeapon(Weapon).animAttackEnd();//end de l'animacio de l'atac basic. Per posar eliminar els enemics de la taula 'lista_enemigos'
+	BBWeapon(Weapon).animAttackStart();
+	i = node_attack_list.ActiveChildIndex;
+	i++;	
+	node_attack_list.SetActiveChild(i,0.2f);
 }
+
+simulated function GrenadeAttack()
+{
+	if(BBWeapon(Weapon).getAnimacioFlag()==false){	
+		BBWeapon(Weapon).animAttackStart();
+		node_attack_list.SetActiveChild(3,0.2f);
+	}
+}
+
+function bool canStartCombo()
+{
+	local AnimNodeSequence a;
+	local float animCompletion;
+	
+	a = getAttackAnimNode();
+	if(a!=None)
+	{
+		animCompletion = a.GetNormalizedPosition();
+		//`log("normallized position is"@animCompletion);
+		//Worldinfo.Game.Broadcast(self, Name $ ":animCompletion "$animCompletion);
+		if(animCompletion > 0.65 && animCompletion < 1.0)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
+simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float ExcessTime)
+{
+	// Tell mesh to stop using root motion
+	if(SeqNode == getAttackAnimNode())
+	{
+		//Mesh.RootMotionMode = RMM_Ignore;
+		node_attack_list.SetActiveChild(0,0.2f);
+		BBWeapon(Weapon).animAttackEnd();
+	}
+}
+
 
 function AnimNodeSequence getAttackAnimNode()
 {
@@ -199,7 +233,7 @@ DefaultProperties
 	GroundSpeed=300.0
 
 	
-	itemsMiel=0;
+	itemsMiel=10000;
 	bCanPickupInventory=true;
 	InventoryManagerClass=class'BettyTheBee.BBInventoryManager';
 	

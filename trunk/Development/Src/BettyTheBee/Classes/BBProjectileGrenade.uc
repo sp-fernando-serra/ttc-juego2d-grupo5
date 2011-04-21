@@ -65,18 +65,24 @@ simulated function ProcessTouch(Actor Other, Vector HitLocation, Vector HitNorma
 
 simulated event Landed ( vector HitNormal, actor FloorActor ) {
 	 
-	//Worldinfo.Game.Broadcast(self, Name $ ": ImpactInfo "$FloorActor);
-	//WorldInfo.MyDecalManager.SpawnDecal
-	//(
-	//    DecalMaterial'HU_Deck.Decals.M_Decal_GooLeak',
-	//    HitLocation,	 
-	//    rotator(-HitNormal),	
-	//    128, 128,	                          
-	//    256,	                               
-	//    false,	                   
-	//    FRand() * 360,	        
-	//    none        
-	//);  
+	local vector HitLocation;
+	//HitNormal = normal(Velocity * -1);
+	Trace(HitLocation,HitNormal,(Location + (HitNormal*-32)), Location + (HitNormal*32),true,vect(0,0,0));
+	Worldinfo.Game.Broadcast(self, Name $ ": HitLocation "$HitLocation);
+	//Worldinfo.Game.Broadcast(self, Name $ ": HitNormal "$HitNormal);
+	
+		WorldInfo.MyDecalManager.SpawnDecal
+	(
+	    DecalMaterial'HU_Deck.Decals.M_Decal_GooLeak',
+	    HitLocation,	 
+	    rotator(-HitNormal),	
+	    128, 128,	                          
+	    256,	                               
+	    false,	                   
+	    FRand() * 360,	        
+	    none        
+	);  
+
 
 	Destroy();
 }
@@ -95,7 +101,7 @@ DefaultProperties
 {
 
 	
-	 Begin Object Name=CollisionCylinder
+	Begin Object Name=CollisionCylinder
 	CollisionRadius=8
 	CollisionHeight=16
     End Object

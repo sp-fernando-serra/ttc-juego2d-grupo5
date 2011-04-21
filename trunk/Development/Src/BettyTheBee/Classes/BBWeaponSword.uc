@@ -102,7 +102,8 @@ DefaultProperties
     //Components.Add(Sword)
 	//FiringStatesArray(0)=WeaponFiring //We don't need to define a new state
  //   WeaponFireTypes(0)=EWFT_InstantHit
- //   FireInterval(0)=0.1
+   //FireInterval(0)=1
  //   Spread(0)=0
+
 
 }

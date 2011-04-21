@@ -25,12 +25,12 @@ simulated function DetachWeapon()
 }
 
 
-simulated function attackStart()
+simulated function animAttackStart()
 {
 	//`log("attackStart");
 	animacio_attack = true;
 }
-simulated function attackEnd()
+simulated function animAttackEnd()
 {
 	local int i;
 

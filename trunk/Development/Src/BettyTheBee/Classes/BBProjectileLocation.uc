@@ -19,30 +19,31 @@ simulated function PostBeginPlay()
 	RandSpin(100000);
 }
 
-simulated function ProcessTouch(Actor Other, Vector HitLocation, Vector HitNormal)
-{
-    if ( Other != Instigator )
-    {
-	WorldInfo.MyDecalManager.SpawnDecal
-	(
-	    DecalMaterial'HU_Deck.Decals.M_Decal_GooLeak',
-	    HitLocation,	 
-	    rotator(-HitNormal),	
-	    128, 128,	                          
-	    256,	                               
-	    false,	                   
-	    FRand() * 360,	        
-	    none        
-	);  
+//simulated function ProcessTouch(Actor Other, Vector HitLocation, Vector HitNormal)
+//{
+//    if ( Other != Instigator )
+//    {
+//	WorldInfo.MyDecalManager.SpawnDecal
+//	(
+//	    DecalMaterial'HU_Deck.Decals.M_Decal_GooLeak',
+//	    HitLocation,	 
+//	    rotator(-HitNormal),	
+//	    128, 128,	                          
+//	    256,	                               
+//	    false,	                   
+//	    FRand() * 360,	        
+//	    none        
+//	);  
 
 	
-	Other.TakeDamage( Damage, InstigatorController, Location, MomentumTransfer * Normal(Velocity), MyDamageType,, self);
-	//Worldinfo.Game.Broadcast(self, Name $ ": Health "$Pawn(Other).Health);
-	Worldinfo.Game.Broadcast(self, Name $ ": ProcessTouchhitlocation "$hitlocation);
-	//Worldinfo.Game.Broadcast(self, Name $ ": HitNormal "$HitNormal);
-	Destroy();
-    }
-}
+//	Other.TakeDamage( Damage, InstigatorController, Location, MomentumTransfer * Normal(Velocity), MyDamageType,, self);
+//	//Worldinfo.Game.Broadcast(self, Name $ ": Health "$Pawn(Other).Health);
+//	Worldinfo.Game.Broadcast(self, Name $ ": ProcessTouchhitlocation "$hitlocation);
+//	//Worldinfo.Game.Broadcast(self, Name $ ": HitNormal "$HitNormal);
+//	Destroy();
+//    }
+//}
+
 
 
 
