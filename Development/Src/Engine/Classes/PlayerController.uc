@@ -4952,7 +4952,7 @@ ignores SeePlayer, HearNoise, Bump;
 		}
 
 		Pawn.Acceleration = NewAccel;
-
+		
 		CheckJumpOrDuck();
 	}
 
@@ -4970,7 +4970,7 @@ ignores SeePlayer, HearNoise, Bump;
 		else
 		{
 			GetAxes(Pawn.Rotation,X,Y,Z);
-
+		
 			// Update acceleration.
 			NewAccel = PlayerInput.aForward*X + PlayerInput.aStrafe*Y;
 			NewAccel.Z	= 0;
