@@ -52,7 +52,7 @@ DefaultProperties
 {
 
 	
-	 Begin Object Name=CollisionCylinder
+	Begin Object Name=CollisionCylinder
 	CollisionRadius=8
 	CollisionHeight=16
     End Object
