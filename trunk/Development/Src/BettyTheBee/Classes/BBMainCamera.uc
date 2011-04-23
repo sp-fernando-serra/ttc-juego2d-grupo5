@@ -47,8 +47,8 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 				break;
 
 				case 'ThirdPerson' : //Enters here as long as CameraStyle is still set to ThirdPerson
+			
 				case 'FreeCam' :
-
 					Loc = OutVT.Target.Location; // Setting the camera location and rotation to the viewtarget's
 					Rot = OutVT.Target.Rotation;
 

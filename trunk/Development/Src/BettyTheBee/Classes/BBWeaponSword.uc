@@ -62,10 +62,10 @@ Super.Tick(DeltaTime);
 			{
 				hitActor = Trace(vHitLoc,vHitNorm,vEndTrace,vStartTrace,true);	
 				if(addListaEnemigos(hitActor)){
-					Worldinfo.Game.Broadcast(self, Name $ ": weapon hit "$ hitActor);	
+					//Worldinfo.Game.Broadcast(self, Name $ ": weapon hit "$ hitActor);	
 					hitPawn = Pawn(hitActor);
 					hitPawn.Health-=20;
-					Worldinfo.Game.Broadcast(self, Name $ ": Health "$hitPawn.Health);
+					//Worldinfo.Game.Broadcast(self, Name $ ": Health "$hitPawn.Health);
 				}	
 			}
 		}

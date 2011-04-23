@@ -6,7 +6,6 @@ var float TossZ;
 function Init(vector Direction)
 {
 	SetRotation(rotator(Direction));
-
 	Velocity = Speed * Direction;
 	Velocity.Z += TossZ;
 	Acceleration = AccelRate * Normal(Velocity);
