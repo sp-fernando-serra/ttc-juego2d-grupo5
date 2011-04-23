@@ -46,24 +46,7 @@ simulated function PostBeginPlay()
 
 simulated event Tick(float DeltaTime)
 {
-	//local BBPawn playerPawn;
 
-	//super.Tick(DeltaTime);
-	
-	
-	////foreach CollidingActors(class'UTPawn', gv, 200) 
-	//foreach VisibleCollidingActors(class'BBPawn', playerPawn, AttackDistance)
-	//{
-	//	if(AttAcking && playerPawn != none)
-	//	{
-	//		if(playerPawn.Health > 0)
-	//		{
-	//			Worldinfo.Game.Broadcast(self, "Colliding with player : " @ playerPawn.Name);
-	//			playerPawn.Health -= AttackDamage;
-	//			playerPawn.IsInPain();
-	//		}
-	//	}
-	//}
 }
 
 state ChasePlayer{

@@ -1,4 +1,5 @@
 class BBEnemyPawnAnt extends BBEnemyPawn placeable;
+
 /** Blend node used for blending attack animations*/
 var AnimNodeBlendList nodeListAttack;
 
@@ -44,8 +45,8 @@ DefaultProperties
     bCanJump=false
     GroundSpeed=200.0 //Making the bot slower than the player
 
-	PerceptionDistance = 750;
-	AttackDistance = 40;
+	PerceptionDistance = 1500;
+	AttackDistance = 60;
 	AttackDamage = 5;
 
 }

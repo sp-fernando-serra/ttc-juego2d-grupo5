@@ -232,6 +232,8 @@ DefaultProperties
 	CylinderComponent=CollisionCylinder
 	GroundSpeed=300.0
 
+
+
 	
 	itemsMiel=10000;
 	bCanPickupInventory=true;

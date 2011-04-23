@@ -85,9 +85,11 @@ Begin:
 	Sleep(IdleInterval);
 
 	//Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Going to follow path");
-	followingPath = true;
-	actual_node = last_node;
-	GotoState('FollowPath');
+	if(MyRoutePoints.Length>0){
+		followingPath = true;
+		actual_node = last_node;
+		GotoState('FollowPath');
+	}
 
 }
 
@@ -145,8 +147,7 @@ state Chaseplayer
 }
 
 state Attacking {
-Begin:
-	Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.Name $ ": Bad State");
+
 }
 
 state FollowPath
