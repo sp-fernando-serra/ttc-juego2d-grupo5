@@ -437,31 +437,31 @@ state PlayerWalking{
 				//`log("aForward->"@PlayerInput.aForward);
 				if(PlayerInput.aStrafe>0 && PlayerInput.aForward>0){
 					NewRotation.Yaw = Pawn.Rotation.Yaw + (NewRotation.Yaw-Pawn.Rotation.Yaw+8192);
-					`log("1->"@NewRotation.Yaw);
+					//`log("1->"@NewRotation.Yaw);
 				}
 				if(PlayerInput.aStrafe<0 && PlayerInput.aForward>0){
 					NewRotation.Yaw = Pawn.Rotation.Yaw + (NewRotation.Yaw-Pawn.Rotation.Yaw-8192);
-					`log("2->"@NewRotation.Yaw);
+					//`log("2->"@NewRotation.Yaw);
 				}
 				if(PlayerInput.aForward<0 && PlayerInput.aStrafe<0){
 					NewRotation.Yaw = Pawn.Rotation.Yaw + (NewRotation.Yaw-Pawn.Rotation.Yaw-24576);
-					`log("3->"@NewRotation.Yaw);
+					//`log("3->"@NewRotation.Yaw);
 				}
 				if(PlayerInput.aForward<0 && PlayerInput.aStrafe>0){
 					NewRotation.Yaw = Pawn.Rotation.Yaw + (NewRotation.Yaw-Pawn.Rotation.Yaw+24576);
-					`log("4->"@NewRotation.Yaw);
+					//`log("4->"@NewRotation.Yaw);
 				}
 				if(PlayerInput.aStrafe>0&&PlayerInput.aForward==0){
 					NewRotation.Yaw = Pawn.Rotation.Yaw + (NewRotation.Yaw-Pawn.Rotation.Yaw+16384);
-					`log("5->"@NewRotation.Yaw);
+					//`log("5->"@NewRotation.Yaw);
 				}
 				if(PlayerInput.aStrafe<0&&PlayerInput.aForward==0){
 					NewRotation.Yaw = Pawn.Rotation.Yaw + (NewRotation.Yaw-Pawn.Rotation.Yaw-16384);
-					`log("6->"@NewRotation.Yaw);
+					//`log("6->"@NewRotation.Yaw);
 				}
 				if(PlayerInput.aForward<0&&PlayerInput.aStrafe==0){
 					NewRotation.Yaw = Pawn.Rotation.Yaw + (NewRotation.Yaw-Pawn.Rotation.Yaw-32768);
-					`log("7->"@NewRotation.Yaw);
+					//`log("7->"@NewRotation.Yaw);
 				}
 					
 				myDesiredRotation=NewRotation;

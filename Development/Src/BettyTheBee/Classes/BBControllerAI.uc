@@ -4,7 +4,7 @@ var BBEnemyPawn MyEnemyTestPawn;
 var BBPawn thePlayer;
 
 
-var () array<BBRoutePoint> MyRoutePoints;
+var array<BBRoutePoint> MyRoutePoints;
 
 var int actual_node;
 var int last_node;
@@ -32,12 +32,14 @@ defaultproperties
 function SetPawn(BBEnemyPawn NewPawn)
 {
 	MyEnemyTestPawn = NewPawn;
+	
 	Possess(MyEnemyTestPawn, false);
 	MyRoutePoints = MyEnemyTestPawn.MyRoutePoints;
 	bAggressive = MyEnemyTestPawn.bAggressive;
 	AttackDamage = MyEnemyTestPawn.AttackDamage;
 	AttackDistance = MyEnemyTestPawn.AttackDistance;
 	PerceptionDistance = MyEnemyTestPawn.PerceptionDistance;
+	
 }
 
 function Possess(Pawn aPawn, bool bVehicleTransition)
@@ -71,25 +73,26 @@ auto state Idle
 			distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
 			if (distanceToPlayer < perceptionDistance)
 			{ 
-        		//Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": I can see you!!");
+        		`Log(MyEnemyTestPawn.name@": I can see you!!");
 				GotoState('Chaseplayer');
 			}
 		}
     }
 
 Begin:
-    //Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Starting Idle state");
+    `log(MyEnemyTestPawn.name @ ": Starting Idle state");
 	Pawn.Acceleration = vect(0,0,0);
 	MyEnemyTestPawn.GotoState('Idle');
 
 	Sleep(IdleInterval);
-
-	//Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Going to follow path");
+	
 	if(MyRoutePoints.Length>0){
+		`log(MyEnemyTestPawn.name @ ": Going to follow path");
 		followingPath = true;
 		actual_node = last_node;
 		GotoState('FollowPath');
 	}
+	goto 'Begin';
 
 }
 
@@ -114,7 +117,8 @@ state Chaseplayer
 			}
 			else //if(distanceToPlayer < 300)
 			{
-				MoveToward(thePlayer, thePlayer, 20.0f);
+				//Ponemos el factor de 0.85 para que no se quede justo en el rango sino que se acerque un poco  mas
+				MoveToward(thePlayer, thePlayer, AttackDistance*0.85);
 				if(Pawn.ReachedDestination(thePlayer))
 				{
 					GotoState('Attacking');
