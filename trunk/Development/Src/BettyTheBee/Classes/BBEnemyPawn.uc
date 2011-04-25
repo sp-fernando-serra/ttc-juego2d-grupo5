@@ -1,4 +1,5 @@
-class BBEnemyPawn extends BBPawn;
+class BBEnemyPawn extends BBPawn
+	classGroup(BBActor);
 
 //// members for the custom mesh
 
@@ -41,13 +42,10 @@ defaultproperties
 simulated function PostBeginPlay()
 {
 	super.PostBeginPlay();
+	SightRadius = PerceptionDistance;
 	SetPhysics(PHYS_Walking);	    
 }
 
-simulated event Tick(float DeltaTime)
-{
-
-}
 
 state ChasePlayer{
 

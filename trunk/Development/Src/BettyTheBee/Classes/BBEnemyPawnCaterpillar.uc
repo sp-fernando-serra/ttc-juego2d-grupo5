@@ -1,5 +1,14 @@
-class BBEnemyPawnAnt extends BBEnemyPawn placeable
+class BBEnemyPawnCaterpillar extends BBEnemyPawn placeable
 	classGroup(BBEnemyPawns);
+
+/** Constant time between shots in seconds.
+ *  Time = timeBetweenShots + randomTimeBetweenShots*FRand()
+ */
+var () float timeBetweenShots;
+/** Random time betweeen shots in seconds.
+ *  Time = timeBetweenShots + randomTimeBetweenShots*FRand()
+ */
+var () float randomTimeBetweenShots;
 
 /** Blend node used for blending attack animations*/
 var AnimNodeBlendList nodeListAttack;
@@ -21,8 +30,7 @@ DefaultProperties
 
 	Begin Object Name=CollisionCylinder
 		CollisionHeight=+20.000000
- end object
-	
+    end object
 	Begin Object class=SkeletalMeshComponent Name=InitialPawnSkeletalMesh
 		CastShadow=true
 		bCastDynamicShadow=true
@@ -32,9 +40,9 @@ DefaultProperties
 		CollideActors=true;
 		BlockZeroExtent=true;
 
- 		AnimSets(0)=AnimSet'Betty_ant.SkModels.AntAnimSet'
-		AnimTreeTemplate=AnimTree'Betty_ant.SkModels.AntAnimTree'
-		SkeletalMesh=SkeletalMesh'Betty_ant.SkModels.Ant'
+ 		AnimSets(0)=AnimSet'Betty_caterpillar.SkModels.CaterpillarAnimSet'
+		AnimTreeTemplate=AnimTree'Betty_caterpillar.SkModels.CaterpillarAnimTree'
+		SkeletalMesh=SkeletalMesh'Betty_caterpillar.SkModels.Caterpillar'
 		HiddenGame=FALSE 
 		HiddenEditor=FALSE
     End Object
@@ -45,10 +53,12 @@ DefaultProperties
     bCanJump=false
     GroundSpeed=200.0 //Making the bot slower than the player
 
-	PerceptionDistance = 1500;
-	AttackDistance = 60;
-	AttackDamage = 5;
+	PerceptionDistance = 4500;
+	AttackDistance = 400;
+	AttackDamage = 10;
 
+	timeBetweenShots = 2;
+	randomTimeBetweenShots = 1;
 }
 
 simulated function PostBeginPlay()
@@ -57,7 +67,7 @@ simulated function PostBeginPlay()
 
 	if (MyController == none)
 	{
-		MyController = Spawn(class'BettyTheBee.BBControllerAIAnt');
+		MyController = Spawn(class'BettyTheBee.BBControllerAICaterpillar');
 		MyController.SetPawn(self);		
 	}
     
@@ -74,26 +84,28 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 }
 
 state Attacking{
-
+	
 	simulated event doDamage(){
-		local Vector PinzasStart, PinzasEnd;
-		local Vector HitLocation, HitNormal;
-		local Actor HitActor;
+		local Vector Boca;
+		local BBBettyPawn HitTarget,TempPawn;
+		local BBProjectileCaterpillar SpawnedProjectile;
 
-		//Worldinfo.Game.Broadcast(self, Name $ ": Calculating Attack Collision");
-
+		Mesh.GetSocketWorldLocationAndRotation('Boca' , Boca);
 		
-		Mesh.GetSocketWorldLocationAndRotation('PinzasInicio' , PinzasStart);
-		Mesh.GetSocketWorldLocationAndRotation('PinzasFinal', PinzasEnd);
-		HitActor = Trace(HitLocation, HitNormal, PinzasEnd, PinzasStart, true);
-		
-		if(HitActor != none){
-			//Worldinfo.Game.Broadcast(self, Name $ ": Hit actor "$HitActor.Name);
-			if(HitActor.Class == class'BBBettyPawn'){
-				BBBettyPawn(HitActor).Health -= AttackDamage;
-				//Worldinfo.Game.Broadcast(self,BBBettyPawn(HitActor).name $ " Actual Life: "$BBBettyPawn(HitActor).Health);
-			}
+		foreach AllActors(class'BBBettyPawn', TempPawn){
+			HitTarget = TempPawn;
 		}
+		
+		SpawnedProjectile = Spawn(class'BBProjectileCaterpillar',Self,,Boca);
+		SpawnedProjectile.Instigator = self;
+
+		if( SpawnedProjectile != None && !SpawnedProjectile.bDeleteMe )
+		{
+			SpawnedProjectile.CalcAngle(Boca, HitTarget.Location);
+		}
+
+		//`Log("Boca: "@Boca);
+		//`Log("Objetivo: "@HitTarget.Location);
 	}
 	
 	simulated event BeginState(name NextStateName){
@@ -105,8 +117,9 @@ state Attacking{
 		super.EndState(NextStateName);
 		nodeListAttack.SetActiveChild(0,0.2f);
 	}
-Begin:	
+Begin:
+	
 	FinishAnim(attackAnim);
+	Sleep(timeBetweenShots + randomTimeBetweenShots * FRand());
 	goto 'Begin';
 }
-
