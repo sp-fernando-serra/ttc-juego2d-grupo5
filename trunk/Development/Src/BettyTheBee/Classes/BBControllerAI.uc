@@ -73,14 +73,14 @@ auto state Idle
 			distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
 			if (distanceToPlayer < perceptionDistance)
 			{ 
-        		`Log(MyEnemyTestPawn.name@": I can see you!!");
+        		//`Log(MyEnemyTestPawn.name@": I can see you!!");
 				GotoState('Chaseplayer');
 			}
 		}
     }
 
 Begin:
-    `log(MyEnemyTestPawn.name @ ": Starting Idle state");
+   // `log(MyEnemyTestPawn.name @ ": Starting Idle state");
 	Pawn.Acceleration = vect(0,0,0);
 	MyEnemyTestPawn.GotoState('Idle');
 

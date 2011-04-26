@@ -1,5 +1,7 @@
 class BBPlayerController extends PlayerController;
 
+var bool bBettyMovement;
+
 var BBEnemyPawn targetedPawn;
 var bool bCombatStance;
 
@@ -181,6 +183,192 @@ exec function LockOn()
 }
 
 
+function UpdateRotation2( float DeltaTime, bool updatePawnRot)
+	{
+		local Rotator	DeltaRot, newRotation, ViewRotation;
+
+		ViewRotation = Rotation;
+		if (Pawn!=none && updatePawnRot)
+		{
+			Pawn.SetDesiredRotation(ViewRotation);
+		}
+
+		// Calculate Delta to be applied on ViewRotation
+		DeltaRot.Yaw	= PlayerInput.aTurn;
+		DeltaRot.Pitch	= PlayerInput.aLookUp;
+
+		ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
+		SetRotation(ViewRotation);
+
+		ViewShake( deltaTime );
+
+		NewRotation = ViewRotation;
+		NewRotation.Roll = Rotation.Roll;
+
+		if ( Pawn != None && updatePawnRot)
+			Pawn.FaceRotation(NewRotation, deltatime);
+	}
+
+function UpdateRotation3( float DeltaTime)
+	{
+
+			local Rotator	DeltaRot, newRotation, ViewRotation;
+		local bool bForwardOnly,bStrafe,bForward,bBackward;
+
+		ViewRotation = Rotation;
+		if(Pawn!=None)
+			Pawn.SetDesiredRotation(ViewRotation);
+		
+		bStrafe = false;
+		bForward = false;
+		bBackward = false;
+		bForwardOnly = false;
+
+		// Calculate Delta to be applied on ViewRotation
+		DeltaRot.Yaw	= PlayerInput.aTurn;
+		//DeltaRot.Pitch	= 0;
+		DeltaRot.Pitch	= PlayerInput.aLookUp;
+
+		ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
+		SetRotation(ViewRotation);
+
+		NewRotation = ViewRotation;
+		NewRotation.Roll = Rotation.Roll;
+
+	if ( Pawn != None )
+			{
+				//`log("aStrafe->"@PlayerInput.aStrafe);
+				//`log("aForward->"@PlayerInput.aForward);
+				if(PlayerInput.aStrafe>0 && PlayerInput.aForward>0){
+					NewRotation.Yaw = Pawn.Rotation.Yaw + (NewRotation.Yaw-Pawn.Rotation.Yaw+8192);
+					
+				}
+				if(PlayerInput.aStrafe<0 && PlayerInput.aForward>0){
+					NewRotation.Yaw = Pawn.Rotation.Yaw + (NewRotation.Yaw-Pawn.Rotation.Yaw-8192);
+					
+				}
+				if(PlayerInput.aForward<0 && PlayerInput.aStrafe<0){
+					NewRotation.Yaw = Pawn.Rotation.Yaw + (NewRotation.Yaw-Pawn.Rotation.Yaw-24576);
+				
+				}
+				if(PlayerInput.aForward<0 && PlayerInput.aStrafe>0){
+					NewRotation.Yaw = Pawn.Rotation.Yaw + (NewRotation.Yaw-Pawn.Rotation.Yaw+24576);
+					
+				}
+				if(PlayerInput.aStrafe>0&&PlayerInput.aForward==0){
+					NewRotation.Yaw = Pawn.Rotation.Yaw + (NewRotation.Yaw-Pawn.Rotation.Yaw+16384);
+				
+				}
+				if(PlayerInput.aStrafe<0&&PlayerInput.aForward==0){
+					NewRotation.Yaw = Pawn.Rotation.Yaw + (NewRotation.Yaw-Pawn.Rotation.Yaw-16384);
+				
+				}
+				if(PlayerInput.aForward<0&&PlayerInput.aStrafe==0){
+					NewRotation.Yaw = Pawn.Rotation.Yaw + (NewRotation.Yaw-Pawn.Rotation.Yaw-32768);
+				
+				}
+					
+				myDesiredRotation=NewRotation;
+				myDesiredRotation.Yaw=NormalizeRotAxis(NewRotation.Yaw);
+				if(PlayerInput.aForward>0)
+					bForward=true;
+				if(PlayerInput.aForward<0)
+					bBackward=true;
+
+				//this converts the players strafe movement into forward movement
+				if(PlayerInput.aStrafe!=0)
+				{
+					bStrafe=true;
+					if(PlayerInput.aStrafe<0)
+						PlayerInput.aStrafe*=-1;
+					PlayerInput.aForward=PlayerInput.aStrafe;
+					PlayerInput.aStrafe=0;
+					bForwardOnly=false;
+				}
+				else
+				{
+					if(PlayerInput.aForward>0)
+						bForwardOnly=true;
+				}
+				if(PlayerInput.aForward<0)
+					PlayerInput.aForward*=-1;
+					
+				if( bStrafe != bLastStrafe || bForward != bLastForward || bBackward != bLastBackward || bForwardOnly==true)
+				{
+					//`log("updateing current rotation");
+					myRotation=Pawn.Rotation;
+					myRotation.Yaw=NormalizeRotAxis(Pawn.Rotation.Yaw);
+				}else{
+					myRotation.Yaw = NormalizeRotAxis(myRotation.Yaw);
+				}
+				
+				if(PlayerInput.aForward!=0)
+				{
+					if(!bForwardOnly)
+					{
+						if(myRotation.Yaw<myDesiredRotation.Yaw)
+						{
+							if(myDesiredRotation.Yaw < myRotation.Yaw+32768)
+								myRotation.Yaw = myRotation.Yaw+(100000*DeltaTime);
+							if(myDesiredRotation.Yaw > myRotation.Yaw+32768)
+								myRotation.Yaw = myRotation.Yaw-(100000*DeltaTime);
+						}else{
+							if(myRotation.Yaw>myDesiredRotation.Yaw)
+							{
+								if(myDesiredRotation.Yaw > myRotation.Yaw-32768)
+									myRotation.Yaw = myRotation.Yaw-(100000*DeltaTime);
+								if(myDesiredRotation.Yaw < myRotation.Yaw-32768)
+									myRotation.Yaw = myRotation.Yaw+(100000*DeltaTime);
+							}
+						}
+						if((myDesiredRotation.Yaw-myRotation.Yaw)>(100000*DeltaTime))
+						{
+							Pawn.FaceRotation(myRotation, DeltaTime);
+						}else{
+							if(((myDesiredRotation.Yaw * (-1))-(myRotation.Yaw*(-1)))>(100000*DeltaTime))
+							{
+								Pawn.FaceRotation(myRotation, DeltaTime);
+							
+							}
+						}
+					}else{
+						Pawn.FaceRotation(NewRotation, DeltaTime);
+					}
+
+					bUpdateRot=false;
+				}
+			}
+			bLastStrafe=bStrafe;
+			bLastForward=bForward;
+			bLastBackward=bBackward;
+	}
+
+	function UpdateRotation4( float DeltaTime)
+	{
+		local Rotator	DeltaRot, newRotation, ViewRotation;
+
+		ViewRotation = Rotation;
+		if (Pawn!=none )
+		{
+			Pawn.SetDesiredRotation(ViewRotation);
+		}
+
+		// Calculate Delta to be applied on ViewRotation
+		DeltaRot.Yaw	= PlayerInput.aTurn;
+		DeltaRot.Pitch	= PlayerInput.aLookUp;
+
+		ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
+		SetRotation(ViewRotation);
+
+		ViewShake( deltaTime );
+
+		NewRotation = ViewRotation;
+		NewRotation.Roll = Rotation.Roll;
+
+		//if ( Pawn != None && updatePawnRot)
+		//	Pawn.FaceRotation(NewRotation, deltatime);
+	}
+
 state mySpectatorMode extends Spectating
 {
 	event BeginState(name PreviousStateName){
@@ -258,6 +446,11 @@ Begin:
 	WorldInfo.SeamlessTravel("BB-BettyLevelMenu");
 }
 
+
+exec function BettyMovement( ){
+bBettyMovement=!bBettyMovement;
+}
+
 state PlayerWalking{
 	
 	function PlayerMove( float DeltaTime )
@@ -267,55 +460,56 @@ state PlayerWalking{
 		local eDoubleClickDir	DoubleClickMove;
 		local rotator			OldRotation;
 		local bool				bSaveJump;
+	if(bBettyMovement){
+		if( Pawn == None )
+		{
+			GotoState('Dead');
+		}
+		else
+		{
+			GetAxes(Pawn.Rotation,X,Y,Z);
 
-		//if( Pawn == None )
-		//{
-		//	GotoState('Dead');
-		//}
-		//else
-		//{
-		//	GetAxes(Pawn.Rotation,X,Y,Z);
+			// Update acceleration.
 
-		//	// Update acceleration.
+			NewAccel = PlayerInput.aForward*X + PlayerInput.aStrafe*Y;
+			NewAccel.Z	= 0;
+			NewAccel = Pawn.AccelRate * Normal(NewAccel);
 
-		//	NewAccel = PlayerInput.aForward*X + PlayerInput.aStrafe*Y;
-		//	NewAccel.Z	= 0;
-		//	NewAccel = Pawn.AccelRate * Normal(NewAccel);
+			DoubleClickMove = PlayerInput.CheckForDoubleClickMove( DeltaTime/WorldInfo.TimeDilation );
 
-		//	DoubleClickMove = PlayerInput.CheckForDoubleClickMove( DeltaTime/WorldInfo.TimeDilation );
-
-		//	// Update rotation.
+			// Update rotation.
 			
-		//	OldRotation = Rotation;
-		//	UpdateRotation2( DeltaTime , VSize(NewAccel) != 0);
-		//	//UpdateRotation( DeltaTime);
-		//	bDoubleJump = false;
+			OldRotation = Rotation;
+			UpdateRotation2( DeltaTime , VSize(NewAccel) != 0);
+			//UpdateRotation( DeltaTime);
+			bDoubleJump = false;
 			
 
-		//	if( bPressedJump && Pawn.CannotJumpNow() )
-		//	{
-		//		bSaveJump = true;
-		//		bPressedJump = false;
-		//	}
-		//	else
-		//	{
-		//		bSaveJump = false;
-		//	}
+			if( bPressedJump && Pawn.CannotJumpNow() )
+			{
+				bSaveJump = true;
+				bPressedJump = false;
+			}
+			else
+			{
+				bSaveJump = false;
+			}
 
-		//	if( Role < ROLE_Authority ) // then save this move and replicate it
-		//	{
+			if( Role < ROLE_Authority ) // then save this move and replicate it
+			{
 				
-		//		ReplicateMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);
-		//	}
-		//	else
-		//	{
-		//		//Worldinfo.Game.Broadcast(self, Name $ ": OldRotation "$OldRotation );
-		//		//Worldinfo.Game.Broadcast(self, Name $ ": Rotation "$Rotation );
-		//		ProcessMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);
-		//	}
-		//	bPressedJump = bSaveJump;
-		//}
+				ReplicateMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);
+			}
+			else
+			{
+				//Worldinfo.Game.Broadcast(self, Name $ ": OldRotation "$OldRotation );
+				//Worldinfo.Game.Broadcast(self, Name $ ": Rotation "$Rotation );
+				ProcessMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);
+			}
+			bPressedJump = bSaveJump;
+		}
 		
+	}else{
 		
 		if( Pawn == None )
 		{
@@ -370,174 +564,13 @@ state PlayerWalking{
 			}
 			bPressedJump = bSaveJump;
 		}
-
-
-
-
-
-
-
 	}
 
-	//function UpdateRotation2( float DeltaTime, bool updatePawnRot)
-	//{
-	//	local Rotator	DeltaRot, newRotation, ViewRotation;
+}
 
-	//	ViewRotation = Rotation;
-	//	if (Pawn!=none && updatePawnRot)
-	//	{
-	//		Pawn.SetDesiredRotation(ViewRotation);
-	//	}
+	//
 
-	//	// Calculate Delta to be applied on ViewRotation
-	//	DeltaRot.Yaw	= PlayerInput.aTurn;
-	//	DeltaRot.Pitch	= PlayerInput.aLookUp;
-
-	//	ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
-	//	SetRotation(ViewRotation);
-
-	//	ViewShake( deltaTime );
-
-	//	NewRotation = ViewRotation;
-	//	NewRotation.Roll = Rotation.Roll;
-
-	//	if ( Pawn != None && updatePawnRot)
-	//		Pawn.FaceRotation(NewRotation, deltatime);
-	//}
-
-	function UpdateRotation3( float DeltaTime)
-	{
-
-			local Rotator	DeltaRot, newRotation, ViewRotation;
-		local bool bForwardOnly,bStrafe,bForward,bBackward;
-
-		ViewRotation = Rotation;
-		if(Pawn!=None)
-			Pawn.SetDesiredRotation(ViewRotation);
-		
-		bStrafe = false;
-		bForward = false;
-		bBackward = false;
-		//bForwardOnly = false;
-
-		// Calculate Delta to be applied on ViewRotation
-		DeltaRot.Yaw	= PlayerInput.aTurn;
-		//DeltaRot.Pitch	= 0;
-		DeltaRot.Pitch	= PlayerInput.aLookUp;
-
-		ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
-		SetRotation(ViewRotation);
-
-		NewRotation = ViewRotation;
-		NewRotation.Roll = Rotation.Roll;
-
-	if ( Pawn != None )
-			{
-				//`log("aStrafe->"@PlayerInput.aStrafe);
-				//`log("aForward->"@PlayerInput.aForward);
-				if(PlayerInput.aStrafe>0 && PlayerInput.aForward>0){
-					NewRotation.Yaw = Pawn.Rotation.Yaw + (NewRotation.Yaw-Pawn.Rotation.Yaw+8192);
-					//`log("1->"@NewRotation.Yaw);
-				}
-				if(PlayerInput.aStrafe<0 && PlayerInput.aForward>0){
-					NewRotation.Yaw = Pawn.Rotation.Yaw + (NewRotation.Yaw-Pawn.Rotation.Yaw-8192);
-					//`log("2->"@NewRotation.Yaw);
-				}
-				if(PlayerInput.aForward<0 && PlayerInput.aStrafe<0){
-					NewRotation.Yaw = Pawn.Rotation.Yaw + (NewRotation.Yaw-Pawn.Rotation.Yaw-24576);
-					//`log("3->"@NewRotation.Yaw);
-				}
-				if(PlayerInput.aForward<0 && PlayerInput.aStrafe>0){
-					NewRotation.Yaw = Pawn.Rotation.Yaw + (NewRotation.Yaw-Pawn.Rotation.Yaw+24576);
-					//`log("4->"@NewRotation.Yaw);
-				}
-				if(PlayerInput.aStrafe>0&&PlayerInput.aForward==0){
-					NewRotation.Yaw = Pawn.Rotation.Yaw + (NewRotation.Yaw-Pawn.Rotation.Yaw+16384);
-					//`log("5->"@NewRotation.Yaw);
-				}
-				if(PlayerInput.aStrafe<0&&PlayerInput.aForward==0){
-					NewRotation.Yaw = Pawn.Rotation.Yaw + (NewRotation.Yaw-Pawn.Rotation.Yaw-16384);
-					//`log("6->"@NewRotation.Yaw);
-				}
-				if(PlayerInput.aForward<0&&PlayerInput.aStrafe==0){
-					NewRotation.Yaw = Pawn.Rotation.Yaw + (NewRotation.Yaw-Pawn.Rotation.Yaw-32768);
-					//`log("7->"@NewRotation.Yaw);
-				}
-					
-				myDesiredRotation=NewRotation;
-				myDesiredRotation.Yaw=NormalizeRotAxis(NewRotation.Yaw);
-				if(PlayerInput.aForward>0)
-					bForward=true;
-				if(PlayerInput.aForward<0)
-					bBackward=true;
-
-				//this converts the players strafe movement into forward movement
-				if(PlayerInput.aStrafe!=0)
-				{
-					bStrafe=true;
-					if(PlayerInput.aStrafe<0)
-						PlayerInput.aStrafe*=-1;
-					PlayerInput.aForward=PlayerInput.aStrafe;
-					PlayerInput.aStrafe=0;
-					bForwardOnly=false;
-				}
-				else
-				{
-					if(PlayerInput.aForward>0)
-						bForwardOnly=true;
-				}
-				if(PlayerInput.aForward<0)
-					PlayerInput.aForward*=-1;
-					
-				if( bStrafe != bLastStrafe || bForward != bLastForward || bBackward != bLastBackward || bForwardOnly==true)
-				{
-					//`log("updateing current rotation");
-					myRotation=Pawn.Rotation;
-					myRotation.Yaw=NormalizeRotAxis(Pawn.Rotation.Yaw);
-				}else{
-					myRotation.Yaw = NormalizeRotAxis(myRotation.Yaw);
-				}
-				
-				if(PlayerInput.aForward!=0)
-				{
-					if(!bForwardOnly)
-					{
-						if(myRotation.Yaw<myDesiredRotation.Yaw)
-						{
-							if(myDesiredRotation.Yaw < myRotation.Yaw+32768)
-								myRotation.Yaw = myRotation.Yaw+(100000*DeltaTime);
-							if(myDesiredRotation.Yaw > myRotation.Yaw+32768)
-								myRotation.Yaw = myRotation.Yaw-(100000*DeltaTime);
-						}else{
-							if(myRotation.Yaw>myDesiredRotation.Yaw)
-							{
-								if(myDesiredRotation.Yaw > myRotation.Yaw-32768)
-									myRotation.Yaw = myRotation.Yaw-(100000*DeltaTime);
-								if(myDesiredRotation.Yaw < myRotation.Yaw-32768)
-									myRotation.Yaw = myRotation.Yaw+(100000*DeltaTime);
-							}
-						}
-						if((myDesiredRotation.Yaw-myRotation.Yaw)>(100000*DeltaTime))
-						{
-							Pawn.FaceRotation(myRotation, DeltaTime);
-						}else{
-							if(((myDesiredRotation.Yaw * (-1))-(myRotation.Yaw*(-1)))>(100000*DeltaTime))
-							{
-								Pawn.FaceRotation(myRotation, DeltaTime);
-							
-							}
-						}
-					}else{
-						Pawn.FaceRotation(NewRotation, DeltaTime);
-					}
-
-					bUpdateRot=false;
-				}
-			}
-			bLastStrafe=bStrafe;
-			bLastForward=bForward;
-			bLastBackward=bBackward;
-	}
+	
 }
 
 state CombatStance
@@ -697,6 +730,37 @@ Begin:
 
 state Sword_Attack
 {
+
+	function PlayerMove( float DeltaTime )
+	{
+		local vector X,Y,Z,NewAccel;
+
+		GetAxes(Rotation,X,Y,Z);
+		Acceleration = 0*X + 0*Y + 0*vect(0,0,1);
+
+		//GetAxes(Pawn.Rotation,X,Y,Z);
+
+		//	// Update acceleration.
+		//	NewAccel = PlayerInput.aForward*X + PlayerInput.aStrafe*Y;
+		//	NewAccel.Z	= 0;
+		//	NewAccel = Pawn.AccelRate * Normal(NewAccel);
+
+		//	Acceleration=NewAccel;
+
+		UpdateRotation4(DeltaTime);
+
+		if (Role < ROLE_Authority) // then save this move and replicate it
+		{
+			ReplicateMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
+		}
+		else
+		{
+			`log("Acceleration: "@Acceleration);
+			ProcessMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
+		}
+	}	
+
+
 	event PushedState()
 	{	
 	}
@@ -790,5 +854,7 @@ DefaultProperties
 {
 	CameraClass=class 'BBMainCamera' //Telling the player controller to use your custom camera script
 	DefaultFOV=90.f //Telling the player controller what the default field of view (FOV) should be
+
+	bBettyMovement=true;
 
 }
