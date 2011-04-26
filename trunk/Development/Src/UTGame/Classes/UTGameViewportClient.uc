@@ -73,7 +73,9 @@ function DrawTransition(Canvas Canvas)
 	// if we are doing a loading transition, set up the text overlays for the loading movie
 	if (Outer.TransitionType == TT_Loading)
 	{
-		bAllowHints = true;
+		//FERNANDO
+		//bAllowHints = true; 
+		bAllowHints = false;
 
 		// we want to show the name of the map except for a number of maps were we want to remap their name
 		if( "UDKFrontEndMap" == Outer.TransitionDescription )
@@ -85,7 +87,10 @@ function DrawTransition(Canvas Canvas)
 		}
 		else
 		{
-			MapName = Outer.TransitionDescription;
+			//FERNANDO
+			//MapName = Outer.TransitionDescription;
+			MapName = " ";
+
 		}
 
 		class'Engine'.static.RemoveAllOverlays();
