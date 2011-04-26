@@ -2982,6 +2982,7 @@ function ProcessDrive(float InForward, float InStrafe, float InUp, bool InJump)
 
 function ProcessMove( float DeltaTime, vector newAccel, eDoubleClickDir DoubleClickMove, rotator DeltaRot)
 {
+	
     if( (Pawn != None) && (Pawn.Acceleration != newAccel) )
 	{
 		Pawn.Acceleration = newAccel;
@@ -4950,7 +4951,6 @@ ignores SeePlayer, HearNoise, Bump;
 			// Update ViewPitch for remote clients
 			Pawn.SetRemoteViewPitch( Rotation.Pitch );
 		}
-
 		Pawn.Acceleration = NewAccel;
 		
 		CheckJumpOrDuck();
