@@ -174,10 +174,10 @@ state FollowPath
 	while(followingPath)
 	{
 		MoveTarget = MyRoutePoints[actual_node];
-		
+		WorldInfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Move Target is: " $ MoveTarget.Name);
 		if(Pawn.ReachedDestination(MoveTarget))
 		{
-			//WorldInfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Navigation point Reached");
+			WorldInfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Navigation point Reached");
 			
 			actual_node++;
 			

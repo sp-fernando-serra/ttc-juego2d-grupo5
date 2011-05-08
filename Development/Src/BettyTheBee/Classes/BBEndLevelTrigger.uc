@@ -1,4 +1,5 @@
-class BBEndLevelTrigger extends Trigger placeable;
+class BBEndLevelTrigger extends Trigger placeable
+	classGroup(BBActor);
 
 event Touch(Actor Other, PrimitiveComponent OtherComp, Vector HitLocation, Vector HitNormal){
 

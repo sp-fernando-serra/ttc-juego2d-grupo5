@@ -1,4 +1,5 @@
-class BBRoutePoint extends PathNode placeable;
+class BBRoutePoint extends PathNode placeable
+	classGroup(BBActor);
 
 DefaultProperties
 {

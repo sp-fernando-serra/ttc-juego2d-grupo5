@@ -1,7 +1,7 @@
 class BBPlayerController extends PlayerController;
 
 var bool bBettyMovement;
-
+var float speed, sideSpeed, backSpeed;
 var BBEnemyPawn targetedPawn;
 var bool bCombatStance;
 
@@ -118,7 +118,9 @@ function startAttack()
 	if( BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponSword'){	
 		PushState('Sword_Attack');
 	}
-	else PushState('Grenade_Attack');
+	else{
+		PushState('Grenade_Attack');
+	}
 }
 
 function AnimNodeSequence getActiveAnimNode()
@@ -345,7 +347,7 @@ function UpdateRotation3( float DeltaTime)
 
 	function UpdateRotation4( float DeltaTime)
 	{
-		local Rotator	DeltaRot, newRotation, ViewRotation;
+		local Rotator	DeltaRot, /*NewRotation,*/ ViewRotation;
 
 		ViewRotation = Rotation;
 		if (Pawn!=none )
@@ -362,8 +364,8 @@ function UpdateRotation3( float DeltaTime)
 
 		ViewShake( deltaTime );
 
-		NewRotation = ViewRotation;
-		NewRotation.Roll = Rotation.Roll;
+		//NewRotation = ViewRotation;
+		//NewRotation.Roll = Rotation.Roll;
 
 		//if ( Pawn != None && updatePawnRot)
 		//	Pawn.FaceRotation(NewRotation, deltatime);
@@ -447,9 +449,9 @@ Begin:
 }
 
 
-exec function BettyMovement( ){
-bBettyMovement=!bBettyMovement;
-}
+//exec function BettyMovement( ){
+//	bBettyMovement=!bBettyMovement;
+//}
 
 state PlayerWalking{
 	
@@ -470,6 +472,14 @@ state PlayerWalking{
 			GetAxes(Pawn.Rotation,X,Y,Z);
 
 			// Update acceleration.
+			
+			//Change speed depending on move direction
+			if (PlayerInput.aForward > 0)
+				pawn.GroundSpeed = speed;
+			else if (PlayerInput.aForward <=0 && PlayerInput.aStrafe!=0)
+				pawn.GroundSpeed = sideSpeed;
+			else 
+				pawn.GroundSpeed = backSpeed;
 
 			NewAccel = PlayerInput.aForward*X + PlayerInput.aStrafe*Y;
 			NewAccel.Z	= 0;
@@ -733,7 +743,7 @@ state Sword_Attack
 
 	function PlayerMove( float DeltaTime )
 	{
-		local vector X,Y,Z,NewAccel;
+		local vector X,Y,Z;
 
 		GetAxes(Rotation,X,Y,Z);
 		Acceleration = 0*X + 0*Y + 0*vect(0,0,1);
@@ -760,15 +770,6 @@ state Sword_Attack
 		}
 	}	
 
-
-	event PushedState()
-	{	
-	}
-	
-	event PoppedState()
-	{
-	}
-	
 	function startAttack()
 	{
 		if(canCombo())	GotoState('Sword_Attack','Combo');
@@ -856,5 +857,8 @@ DefaultProperties
 	DefaultFOV=90.f //Telling the player controller what the default field of view (FOV) should be
 
 	bBettyMovement=true;
+	speed = 400;
+	sideSpeed = 300;
+	backSpeed = 250;
 
 }
