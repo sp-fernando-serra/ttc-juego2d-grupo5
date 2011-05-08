@@ -1,5 +1,4 @@
-class BBEnemyPawnAnt extends BBEnemyPawn placeable
-	classGroup(BBEnemyPawns);
+class BBEnemyPawnAnt extends BBEnemyPawn placeable;
 
 /** Blend node used for blending attack animations*/
 var AnimNodeBlendList nodeListAttack;

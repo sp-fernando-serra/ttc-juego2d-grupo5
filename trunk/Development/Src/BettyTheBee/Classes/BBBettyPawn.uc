@@ -106,9 +106,9 @@ simulated function comboSwordAttack()
 {
 	
 	local int i;
-	BBWeapon(Weapon).animAttackEnd();//end de l'animacio de l'atac basic. Per posar eliminar els enemics de la taula 'lista_enemigos'
-	BBWeapon(Weapon).animAttackStart();
 	i = node_attack_list.ActiveChildIndex;
+	BBWeapon(Weapon).animAttackEnd();//end de l'animacio de l'atac basic. Per posar eliminar els enemics de la taula 'lista_enemigos'
+	BBWeapon(Weapon).animAttackStart();	
 	i++;	
 	node_attack_list.SetActiveChild(i,0.2f);
 }
@@ -117,7 +117,7 @@ simulated function GrenadeAttack()
 {
 	if(BBWeapon(Weapon).getAnimacioFlag()==false){	
 		BBWeapon(Weapon).animAttackStart();
-		node_attack_list.SetActiveChild(3,0.2f);
+		node_attack_list.SetActiveChild(4,0.2f);
 	}
 }
 
@@ -217,9 +217,9 @@ DefaultProperties
 		//AnimTreeTemplate=AnimTree'CH_AnimHuman_Tree.AT_CH_Human'
 		//SkeletalMesh=SkeletalMesh'CH_LIAM_Cathode.Mesh.SK_CH_LIAM_Cathode'
 
-		AnimSets(0)=AnimSet'Betty_Player.Betty_AnimSet'
-		AnimTreeTemplate=AnimTree'Betty_Player.AnimTree'
-		SkeletalMesh=SkeletalMesh'Betty_Player.Betty_Iddle'
+		AnimSets(0)=AnimSet'Betty_Player.SkModels.Betty_AnimSet'
+		AnimTreeTemplate=AnimTree'Betty_Player.SkModels.Betty_AnimTree'
+		SkeletalMesh=SkeletalMesh'Betty_Player.SkModels.Betty_SkMesh'
 	End Object
 	//Setting up a proper collision cylinder
 	Mesh=InitialSkeletalMesh;
@@ -230,10 +230,7 @@ DefaultProperties
 		CollisionHeight=+0050.000000
 	End Object
 	CylinderComponent=CollisionCylinder
-	GroundSpeed=300.0
-
-
-
+	GroundSpeed=400.0
 	
 	itemsMiel=10000;
 	bCanPickupInventory=true;

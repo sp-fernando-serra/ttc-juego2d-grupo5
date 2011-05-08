@@ -94,7 +94,7 @@ DefaultProperties
 //bMeleeWeapon=true
 		
 	Begin Object class=SkeletalMeshComponent Name=Sword
-	SkeletalMesh=SkeletalMesh'Betty_Player.Sword'
+	SkeletalMesh=SkeletalMesh'Betty_Player.SkModels.Sword'
 	//Begin Object Class=SkeletalMeshComponent Name=Sword
 	//SkeletalMesh=SkeletalMesh'Betty_Player.Tamashinu_sword2'	
     end object
@@ -104,6 +104,4 @@ DefaultProperties
  //   WeaponFireTypes(0)=EWFT_InstantHit
    //FireInterval(0)=1
  //   Spread(0)=0
-
-
 }

@@ -1,5 +1,4 @@
-class BBEnemyPawnCaterpillar extends BBEnemyPawn placeable
-	classGroup(BBEnemyPawns);
+class BBEnemyPawnCaterpillar extends BBEnemyPawn placeable;
 
 /** Constant time between shots in seconds.
  *  Time = timeBetweenShots + randomTimeBetweenShots*FRand()
