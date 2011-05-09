@@ -765,7 +765,7 @@ state Sword_Attack
 		}
 		else
 		{
-			`log("Acceleration: "@Acceleration);
+			//`log("Acceleration: "@Acceleration);
 			ProcessMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
 		}
 	}	
