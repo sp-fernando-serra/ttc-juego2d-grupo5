@@ -230,7 +230,7 @@ DefaultProperties
 		CollisionHeight=+0050.000000
 	End Object
 	CylinderComponent=CollisionCylinder
-	GroundSpeed=400.0
+
 	
 	itemsMiel=10000;
 	bCanPickupInventory=true;
