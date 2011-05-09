@@ -231,7 +231,8 @@ DefaultProperties
 	End Object
 	CylinderComponent=CollisionCylinder
 
-	
+	GroundSpeed=400
+
 	itemsMiel=10000;
 	bCanPickupInventory=true;
 	InventoryManagerClass=class'BettyTheBee.BBInventoryManager';
