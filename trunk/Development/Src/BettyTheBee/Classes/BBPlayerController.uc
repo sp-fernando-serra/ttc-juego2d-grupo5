@@ -412,10 +412,11 @@ state PlayerWalking{
 						//`log("Acceleration: "@NewAccel);
 					}
 					//PushState('PlayerRolling');	
-					
+					`log("Acceleration: ");
+					ProcessMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);
 				}
 				
-				ProcessMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);
+				
 			}
 			bPressedJump = bSaveJump;
 		}
