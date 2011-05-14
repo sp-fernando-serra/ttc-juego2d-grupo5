@@ -2,13 +2,23 @@ class BBBettyPawn extends BBPawn;
 
 var int itemsMiel;//contador de items 'Mel'
 
+var bool bIsRolling;
 
 /** Blend node used for blending attack animations*/
 var AnimNodeBlendList node_attack_list;
-
 /** Array containing all the attack animation AnimNodeSlots*/
 var array<AnimNodeSequence> attack_list_anims;
 
+
+var AnimNodeBlendList node_roll_list;
+var array<AnimNodeSequence> roll_list_anims;
+
+
+///**GroundParticles al andar o correr sobre tierra*/
+//var ParticleSystemComponent GroundParticlesEffectLeft;
+//var ParticleSystemComponent GroundParticlesEffectRight;
+//var ParticleSystem GroundParticlesEmitter;
+ 
 simulated function name GetDefaultCameraMode(PlayerController RequestedBy)
 {
 	return 'ThirdPerson';
@@ -19,7 +29,56 @@ simulated function name GetDefaultCameraMode(PlayerController RequestedBy)
 //	`log("PawnRotation="@Rotation);
 //}
 
+//event PostBeginPlay()
+//{
+//	//local SkeletalMeshSocket socket;
+//	super.PostBeginPlay();
 
+//		// Set particle emitter templates
+//        GroundParticlesEffectRight.SetTemplate(GroundParticlesEmitter);
+//		GroundParticlesEffectLeft.SetTemplate(GroundParticlesEmitter);
+//        // Attach particle emitters to the appropriate sockets
+//		//socket=mesh.GetSocketByName('r_foot');
+
+//        //Mesh.AttachComponentToSocket(GroundParticlesEffectRight, 'r_foot');
+//		//Mesh.AttachComponentToSocket(GroundParticlesEffectLeft, 'l_foot');
+
+//}
+
+
+//	exec function PlayEmitter()
+//	{
+//			GroundParticlesEffectRight.ActivateSystem();
+			
+//	}
+
+//	simulated event RightFoot()
+//	{
+//	local SkeletalMeshSocket socket;
+//	local Vector SocketLocation;
+//	local Rotator SocketRotation;
+//		local Vector SocketLocation1;
+//	local Rotator SocketRotation1;
+
+//	socket=mesh.GetSocketByName('r_foot');
+	
+
+//Mesh.GetSocketWorldLocationAndRotation('r_foot', SocketLocation, SocketRotation, 0 /* Use 1 if you wish to return this in component space*/ );
+//Mesh.GetSocketWorldLocationAndRotation('l_foot', SocketLocation1, SocketRotation1, 0 /* Use 1 if you wish to return this in component space*/ );
+
+//	`log("r_foot="@SocketLocation);
+//	`log("l_foot="@SocketLocation1);
+////GroundParticlesEffectRight.OldPosition=SocketLocation;//socket.RelativeLocation;
+////GroundParticlesEffectRight.ParticleEventData.location=SocketLocation;
+//			GroundParticlesEffectRight.ActivateSystem();
+			
+//	}
+
+//	simulated event LeftFoot()
+//	{
+//			GroundParticlesEffectLeft.ActivateSystem();
+			
+//	}
 function AddDefaultInventory()
 {
 	
@@ -37,10 +96,34 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 		attack_list_anims.AddItem(AnimNodeSequence(Mesh.FindAnimNode('Atacar')));
 		attack_list_anims.AddItem(AnimNodeSequence(Mesh.FindAnimNode('Atacar2')));
 		attack_list_anims.AddItem(AnimNodeSequence(Mesh.FindAnimNode('Atacar3')));
-}
+		attack_list_anims.AddItem(AnimNodeSequence(Mesh.FindAnimNode('LanzarGranada')));
+
+		node_roll_list = AnimNodeBlendList(Mesh.FindAnimNode('roll_list'));
+		roll_list_anims.AddItem(AnimNodeSequence(Mesh.FindAnimNode('roll_left')));
+		roll_list_anims.AddItem(AnimNodeSequence(Mesh.FindAnimNode('roll_right')));
+	}
 }
 
 
+
+
+function  animRollLeft(){
+
+	bIsRolling=true;
+	node_roll_list.setactivechild(1,0.1f);
+
+}
+function  animRollRight(){
+
+	bIsRolling=true;
+	node_roll_list.setactivechild(2,0.1f);
+
+}
+
+
+function bool isRolling(){
+	return bIsRolling;
+}
 
 simulated function StartFire(byte FireModeNum)
 {
@@ -149,6 +232,9 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
 		//Mesh.RootMotionMode = RMM_Ignore;
 		node_attack_list.SetActiveChild(0,0.2f);
 		BBWeapon(Weapon).animAttackEnd();
+	}else if (SeqNode == getRollAnimNode()){
+		bIsRolling=false;
+		node_roll_list.SetActiveChild(0,0.2f);
 	}
 }
 
@@ -161,6 +247,17 @@ function AnimNodeSequence getAttackAnimNode()
 	{
 		i = i-1;
 		return attack_list_anims[i];
+	}
+	return None;
+}
+function AnimNodeSequence getRollAnimNode()
+{
+	local int i;
+	i = node_roll_list.ActiveChildIndex;
+	if(i > 0)
+	{
+		i = i-1;
+		return roll_list_anims[i];
 	}
 	return None;
 }
@@ -220,6 +317,7 @@ DefaultProperties
 		AnimSets(0)=AnimSet'Betty_Player.SkModels.Betty_AnimSet'
 		AnimTreeTemplate=AnimTree'Betty_Player.SkModels.Betty_AnimTree'
 		SkeletalMesh=SkeletalMesh'Betty_Player.SkModels.Betty_SkMesh'
+		//SkeletalMesh=SkeletalMesh'Betty_PlayerAITOR.SkModels.Betty_SkMesh'
 	End Object
 	//Setting up a proper collision cylinder
 	Mesh=InitialSkeletalMesh;
@@ -236,6 +334,26 @@ DefaultProperties
 	itemsMiel=10000;
 	bCanPickupInventory=true;
 	InventoryManagerClass=class'BettyTheBee.BBInventoryManager';
+
+
+	bIsRolling=false;
+
+
+	//begin object Class=ParticleSystemComponent Name=ParticleSystemComponent0
+ //              // SecondsBeforeInactive=1
+ //       end object
+	//	GroundParticlesEffectLeft=ParticleSystemComponent0
+ //       Components.Add(ParticleSystemComponent0)
+
+	//	begin object Class=ParticleSystemComponent Name=ParticleSystemComponent1
+ //              // SecondsBeforeInactive=1
+ //       end object
+ //       GroundParticlesEffectRight=ParticleSystemComponent1
+ //       Components.Add(ParticleSystemComponent1)
+
+	//GroundParticlesEmitter=ParticleSystem'Betty_Particles.PSWalkingGround'
+
+	
 	
 }
 
