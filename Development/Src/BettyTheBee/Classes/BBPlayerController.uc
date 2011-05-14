@@ -9,6 +9,8 @@ var rotator myRotation,myDesiredRotation;
 var bool bLastStrafe, bLastForward,bLastBackward;
 var bool bUpdateRot;
 
+var bool broll;
+
 simulated event PostBeginPlay() //This event is triggered when play begins
 {
 	super.PostBeginPlay();
@@ -126,7 +128,8 @@ function startAttack()
 function AnimNodeSequence getActiveAnimNode()
 {
 	local AnimNodeSequence animSeq;
-	animSeq = BBBettyPawn(Pawn).getAttackAnimNode();
+	if(IsInState('PlayerRolling')) animSeq = BBBettyPawn(Pawn).getRollAnimNode();	
+	if(IsInState('Sword_Attack')) animSeq = BBBettyPawn(Pawn).getAttackAnimNode();	
 	if(animSeq==None)
 	{
 		return None;
@@ -237,6 +240,17 @@ function UpdateRotation2( float DeltaTime, bool updatePawnRot)
 		//	Pawn.FaceRotation(NewRotation, deltatime);
 	}
 
+	exec function shiftButtonDown()
+	{
+			broll = true;
+	}
+
+	exec function shiftButtonUp()
+	{
+			broll = false;
+	}
+
+
 
 state mySpectatorMode extends Spectating
 {
@@ -324,6 +338,7 @@ state PlayerWalking{
 	
 	function PlayerMove( float DeltaTime )
 	{
+		
 
 		//local vector			X,Y,Z, NewAccel;
 		//local eDoubleClickDir	DoubleClickMove;
@@ -344,6 +359,7 @@ state PlayerWalking{
 				pawn.GroundSpeed = backSpeed;
 
 
+
 	if(bBettyMovement){
 		if( Pawn == None )
 		{
@@ -351,6 +367,8 @@ state PlayerWalking{
 		}
 		else
 		{
+			
+
 			GetAxes(Pawn.Rotation,X,Y,Z);
 
 
@@ -385,7 +403,18 @@ state PlayerWalking{
 			}
 			else
 			{
-
+				if(!BBBettyPawn(Pawn).IsRolling()){
+					if(broll  && PlayerInput.aStrafe>0){
+						BBBettyPawn(Pawn).animRollRight();	
+					}
+					else if (broll  && PlayerInput.aStrafe<0){
+						BBBettyPawn(Pawn).animRollLeft();	
+						//`log("Acceleration: "@NewAccel);
+					}
+					//PushState('PlayerRolling');	
+					
+				}
+				
 				ProcessMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);
 			}
 			bPressedJump = bSaveJump;
@@ -459,6 +488,18 @@ state PlayerWalking{
 
 	
 }
+
+//state PlayerRolling // extends PlayerWalking
+//{
+
+//function animRollLeft(){
+//	BBBettyPawn(Pawn).animRollLeft();
+//}
+//Begin:
+//animRollLeft();
+//FinishAnim(getActiveAnimNode());
+//PopState();
+//}
 
 state CombatStance
 {
@@ -620,19 +661,14 @@ state Sword_Attack
 
 	function PlayerMove( float DeltaTime )
 	{
-		local vector X,Y,Z;
+		local vector X,Y,Z,NewAccel;
 
 		GetAxes(Rotation,X,Y,Z);
 		Acceleration = 0*X + 0*Y + 0*vect(0,0,1);
 
-		//GetAxes(Pawn.Rotation,X,Y,Z);
-
-		//	// Update acceleration.
-		//	NewAccel = PlayerInput.aForward*X + PlayerInput.aStrafe*Y;
-		//	NewAccel.Z	= 0;
-		//	NewAccel = Pawn.AccelRate * Normal(NewAccel);
-
-		//	Acceleration=NewAccel;
+		//NewAccel = PlayerInput.aForward*X + PlayerInput.aStrafe*Y;
+		//NewAccel.Z	= 0;
+		//NewAccel = Pawn.AccelRate * Normal(NewAccel);
 
 		UpdateRotation4(DeltaTime);
 
@@ -642,7 +678,9 @@ state Sword_Attack
 		}
 		else
 		{
-			//`log("Acceleration: "@Acceleration);
+			`log("AccelerationAttack: "@Velocity);
+			Velocity.Y=1000;
+			
 			ProcessMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
 		}
 	}	
@@ -737,5 +775,7 @@ DefaultProperties
 	speed = 400;
 	sideSpeed = 300;
 	backSpeed = 250;
+
+	broll=false;
 
 }
