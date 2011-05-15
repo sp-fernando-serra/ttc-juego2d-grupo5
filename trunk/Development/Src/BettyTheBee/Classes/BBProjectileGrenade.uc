@@ -2,6 +2,7 @@ class BBProjectileGrenade  extends UDKProjectile;
 
 
 var float TossZ;
+var ParticleSystemComponent RibbonParticleSystem;
 
 function Init(vector Direction)
 {
@@ -15,7 +16,9 @@ simulated function PostBeginPlay()
 {
 	Super.PostBeginPlay();
 	SetTimer(2.5+FRand()*0.5,false);                  //Grenade begins unarmed
-	RandSpin(100000);
+	//RandSpin(100000);
+	//WorldInfo.MyEmitterPool.SpawnEmitter(RibbonParticle,location,rotation);	
+	AttachComponent(RibbonParticleSystem);
 }
 
 simulated function ProcessTouch(Actor Other, Vector HitLocation, Vector HitNormal)
@@ -26,7 +29,7 @@ simulated function ProcessTouch(Actor Other, Vector HitLocation, Vector HitNorma
     {
 	WorldInfo.MyDecalManager.SpawnDecal
 	(
-	    DecalMaterial'HU_Deck.Decals.M_Decal_GooLeak',
+	    DecalMaterial'Betty_Player.Decals.Honey_Decal',
 	    HitLocation,	 
 	    rotator(-HitNormal),	
 	    128, 128,	                          
@@ -72,7 +75,7 @@ simulated event Landed ( vector HitNormal, actor FloorActor ) {
 	
 		WorldInfo.MyDecalManager.SpawnDecal
 	(
-	    DecalMaterial'HU_Deck.Decals.M_Decal_GooLeak',
+	    DecalMaterial'Betty_Player.Decals.Honey_Decal',
 	    HitLocation,	 
 	    rotator(-HitNormal),	
 	    128, 128,	                          
@@ -112,8 +115,8 @@ DefaultProperties
     Components.Add(MyLightEnvironment)
    
 	begin object class=StaticMeshComponent Name=BaseMesh
-	StaticMesh=StaticMesh'EngineMeshes.Sphere'
-	Scale=0.3
+	StaticMesh=StaticMesh'Betty_Player.SkModels.Grenade'
+	Scale=1
 	LightEnvironment=MyLightEnvironment
     end object
     Components.Add(BaseMesh)
@@ -128,5 +131,11 @@ DefaultProperties
 	CustomGravityScaling=1
 	TossZ=+400.0
 	TerminalVelocity=3500.0
+
+	begin object class=ParticleSystemComponent Name=Particles
+		Template=ParticleSystem'Betty_Player.Particles.Grenade_Particles'
+	end object
+	Components.Add(Particles)
+	RibbonParticleSystem = Particles
 	
 }
