@@ -412,7 +412,7 @@ state PlayerWalking{
 						//`log("Acceleration: "@NewAccel);
 					}
 					//PushState('PlayerRolling');	
-					`log("Acceleration: ");
+					//`log("Acceleration: ");
 					ProcessMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);
 				}
 				
@@ -662,7 +662,8 @@ state Sword_Attack
 
 	function PlayerMove( float DeltaTime )
 	{
-		local vector X,Y,Z,NewAccel;
+		local vector X,Y,Z;
+		//local vector NewAccel;
 
 		GetAxes(Rotation,X,Y,Z);
 		Acceleration = 0*X + 0*Y + 0*vect(0,0,1);
@@ -679,7 +680,7 @@ state Sword_Attack
 		}
 		else
 		{
-			`log("AccelerationAttack: "@Velocity);
+			//`log("AccelerationAttack: "@Velocity);
 			Velocity.Y=1000;
 			
 			ProcessMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
@@ -742,7 +743,7 @@ state Grenade_Attack
 	{
 		//Worldinfo.Game.Broadcast(self, Name $ ": lanzarAttack ");
 		BBBettyPawn(Pawn).GrenadeAttack();
-   	}
+   	}	
 	   	
 	exec function StopFire( optional byte FireModeNum )
 	{	

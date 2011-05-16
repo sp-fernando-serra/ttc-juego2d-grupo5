@@ -23,12 +23,12 @@ simulated event vector GetPhysicalFireStartLoc(optional vector AimDir)
 simulated function calcHitPosition(){
 	local vector HitLocation,HitNormal;
 	HitNormal = normal(Velocity * -1);
-HitNormal=vect(0,0,-1);
-	Worldinfo.Game.Broadcast(self, Name $ ": Location "$Location);
-	Worldinfo.Game.Broadcast(self, Name $ ": HitNormal "$HitNormal);
+	HitNormal=vect(0,0,-1);
+	//Worldinfo.Game.Broadcast(self, Name $ ": Location "$Location);
+	//Worldinfo.Game.Broadcast(self, Name $ ": HitNormal "$HitNormal);
 	//Worldinfo.Game.Broadcast(self, Name $ ": Velocity "$Velocity);
 	Trace(HitLocation,HitNormal,(Location + (HitNormal*-32)), Location + (HitNormal*32),true,vect(0,0,0));
-	Worldinfo.Game.Broadcast(self, Name $ ": calcHitPosition "$HitLocation);
+	//Worldinfo.Game.Broadcast(self, Name $ ": calcHitPosition "$HitLocation);
 }
 
 
