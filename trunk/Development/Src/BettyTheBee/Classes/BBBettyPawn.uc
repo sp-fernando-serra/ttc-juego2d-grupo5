@@ -325,7 +325,7 @@ DefaultProperties
 	CollisionType=COLLIDE_BlockAll
 	Begin Object Name=CollisionCylinder
 		CollisionRadius=+0025.000000
-		CollisionHeight=+0050.000000
+		CollisionHeight=+0045.000000
 	End Object
 	CylinderComponent=CollisionCylinder
 
