@@ -11,6 +11,11 @@ var bool bUpdateRot;
 
 var bool broll;
 
+//array de enemigos para la funcion lock-on(encarar enemigo)
+var array<BBEnemyPawn> array_enemigos;
+//radio de seleccion de enemigos
+var float radioLockon;
+
 simulated event PostBeginPlay() //This event is triggered when play begins
 {
 	super.PostBeginPlay();
@@ -152,41 +157,52 @@ function bool canCombo()
 
 exec function LockOn()
 {
-	local BBEnemyPawn E;
-	local vector					StartShot, EndShot;
-	local vector					HitLocation, HitNormal, Extent;
-	local actor						HitActor;
-	local TraceHitInfo				HitInfo;
-	local Rotator					Aim;
-	//local ImpactInfo NearImpact, realImpact;
-	
-	StartShot	= Pawn.GetWeaponStartTraceLocation();
-	Aim			= Pawn.Weapon.GetAdjustedAim( StartShot );
-	EndShot		= StartShot + (1000 * Vector(Aim));
-	Extent		= vect(0,0,0);
-	HitActor	= Trace(HitLocation, HitNormal, EndShot, StartShot, True, Extent, HitInfo);
-	//realImpact.HitActor = HitActor;
-	//realImpact.HitLocation = HitLocation;
-	
-	
-	//NearImpact = UTWeapon(Pawn.Weapon).InstantAimHelp(StartShot,EndShot,realImpact);
-	
-	E=BBEnemyPawn(HitActor);
 
-	Worldinfo.Game.Broadcast(self, Name $ ": enemigo "$E);
-	if(E!=None)
-		TargetedPawn=E;
-	
-	
-	if(bCombatStance == false && TargetedPawn!=None)
+	local BBEnemyPawn A;
+	local int i;
+
+	foreach WorldInfo.AllPawns( class 'BBEnemyPawn', A , BBBettyPawn(Pawn).Location, radioLockon)
 	{
-		GotoState('CombatStance');
-	}else{
-		TargetedPawn=None;
-		GotoState('PlayerWalking');
+		array_enemigos.AddItem(A);
+		
 	}
+	
+	
+	if(array_enemigos.length>0)	TargetedPawn=array_enemigos[0];	
+
+	if(bcombatstance == false && TargetedPawn!=none)
+	{
+		gotostate('combatstance');
+	}else{
+		TargetedPawn=none;
+		gotostate('playerwalking');
+	}
+
+
+	//for (i = 0; i < array_enemigos.length; ++i) {
+	//	`log("lockon"@array_enemigos[i]);
+	//}
+
+	//`log("----");
+
+
 }
 
+exec function LockOff()
+{
+	array_enemigos.Remove(0,array_enemigos.length);
+	TargetedPawn=none;
+	gotostate('playerwalking');
+}
+
+exec function changeLockOn()
+{
+
+	if(IsInState('combatstance')){
+		if(array_enemigos.Find(TargetedPawn)+1==array_enemigos.Length) TargetedPawn=array_enemigos[0];
+		else TargetedPawn=array_enemigos[array_enemigos.Find(TargetedPawn)+1];
+	}
+}
 
 function UpdateRotation2( float DeltaTime, bool updatePawnRot)
 	{
@@ -214,7 +230,7 @@ function UpdateRotation2( float DeltaTime, bool updatePawnRot)
 			Pawn.FaceRotation(NewRotation, deltatime);
 	}
 
-	function UpdateRotation4( float DeltaTime)
+	function UpdateRotationSword( float DeltaTime)
 	{
 		local Rotator	DeltaRot, /*NewRotation,*/ ViewRotation;
 
@@ -376,6 +392,10 @@ state PlayerWalking{
 			NewAccel.Z	= 0;
 			NewAccel = Pawn.AccelRate * Normal(NewAccel);
 
+			//`log("NewAccel X"@NewAccel.x);
+			//`log("NewAccel Y"@NewAccel.y);
+			//`log("NewAccel Z"@NewAccel.z);
+
 			DoubleClickMove = PlayerInput.CheckForDoubleClickMove( DeltaTime/WorldInfo.TimeDilation );
 
 			// Update rotation.
@@ -383,8 +403,8 @@ state PlayerWalking{
 			OldRotation = Rotation;
 			UpdateRotation2( DeltaTime , VSize(NewAccel) != 0);
 			//UpdateRotation( DeltaTime);
-			bDoubleJump = false;
-			
+			bDoubleJump = false;			
+
 
 			if( bPressedJump && Pawn.CannotJumpNow() )
 			{
@@ -600,7 +620,18 @@ ignores SeePlayer, HearNoise, Bump;
 			}
 			else
 			{
-				ProcessMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);
+				if(!BBBettyPawn(Pawn).IsRolling()){
+					if(broll  && PlayerInput.aStrafe>0){
+						BBBettyPawn(Pawn).animRollRight();	
+					}
+					else if (broll  && PlayerInput.aStrafe<0){
+						BBBettyPawn(Pawn).animRollLeft();	
+						//`log("Acceleration: "@NewAccel);
+					}
+					//PushState('PlayerRolling');	
+					//`log("Acceleration: ");
+					ProcessMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);
+				}
 			}
 			bPressedJump = bSaveJump;
 		}
@@ -668,11 +699,7 @@ state Sword_Attack
 		GetAxes(Rotation,X,Y,Z);
 		Acceleration = 0*X + 0*Y + 0*vect(0,0,1);
 
-		//NewAccel = PlayerInput.aForward*X + PlayerInput.aStrafe*Y;
-		//NewAccel.Z	= 0;
-		//NewAccel = Pawn.AccelRate * Normal(NewAccel);
-
-		UpdateRotation4(DeltaTime);
+		UpdateRotationSword(DeltaTime);
 
 		if (Role < ROLE_Authority) // then save this move and replicate it
 		{
@@ -777,6 +804,8 @@ DefaultProperties
 	speed = 400;
 	sideSpeed = 300;
 	backSpeed = 250;
+
+	radioLockon=600.0;
 
 	broll=false;
 
