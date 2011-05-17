@@ -37,9 +37,8 @@ simulated function animAttackEnd()
 	//`log("attackEnd");
 	animacio_attack = false;
 	//borrem tots els enemics de larray	
-	for (i = 0; i < lista_enemigos.length; ++i) {
-		lista_enemigos.Remove(i, 1);
-	}
+	lista_enemigos.Remove(i, lista_enemigos.length);
+
 }
 
 

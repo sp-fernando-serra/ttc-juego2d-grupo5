@@ -37,6 +37,7 @@ defaultproperties
 	LedgeCheckThreshold=0.5f
 
 	bAggressive = true;
+
 }
 
 simulated function PostBeginPlay()

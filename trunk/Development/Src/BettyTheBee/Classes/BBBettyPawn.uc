@@ -18,6 +18,10 @@ var array<AnimNodeSequence> roll_list_anims;
 //var ParticleSystemComponent GroundParticlesEffectLeft;
 //var ParticleSystemComponent GroundParticlesEffectRight;
 //var ParticleSystem GroundParticlesEmitter;
+
+//var ParticleSystemComponent Particles_estrellas_antenas;
+//var ParticleSystem EstrellasParticlesEmitter;
+
  
 simulated function name GetDefaultCameraMode(PlayerController RequestedBy)
 {
@@ -31,54 +35,31 @@ simulated function name GetDefaultCameraMode(PlayerController RequestedBy)
 
 //event PostBeginPlay()
 //{
+//	local Vector SocketLocation;
+//	local Rotator SocketRotation;
+
 //	//local SkeletalMeshSocket socket;
 //	super.PostBeginPlay();
 
-//		// Set particle emitter templates
-//        GroundParticlesEffectRight.SetTemplate(GroundParticlesEmitter);
-//		GroundParticlesEffectLeft.SetTemplate(GroundParticlesEmitter);
-//        // Attach particle emitters to the appropriate sockets
-//		//socket=mesh.GetSocketByName('r_foot');
 
-//        //Mesh.AttachComponentToSocket(GroundParticlesEffectRight, 'r_foot');
-//		//Mesh.AttachComponentToSocket(GroundParticlesEffectLeft, 'l_foot');
-
+//	Mesh.GetSocketWorldLocationAndRotation('antena_dreta', SocketLocation, SocketRotation, 0 /* Use 1 if you wish to return this in component space*/ );
+//	Particles_estrellas_antenas.SetTemplate(EstrellasParticlesEmitter);
+//	//Particles_estrellas_antenas.DeactivateSystem();
+		
 //}
 
 
-//	exec function PlayEmitter()
-//	{
-//			GroundParticlesEffectRight.ActivateSystem();
-			
-//	}
 
-//	simulated event RightFoot()
-//	{
-//	local SkeletalMeshSocket socket;
-//	local Vector SocketLocation;
-//	local Rotator SocketRotation;
-//		local Vector SocketLocation1;
-//	local Rotator SocketRotation1;
+function play_estrellas(){
+	//`log('vv');
+	//Particles_estrellas_antenas.ActivateSystem();
+}
 
-//	socket=mesh.GetSocketByName('r_foot');
-	
+function stop_estrellas(){
+	//Particles_estrellas_antenas.DeactivateSystem();
+}
 
-//Mesh.GetSocketWorldLocationAndRotation('r_foot', SocketLocation, SocketRotation, 0 /* Use 1 if you wish to return this in component space*/ );
-//Mesh.GetSocketWorldLocationAndRotation('l_foot', SocketLocation1, SocketRotation1, 0 /* Use 1 if you wish to return this in component space*/ );
 
-//	`log("r_foot="@SocketLocation);
-//	`log("l_foot="@SocketLocation1);
-////GroundParticlesEffectRight.OldPosition=SocketLocation;//socket.RelativeLocation;
-////GroundParticlesEffectRight.ParticleEventData.location=SocketLocation;
-//			GroundParticlesEffectRight.ActivateSystem();
-			
-//	}
-
-//	simulated event LeftFoot()
-//	{
-//			GroundParticlesEffectLeft.ActivateSystem();
-			
-//	}
 function AddDefaultInventory()
 {
 	
@@ -339,11 +320,7 @@ DefaultProperties
 	bIsRolling=false;
 
 
-	//begin object Class=ParticleSystemComponent Name=ParticleSystemComponent0
- //              // SecondsBeforeInactive=1
- //       end object
-	//	GroundParticlesEffectLeft=ParticleSystemComponent0
- //       Components.Add(ParticleSystemComponent0)
+
 
 	//	begin object Class=ParticleSystemComponent Name=ParticleSystemComponent1
  //              // SecondsBeforeInactive=1
@@ -352,6 +329,14 @@ DefaultProperties
  //       Components.Add(ParticleSystemComponent1)
 
 	//GroundParticlesEmitter=ParticleSystem'Betty_Particles.PSWalkingGround'
+
+	//begin object Class=ParticleSystemComponent Name=ParticleSystemComponent0
+ //               SecondsBeforeInactive=10
+ //       end object
+	//	Particles_estrellas_antenas=ParticleSystemComponent0
+ //       Components.Add(ParticleSystemComponent0)
+
+	//EstrellasParticlesEmitter=ParticleSystem'Betty_Particles.prueba'
 
 	
 	
