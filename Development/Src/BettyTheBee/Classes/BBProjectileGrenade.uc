@@ -4,6 +4,13 @@ class BBProjectileGrenade  extends UDKProjectile;
 var float TossZ;
 var ParticleSystemComponent RibbonParticleSystem;
 
+var SkeletalMeshComponent Mesh;
+
+var MorphNodeWeight morph1Weight;
+var MorphNodeWeight morph2Weight;
+
+
+
 function Init(vector Direction)
 {
 	SetRotation(rotator(Direction));
@@ -17,8 +24,21 @@ simulated function PostBeginPlay()
 	Super.PostBeginPlay();
 	SetTimer(2.5+FRand()*0.5,false);                  //Grenade begins unarmed
 	//RandSpin(100000);
-	//WorldInfo.MyEmitterPool.SpawnEmitter(RibbonParticle,location,rotation);	
+	//WorldInfo.MyEmitterPool.SpawnEmitter(RibbonParticle,location,rotation);
+
+	morph1Weight = MorphNodeWeight(Mesh.FindMorphNode('morph1'));
+	morph2Weight = MorphNodeWeight(Mesh.FindMorphNode('morph2'));
+	
+
 	AttachComponent(RibbonParticleSystem);
+}
+
+function Tick( float DeltaTime ){
+	//local float incr;
+	//incr = 0.1;
+	morph1Weight.SetNodeWeight((Sin(WorldInfo.TimeSeconds*10)+1)/2);
+	morph2Weight.SetNodeWeight((Cos(WorldInfo.TimeSeconds*10)+1)/2);
+	
 }
 
 simulated function ProcessTouch(Actor Other, Vector HitLocation, Vector HitNormal)
@@ -109,17 +129,19 @@ DefaultProperties
     End Object
 
 	Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment
-	bEnabled=TRUE
-		
+	bEnabled=TRUE		
     End Object
     Components.Add(MyLightEnvironment)
    
-	begin object class=StaticMeshComponent Name=BaseMesh
-	StaticMesh=StaticMesh'Betty_Player.SkModels.Grenade'
-	Scale=1
-	LightEnvironment=MyLightEnvironment
+	begin object class=SkeletalMeshComponent Name=BaseMesh
+		SkeletalMesh=SkeletalMesh'Betty_Player.SkModels.GrenadeSk'
+		MorphSets(0)=MorphTargetSet'Betty_Player.SkModels.Grenade_MorphSet'
+		AnimTreeTemplate=AnimTree'Betty_Player.SkModels.Grenade_AnimTree'
+		Scale=1
+		LightEnvironment=MyLightEnvironment
     end object
     Components.Add(BaseMesh)
+	Mesh = BaseMesh;
 
     Damage=25
     MomentumTransfer=10
