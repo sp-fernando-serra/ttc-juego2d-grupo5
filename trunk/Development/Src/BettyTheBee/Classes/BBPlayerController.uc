@@ -158,16 +158,67 @@ function bool canCombo()
 exec function LockOn()
 {
 
+	// local Actor HitActor;
+  //local Vector HitLocation, HitNormal, EyeLocation;
+  //local Rotator EyeRotation;
+
+
 	local BBEnemyPawn A;
 	local int i;
 
 	foreach WorldInfo.AllPawns( class 'BBEnemyPawn', A , BBBettyPawn(Pawn).Location, radioLockon)
+	//foreach   VisibleActors(class 'BBEnemyPawn', A , radioLockon)	
+	//GetPlayerViewPoint(EyeLocation, EyeRotation);
+
+	//ForEach TraceActors
+ //   (
+ //     class'BBEnemyPawn', 
+ //     A, 
+ //     HitLocation, 
+ //     HitNormal, 
+ //     //EyeLocation + Vector(EyeRotation) * PlayerOwner.InteractDistance, 
+	//  EyeLocation + Vector(EyeRotation) * 500, 
+ //     EyeLocation, 
+ //     Vect(1.f, 1.f, 1.f),, 
+ //      TRACEFLAG_PhysicsVolumes
+ //   )
 	{
-		array_enemigos.AddItem(A);
+
+			//`log("A"@A);
+			//`log("distancia"@Vsize( BBBettyPawn(Pawn).Location - A.Location ));
+			//`log("------");
+			
+
+		if ( array_enemigos.Length>0 )
+			{
+				// Find it's place and put it there.
+
+				for (i=0;i<array_enemigos.Length;i++)
+				{
+	
+					if( Vsize( BBBettyPawn(Pawn).Location - array_enemigos[i].Location ) > Vsize( BBBettyPawn(Pawn).Location - A.Location))
+					{
+						array_enemigos.Insert(i,1);
+						array_enemigos[i] = A;
+						break;
+					}
+				}
+				if (i==array_enemigos.Length)
+				{
+					array_enemigos.Length = array_enemigos.Length+1;
+					array_enemigos[i] = A;
+				}
+			}
+			else
+			{
+				array_enemigos.Length = 1;
+				array_enemigos[0] = A;
+			}
+    
 		
 	}
-	
-	
+
+		//`log("----");
 	if(array_enemigos.length>0)	TargetedPawn=array_enemigos[0];	
 
 	if(bcombatstance == false && TargetedPawn!=none)
@@ -179,11 +230,11 @@ exec function LockOn()
 	}
 
 
-	//for (i = 0; i < array_enemigos.length; ++i) {
-	//	`log("lockon"@array_enemigos[i]);
-	//}
+	for (i = 0; i < array_enemigos.length; ++i) {
+		`log("enemigo"@array_enemigos[i]);
+	}
 
-	//`log("----");
+	//`log("******");
 
 
 }
