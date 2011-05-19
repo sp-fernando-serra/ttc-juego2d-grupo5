@@ -2,6 +2,13 @@ class BBProjectileCaterpillar extends UDKProjectile;
 
 var float TossZ;
 
+var ParticleSystemComponent RibbonParticleSystem;
+
+var SkeletalMeshComponent Mesh;
+
+var MorphNodeWeight morph1Weight;
+var MorphNodeWeight morph2Weight;
+
 function CalcAngle(Vector startPoint, Vector endPoint){
 	local float IncrZ, Dist;
 	local Vector tempVect;
@@ -38,17 +45,36 @@ function Init(vector Direction)
 simulated function PostBeginPlay()
 {
 	Super.PostBeginPlay();
-	SetTimer(2.5+FRand()*0.5,false);                  //Grenade begins unarmed
-	RandSpin(100000);
+	//SetTimer(2.5+FRand()*0.5,false);                  //Grenade begins unarmed
+	//RandSpin(100000);
+
+	//Obtenemos los dos WeightMorphNodes
+	morph1Weight = MorphNodeWeight(Mesh.FindMorphNode('morph1'));
+	morph2Weight = MorphNodeWeight(Mesh.FindMorphNode('morph2'));
+
+	//AttachComponent(RibbonParticleSystem);
+	WorldInfo.MyEmitterPool.SpawnEmitter(RibbonParticleSystem.Template,Location,, self,);
 }
+
+function Tick( float DeltaTime ){
+	//local float incr;
+	//incr = 0.1;
+
+	//Cada tick cambiamos los pesos de los Morphs para conseguir un comportamiento como de miel
+	morph1Weight.SetNodeWeight((Sin(WorldInfo.TimeSeconds*10)+1)/2);
+	morph2Weight.SetNodeWeight((Cos(WorldInfo.TimeSeconds*10)+1)/2);
+	
+}
+
 
 simulated function ProcessTouch(Actor Other, Vector HitLocation, Vector HitNormal)
 {
+	local int i;
     if ( Other != Instigator )
     {
 	WorldInfo.MyDecalManager.SpawnDecal
 	(
-	    DecalMaterial'HU_Deck.Decals.M_Decal_GooLeak',
+	    DecalMaterial'Betty_caterpillar.Decals.Spittle_Decal',
 	    HitLocation,	 
 	    rotator(-HitNormal),	
 	    128, 128,	                          
@@ -60,7 +86,10 @@ simulated function ProcessTouch(Actor Other, Vector HitLocation, Vector HitNorma
 
 	
 	Other.TakeDamage( Damage, InstigatorController, Location, MomentumTransfer * Normal(Velocity), MyDamageType,, self);
-	
+	//RibbonParticleSystem.DeactivateSystem();
+	i = WorldInfo.MyEmitterPool.ActiveComponents.Find(RibbonParticleSystem);
+	if(i > -1)
+		WorldInfo.MyEmitterPool.ActiveComponents[i].DeactivateSystem();
 	Destroy();
     }
 }
@@ -68,13 +97,14 @@ simulated function ProcessTouch(Actor Other, Vector HitLocation, Vector HitNorma
 simulated event Landed ( vector HitNormal, actor FloorActor ) {
 	 
 	local vector HitLocation;
+	local int i;
 	//HitNormal = normal(Velocity * -1);
 	Trace(HitLocation,HitNormal,(Location + (HitNormal*-32)), Location + (HitNormal*32),true,vect(0,0,0));	
 	//Worldinfo.Game.Broadcast(self, Name $ ": HitNormal "$HitNormal);
 	
 		WorldInfo.MyDecalManager.SpawnDecal
 	(
-	    DecalMaterial'HU_Deck.Decals.M_Decal_GooLeak',
+	    DecalMaterial'Betty_caterpillar.Decals.Spittle_Decal',
 	    HitLocation,	 
 	    rotator(-HitNormal),	
 	    128, 128,	                          
@@ -84,7 +114,10 @@ simulated event Landed ( vector HitNormal, actor FloorActor ) {
 	    none        
 	);  
 
-
+	//RibbonParticleSystem.DeactivateSystem();
+	i = WorldInfo.MyEmitterPool.ActiveComponents.Find(RibbonParticleSystem);
+	if(i > -1)
+		WorldInfo.MyEmitterPool.ActiveComponents[i].DeactivateSystem();
 	Destroy();
 }
 
@@ -113,12 +146,22 @@ DefaultProperties
     End Object
     Components.Add(MyLightEnvironment)
    
-	begin object class=StaticMeshComponent Name=BaseMesh
-	StaticMesh=StaticMesh'EngineMeshes.Sphere'
-	Scale=0.05
-	LightEnvironment=MyLightEnvironment
+	begin object class=SkeletalMeshComponent Name=BaseMesh
+		SkeletalMesh=SkeletalMesh'Betty_caterpillar.SkModels.SpittleSk'
+		MorphSets(0)=MorphTargetSet'Betty_caterpillar.SkModels.Spittle_MorphSet'
+		AnimTreeTemplate=AnimTree'Betty_caterpillar.SkModels.Spittle_AnimTree'
+		Scale=1
+		LightEnvironment=MyLightEnvironment
     end object
     Components.Add(BaseMesh)
+	Mesh = BaseMesh;
+
+	begin object class=ParticleSystemComponent Name=Particles
+		Template=ParticleSystem'Betty_caterpillar.Particles.Spittle_Particles'
+	end object
+	Components.Add(Particles)
+	RibbonParticleSystem = Particles
+
 
     Damage=0
     MomentumTransfer=10

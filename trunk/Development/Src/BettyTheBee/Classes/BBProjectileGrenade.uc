@@ -22,20 +22,25 @@ function Init(vector Direction)
 simulated function PostBeginPlay()
 {
 	Super.PostBeginPlay();
-	SetTimer(2.5+FRand()*0.5,false);                  //Grenade begins unarmed
+	//SetTimer(2.5+FRand()*0.5,false);                  //Grenade begins unarmed
 	//RandSpin(100000);
-	//WorldInfo.MyEmitterPool.SpawnEmitter(RibbonParticle,location,rotation);
-
+		
+	//Obtenemos los dos WeightMorphNodes
 	morph1Weight = MorphNodeWeight(Mesh.FindMorphNode('morph1'));
 	morph2Weight = MorphNodeWeight(Mesh.FindMorphNode('morph2'));
 	
-
-	AttachComponent(RibbonParticleSystem);
+	
+	
+	WorldInfo.MyEmitterPool.SpawnEmitter(RibbonParticleSystem.Template,Location,, self,);
+	//RibbonParticleSystem.ActivateSystem(true);
+	//AttachComponent(RibbonParticleSystem);
 }
 
 function Tick( float DeltaTime ){
 	//local float incr;
 	//incr = 0.1;
+
+	//Cada tick cambiamos los pesos de los Morphs para conseguir un comportamiento como de miel
 	morph1Weight.SetNodeWeight((Sin(WorldInfo.TimeSeconds*10)+1)/2);
 	morph2Weight.SetNodeWeight((Cos(WorldInfo.TimeSeconds*10)+1)/2);
 	
@@ -65,6 +70,7 @@ simulated function ProcessTouch(Actor Other, Vector HitLocation, Vector HitNorma
 	//Worldinfo.Game.Broadcast(self, Name $ ": Grenadehitlocation "$hitlocation);
 	//Worldinfo.Game.Broadcast(self, Name $ ": location "$PC);
 	//Worldinfo.Game.Broadcast(self, Name $ ": HitNormal "$HitNormal);
+	RibbonParticleSystem.DetachFromAny();
 	Destroy();
     }
 }
@@ -88,6 +94,7 @@ simulated function ProcessTouch(Actor Other, Vector HitLocation, Vector HitNorma
 simulated event Landed ( vector HitNormal, actor FloorActor ) {
 	 
 	local vector HitLocation;
+	local int i;
 	//HitNormal = normal(Velocity * -1);
 	Trace(HitLocation,HitNormal,(Location + (HitNormal*-32)), Location + (HitNormal*32),true,vect(0,0,0));
 	Worldinfo.Game.Broadcast(self, Name $ ": HitLocation "$HitLocation);
@@ -104,8 +111,10 @@ simulated event Landed ( vector HitNormal, actor FloorActor ) {
 	    FRand() * 360,	        
 	    none        
 	);  
-
-
+	//i = WorldInfo.MyEmitterPool.ActiveComponents.Find(RibbonParticleSystem);
+	//if(i > -1)
+	//	WorldInfo.MyEmitterPool.ActiveComponents[i].DeactivateSystem();
+	RibbonParticleSystem.DetachFromAny();
 	Destroy();
 }
 
@@ -120,9 +129,7 @@ simulated event Landed ( vector HitNormal, actor FloorActor ) {
 
 
 DefaultProperties
-{
-
-	
+{	
 	Begin Object Name=CollisionCylinder
 	CollisionRadius=8
 	CollisionHeight=16
