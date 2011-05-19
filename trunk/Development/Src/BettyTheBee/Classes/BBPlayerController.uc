@@ -219,7 +219,10 @@ exec function LockOn()
 	}
 
 		//`log("----");
-	if(array_enemigos.length>0)	TargetedPawn=array_enemigos[0];	
+	if(array_enemigos.length>0){
+		TargetedPawn=array_enemigos[0];	
+		array_enemigos[0].playPariclesFijado();
+	}
 
 	if(bcombatstance == false && TargetedPawn!=none)
 	{
@@ -230,9 +233,9 @@ exec function LockOn()
 	}
 
 
-	for (i = 0; i < array_enemigos.length; ++i) {
-		`log("enemigo"@array_enemigos[i]);
-	}
+	//for (i = 0; i < array_enemigos.length; ++i) {
+	//	`log("enemigo"@array_enemigos[i]);
+	//}
 
 	//`log("******");
 
@@ -242,6 +245,7 @@ exec function LockOn()
 exec function LockOff()
 {
 	array_enemigos.Remove(0,array_enemigos.length);
+	TargetedPawn.stopPariclesFijado();
 	TargetedPawn=none;
 	gotostate('playerwalking');
 }
@@ -250,8 +254,19 @@ exec function changeLockOn()
 {
 
 	if(IsInState('combatstance')){
-		if(array_enemigos.Find(TargetedPawn)+1==array_enemigos.Length) TargetedPawn=array_enemigos[0];
-		else TargetedPawn=array_enemigos[array_enemigos.Find(TargetedPawn)+1];
+		if(array_enemigos.Find(TargetedPawn)+1==array_enemigos.Length){	
+			TargetedPawn.stopPariclesFijado();
+			TargetedPawn=array_enemigos[0];	
+			TargetedPawn.playPariclesFijado();
+
+		}
+		else{
+			TargetedPawn.stopPariclesFijado();
+			TargetedPawn=array_enemigos[array_enemigos.Find(TargetedPawn)+1];
+			TargetedPawn.playPariclesFijado();
+
+		}
+
 	}
 }
 
