@@ -44,7 +44,9 @@ DefaultProperties
     WeaponFireTypes(0)=EWFT_Projectile
     WeaponProjectiles(0)=class'BettyTheBee.BBProjectileGrenade'
     FireInterval(0)=0
-    Spread(0) = 0
+    Spread(0) =0
+	FireOffset=1
+	
 
 	FiringStatesArray(1)=WeaponFiring
     WeaponFireTypes(1)=EWFT_Projectile
