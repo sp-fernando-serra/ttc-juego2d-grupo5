@@ -79,6 +79,11 @@ auto state Idle
 		}
     }
 
+	event BeginState(name PreviousStateName){
+		super.BeginState(PreviousStateName);
+		Enemy = none;
+	}
+
 Begin:
    // `log(MyEnemyTestPawn.name @ ": Starting Idle state");
 	Pawn.Acceleration = vect(0,0,0);

@@ -32,12 +32,12 @@ simulated function animAttackStart()
 }
 simulated function animAttackEnd()
 {
-	local int i;
+	//local int i;
 
 	//`log("attackEnd");
 	animacio_attack = false;
 	//borrem tots els enemics de larray	
-	lista_enemigos.Remove(i, lista_enemigos.length);
+	lista_enemigos.Remove(0, lista_enemigos.length);
 
 }
 

@@ -1,25 +1,30 @@
 class BBProjectileCaterpillar extends UDKProjectile;
 
 var float TossZ;
-
-var ParticleSystemComponent RibbonParticleSystem;
-
+/** Plantilla del ParticleSystem a generar */
+var ParticleSystem RibbonParticleSystem;
+/** Referencia al ParticleSystemComponent generado */
+var ParticleSystemComponent PSC;
+/** Mesh de la granada */
 var SkeletalMeshComponent Mesh;
 
+/** Morph1 para hacer el SkeletalMesh dinamico */
 var MorphNodeWeight morph1Weight;
+/** Morph1 para hacer el SkeletalMesh dinamico */
 var MorphNodeWeight morph2Weight;
 
-function CalcAngle(Vector startPoint, Vector endPoint){
-	local float IncrZ, Dist;
+
+function CalcAngle(Vector startPoint, Vector endPoint, Vector Randomness){
+	local float /*IncrZ,*/ Dist;
 	local Vector tempVect;
 
-	IncrZ = endPoint.Z - startPoint.Z;
+	//IncrZ = endPoint.Z - startPoint.Z;
 	tempVect = endPoint - startPoint;
 	tempVect.Z = 0;
 	Dist = VSize(tempVect);
 	if(Dist < 0) Dist = -Dist;
-	//El *2 del final no tiene sentido, pero sin el no se alcanza el objetivo
-	TossZ = (Speed/Dist)*(IncrZ - (GetGravityZ()/2)*Square(Dist/Speed))*2;
+	//El *1.8 del final no tiene sentido, pero sin el no se alcanza el objetivo
+	TossZ = (Speed/Dist)*(/*IncrZ */- (GetGravityZ()/2)*Square(Dist/Speed)*1.8);
 	//Eliminamos el alcance infinito(mejor hacerlo de otra manera, que ya no dispare si estamos fuera de alcance)
 	if (TossZ > Speed) TossZ = Speed;
 	//`Log("TossZ = "@ TossZ);
@@ -29,7 +34,7 @@ function CalcAngle(Vector startPoint, Vector endPoint){
 	//`Log("Gravity = "@ GetGravityZ());
 	//`Log("Square(Dist/Speed) = "@ Square(Dist/Speed));
 	Init(Normal(tempVect));
-
+	randomize(Randomness);
 }
 
 function Init(vector Direction)
@@ -38,8 +43,16 @@ function Init(vector Direction)
 
 	Velocity = Speed * Direction;
 	Velocity.Z += TossZ;
-	//`Log("Velocity = "@ Velocity);
 	//Acceleration = AccelRate * Normal(Velocity);
+}
+
+function randomize(Vector Randomness){
+	//Calc Randomness
+	//`Log("Velocity before random = "@ Velocity);
+	Velocity.X += Velocity.X * Randomness.X * RandRange(-1,1);
+	Velocity.Y += Velocity.Y * Randomness.Y * RandRange(-1,1);
+	Velocity.Z += Velocity.Z * Randomness.Z * RandRange(-1,1);
+	//`Log("Velocity after random = "@ Velocity);
 }
 
 simulated function PostBeginPlay()
@@ -52,8 +65,8 @@ simulated function PostBeginPlay()
 	morph1Weight = MorphNodeWeight(Mesh.FindMorphNode('morph1'));
 	morph2Weight = MorphNodeWeight(Mesh.FindMorphNode('morph2'));
 
-	//AttachComponent(RibbonParticleSystem);
-	WorldInfo.MyEmitterPool.SpawnEmitter(RibbonParticleSystem.Template,Location,, self,);
+	//Spawneamos el sistema de particulas y lo atachamos guardando una referencia en PSC
+	PSC = WorldInfo.MyEmitterPool.SpawnEmitter(RibbonParticleSystem,Location,, self,);
 }
 
 function Tick( float DeltaTime ){
@@ -69,8 +82,7 @@ function Tick( float DeltaTime ){
 
 simulated function ProcessTouch(Actor Other, Vector HitLocation, Vector HitNormal)
 {
-	local int i;
-    if ( Other != Instigator )
+	if ( Other != Instigator )
     {
 	WorldInfo.MyDecalManager.SpawnDecal
 	(
@@ -86,10 +98,8 @@ simulated function ProcessTouch(Actor Other, Vector HitLocation, Vector HitNorma
 
 	
 	Other.TakeDamage( Damage, InstigatorController, Location, MomentumTransfer * Normal(Velocity), MyDamageType,, self);
-	//RibbonParticleSystem.DeactivateSystem();
-	i = WorldInfo.MyEmitterPool.ActiveComponents.Find(RibbonParticleSystem);
-	if(i > -1)
-		WorldInfo.MyEmitterPool.ActiveComponents[i].DeactivateSystem();
+
+	PSC.DeactivateSystem();
 	Destroy();
     }
 }
@@ -97,7 +107,6 @@ simulated function ProcessTouch(Actor Other, Vector HitLocation, Vector HitNorma
 simulated event Landed ( vector HitNormal, actor FloorActor ) {
 	 
 	local vector HitLocation;
-	local int i;
 	//HitNormal = normal(Velocity * -1);
 	Trace(HitLocation,HitNormal,(Location + (HitNormal*-32)), Location + (HitNormal*32),true,vect(0,0,0));	
 	//Worldinfo.Game.Broadcast(self, Name $ ": HitNormal "$HitNormal);
@@ -114,21 +123,18 @@ simulated event Landed ( vector HitNormal, actor FloorActor ) {
 	    none        
 	);  
 
-	//RibbonParticleSystem.DeactivateSystem();
-	i = WorldInfo.MyEmitterPool.ActiveComponents.Find(RibbonParticleSystem);
-	if(i > -1)
-		WorldInfo.MyEmitterPool.ActiveComponents[i].DeactivateSystem();
+	PSC.DeactivateSystem();
 	Destroy();
 }
 
-//simulated event HitWall(vector HitNormal, actor Wall, PrimitiveComponent WallComp)
-//{
-//   Velocity = MirrorVectorByNormal(Velocity,HitNormal); //That's the bounce
-//    SetRotation(Rotator(Velocity));
+simulated event HitWall(vector HitNormal, actor Wall, PrimitiveComponent WallComp)
+{
+	//Velocity = MirrorVectorByNormal(Velocity,HitNormal); //That's the bounce
+	//SetRotation(Rotator(Velocity));
 
-//    TriggerEventClass(class'SeqEvent_HitWall', Wall);
-
-//}
+	//TriggerEventClass(class'SeqEvent_HitWall', Wall);
+	Landed(HitNormal,Wall);
+}
 
 
 DefaultProperties
@@ -136,13 +142,12 @@ DefaultProperties
 
 	
 	Begin Object Name=CollisionCylinder
-	CollisionRadius=8
-	CollisionHeight=16
+		CollisionRadius=12
+		CollisionHeight=24
     End Object
 
 	Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment
-	bEnabled=TRUE
-		
+		bEnabled=TRUE
     End Object
     Components.Add(MyLightEnvironment)
    
@@ -150,18 +155,14 @@ DefaultProperties
 		SkeletalMesh=SkeletalMesh'Betty_caterpillar.SkModels.SpittleSk'
 		MorphSets(0)=MorphTargetSet'Betty_caterpillar.SkModels.Spittle_MorphSet'
 		AnimTreeTemplate=AnimTree'Betty_caterpillar.SkModels.Spittle_AnimTree'
+		//PhysicsAsset=PhysicsAsset'Betty_caterpillar.SkModels.Spittle_Physics'
 		Scale=1
 		LightEnvironment=MyLightEnvironment
     end object
     Components.Add(BaseMesh)
 	Mesh = BaseMesh;
 
-	begin object class=ParticleSystemComponent Name=Particles
-		Template=ParticleSystem'Betty_caterpillar.Particles.Spittle_Particles'
-	end object
-	Components.Add(Particles)
-	RibbonParticleSystem = Particles
-
+	RibbonParticleSystem = ParticleSystem'Betty_caterpillar.Particles.Spittle_Particles'
 
     Damage=0
     MomentumTransfer=10

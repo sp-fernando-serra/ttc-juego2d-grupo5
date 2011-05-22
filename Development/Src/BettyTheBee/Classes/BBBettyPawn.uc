@@ -311,6 +311,10 @@ DefaultProperties
 	CylinderComponent=CollisionCylinder
 
 	GroundSpeed=400
+	//Default is 420
+	JumpZ=550
+	//Default is 0.05
+	AirControl=0.5
 
 	itemsMiel=10000;
 	bCanPickupInventory=true;
