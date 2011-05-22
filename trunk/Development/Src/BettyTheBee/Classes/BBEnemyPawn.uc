@@ -17,11 +17,15 @@ var float Speed;
 var Name AnimSetName;
 var AnimNodeSequence MyAnimPlayControl;
 
+/** Distance to see player */
 var () float PerceptionDistance<DisplayName=Perception Distance>;
+/** Attack distance */
 var () float AttackDistance<DisplayName=Attack Distance>;
+/** Attack Damage */
 var () int AttackDamage<DisplayName=Attack Damage>;
+/** If TRUE the pawn will attack the player when he enter in Range of View */
 var () bool bAggressive<DisplayName = Is Aggressive?>;
-
+/** Array of BBRoutePoints to patroll */
 var () array<BBRoutePoint> MyRoutePoints;
 
 
@@ -41,6 +45,9 @@ defaultproperties
 	LedgeCheckThreshold=0.5f
 
 	bAggressive = true;
+	SightRadius = PerceptionDistance;
+	//PeripheralVision is Cos of desired vision angle cos(45) = 0.707106
+	PeripheralVision = 0.707106;
 
 	begin object class=particlesystemcomponent name=particlesystemcomponent0
 		Template=ParticleSystem'Betty_Particles.enemigos.enemigo_fijado'
@@ -48,7 +55,7 @@ defaultproperties
            //secondsbeforeinactive=10
     end object
 	ParticlesComponent_enemigoFijado=particlesystemcomponent0
-     components.add(particlesystemcomponent0)
+	components.add(particlesystemcomponent0)
 
 	//Particles_enemigoFijado_Emitter=ParticleSystem'Betty_Particles.enemigos.enemigo_fijado'
 

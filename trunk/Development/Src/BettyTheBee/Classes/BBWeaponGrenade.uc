@@ -44,8 +44,9 @@ DefaultProperties
     WeaponFireTypes(0)=EWFT_Projectile
     WeaponProjectiles(0)=class'BettyTheBee.BBProjectileGrenade'
     FireInterval(0)=0
-    Spread(0) =0
-	FireOffset=1
+    Spread(0)=0
+	//Comentado porque no sire para lo que queremos (retrasar el lanzamiento de granada)
+	//FireOffset(0)=(X=1,Y=1,Z=1)
 	
 
 	FiringStatesArray(1)=WeaponFiring

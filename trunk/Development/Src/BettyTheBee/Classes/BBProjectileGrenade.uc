@@ -2,11 +2,16 @@ class BBProjectileGrenade  extends UDKProjectile;
 
 
 var float TossZ;
-var ParticleSystemComponent RibbonParticleSystem;
-
+/** Plantilla del ParticleSystem a generar */
+var ParticleSystem RibbonParticleSystem;
+/** Referencia al ParticleSystemComponent generado */
+var ParticleSystemComponent PSC;
+/** Mesh de la granada */
 var SkeletalMeshComponent Mesh;
 
+/** Morph1 para hacer el SkeletalMesh dinamico */
 var MorphNodeWeight morph1Weight;
+/** Morph1 para hacer el SkeletalMesh dinamico */
 var MorphNodeWeight morph2Weight;
 
 
@@ -22,18 +27,13 @@ function Init(vector Direction)
 simulated function PostBeginPlay()
 {
 	Super.PostBeginPlay();
-	//SetTimer(2.5+FRand()*0.5,false);                  //Grenade begins unarmed
-	//RandSpin(100000);
-		
+			
 	//Obtenemos los dos WeightMorphNodes
 	morph1Weight = MorphNodeWeight(Mesh.FindMorphNode('morph1'));
-	morph2Weight = MorphNodeWeight(Mesh.FindMorphNode('morph2'));
+	morph2Weight = MorphNodeWeight(Mesh.FindMorphNode('morph2'));	
 	
-	
-	
-	WorldInfo.MyEmitterPool.SpawnEmitter(RibbonParticleSystem.Template,Location,, self,);
-	//RibbonParticleSystem.ActivateSystem(true);
-	//AttachComponent(RibbonParticleSystem);
+	//Spawneamos el sistema de particulas y lo atachamos guardando una referencia en PSC
+	PSC = WorldInfo.MyEmitterPool.SpawnEmitter(RibbonParticleSystem,Location,, self,);
 }
 
 function Tick( float DeltaTime ){
@@ -49,7 +49,6 @@ function Tick( float DeltaTime ){
 simulated function ProcessTouch(Actor Other, Vector HitLocation, Vector HitNormal)
 {
 
-
     if ( Other != Instigator )
     {
 	WorldInfo.MyDecalManager.SpawnDecal
@@ -64,13 +63,10 @@ simulated function ProcessTouch(Actor Other, Vector HitLocation, Vector HitNorma
 	    none        
 	);  
 
+	if(BBEnemyPawn(Other) != none)
+		Other.TakeDamage( Damage, InstigatorController, Location, MomentumTransfer * Normal(Velocity), MyDamageType,, self);
 	
-	Other.TakeDamage( Damage, InstigatorController, Location, MomentumTransfer * Normal(Velocity), MyDamageType,, self);
-	//Worldinfo.Game.Broadcast(self, Name $ ": Health "$Pawn(Other).Health);
-	//Worldinfo.Game.Broadcast(self, Name $ ": Grenadehitlocation "$hitlocation);
-	//Worldinfo.Game.Broadcast(self, Name $ ": location "$PC);
-	//Worldinfo.Game.Broadcast(self, Name $ ": HitNormal "$HitNormal);
-	RibbonParticleSystem.DetachFromAny();
+	PSC.DeactivateSystem();
 	Destroy();
     }
 }
@@ -93,14 +89,10 @@ simulated function ProcessTouch(Actor Other, Vector HitLocation, Vector HitNorma
 
 simulated event Landed ( vector HitNormal, actor FloorActor ) {
 	 
-	local vector HitLocation;
-	local int i;
-	//HitNormal = normal(Velocity * -1);
+	local vector HitLocation;	
 	Trace(HitLocation,HitNormal,(Location + (HitNormal*-32)), Location + (HitNormal*32),true,vect(0,0,0));
-	Worldinfo.Game.Broadcast(self, Name $ ": HitLocation "$HitLocation);
-	//Worldinfo.Game.Broadcast(self, Name $ ": HitNormal "$HitNormal);
 	
-		WorldInfo.MyDecalManager.SpawnDecal
+	WorldInfo.MyDecalManager.SpawnDecal
 	(
 	    DecalMaterial'Betty_Player.Decals.Honey_Decal',
 	    HitLocation,	 
@@ -110,29 +102,32 @@ simulated event Landed ( vector HitNormal, actor FloorActor ) {
 	    false,	                   
 	    FRand() * 360,	        
 	    none        
-	);  
-	//i = WorldInfo.MyEmitterPool.ActiveComponents.Find(RibbonParticleSystem);
-	//if(i > -1)
-	//	WorldInfo.MyEmitterPool.ActiveComponents[i].DeactivateSystem();
-	RibbonParticleSystem.DetachFromAny();
+	);
+	
+	//Desactivamos la instancia del PSC
+	//HitLocation.Z = HitLocation.Z - 60;
+	//PSC.SetTranslation(HitLocation);
+	PSC.DeactivateSystem();
+	//Destruimos el projectil
 	Destroy();
 }
 
-//simulated event HitWall(vector HitNormal, actor Wall, PrimitiveComponent WallComp)
-//{
+simulated event HitWall(vector HitNormal, actor Wall, PrimitiveComponent WallComp)
+{
 //   Velocity = MirrorVectorByNormal(Velocity,HitNormal); //That's the bounce
 //    SetRotation(Rotator(Velocity));
 
 //    TriggerEventClass(class'SeqEvent_HitWall', Wall);
+	Landed(HitNormal,Wall);
 
-//}
+}
 
 
 DefaultProperties
 {	
 	Begin Object Name=CollisionCylinder
-	CollisionRadius=8
-	CollisionHeight=16
+		CollisionRadius=12
+		CollisionHeight=24
     End Object
 
 	Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment
@@ -144,6 +139,7 @@ DefaultProperties
 		SkeletalMesh=SkeletalMesh'Betty_Player.SkModels.GrenadeSk'
 		MorphSets(0)=MorphTargetSet'Betty_Player.SkModels.Grenade_MorphSet'
 		AnimTreeTemplate=AnimTree'Betty_Player.SkModels.Grenade_AnimTree'
+		//PhysicsAsset=PhysicsAsset'Betty_Player.SkModels.Grenade_Physics'
 		Scale=1
 		LightEnvironment=MyLightEnvironment
     end object
@@ -161,10 +157,6 @@ DefaultProperties
 	TossZ=+400.0
 	TerminalVelocity=3500.0
 
-	begin object class=ParticleSystemComponent Name=Particles
-		Template=ParticleSystem'Betty_Player.Particles.Grenade_Particles'
-	end object
-	Components.Add(Particles)
-	RibbonParticleSystem = Particles
+	RibbonParticleSystem = ParticleSystem'Betty_Player.Particles.Grenade_Particles'
 	
 }

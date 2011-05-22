@@ -8,7 +8,8 @@ var () float timeBetweenShots;
  *  Time = timeBetweenShots + randomTimeBetweenShots*FRand()
  */
 var () float randomTimeBetweenShots;
-
+/** Vector  for randomness in prejectile shooting, each component indicates the randomness in each direction*/
+var () Vector randomness;
 /** Blend node used for blending attack animations*/
 var AnimNodeBlendList nodeListAttack;
 
@@ -17,6 +18,7 @@ var AnimNodeSequence attackAnim;
 
 DefaultProperties
 {
+
 	//Setting up the light environment
 	Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment
 		ModShadowFadeoutTime=0.25
@@ -28,25 +30,38 @@ DefaultProperties
 	Components.Add(MyLightEnvironment)
 
 	Begin Object Name=CollisionCylinder
-		CollisionHeight=+20.000000
+			
+		BlockNonZeroExtent=false
+		BlockZeroExtent=false
+		BlockActors=false
+		BlockRigidBody=false
+		CollideActors=false
+
+		CollisionHeight=+45.0
+		CollisionRadius=+20.0
+		//Translation=(X=0.0,Y=0.0,Z=40.0)
     end object
-	Begin Object class=SkeletalMeshComponent Name=InitialPawnSkeletalMesh
+
+	Begin Object class=SkeletalMeshComponent Name=SkMesh
 		CastShadow=true
 		bCastDynamicShadow=true
-		bOwnerNoSee=false
+		
 		LightEnvironment=MyLightEnvironment;
-		BlockRigidBody=true;
-		CollideActors=true;
-		BlockZeroExtent=true;
+		bAllowAmbientOcclusion=false
 
- 		AnimSets(0)=AnimSet'Betty_caterpillar.SkModels.CaterpillarAnimSet'
-		AnimTreeTemplate=AnimTree'Betty_caterpillar.SkModels.CaterpillarAnimTree'
+		BlockNonZeroExtent = True
+        BlockZeroExtent = True
+        BlockActors = True
+        CollideActors =True
+
+		AnimSets(0)=AnimSet'Betty_caterpillar.SkModels.Caterpillar_anims'
+		AnimTreeTemplate=AnimTree'Betty_caterpillar.SkModels.Caterpillar_AnimTree'
+		PhysicsAsset=PhysicsAsset'Betty_caterpillar.SkModels.Caterpillar_Physics'
 		SkeletalMesh=SkeletalMesh'Betty_caterpillar.SkModels.Caterpillar'
-		HiddenGame=FALSE 
-		HiddenEditor=FALSE
     End Object
-    Mesh=InitialPawnSkeletalMesh
-    Components.Add(InitialPawnSkeletalMesh)
+	//CollisionComponent=SkMesh
+	Mesh=SkMesh
+    Components.Add(SkMesh)
     
     bJumpCapable=false
     bCanJump=false
@@ -58,6 +73,7 @@ DefaultProperties
 
 	timeBetweenShots = 2;
 	randomTimeBetweenShots = 1;
+	randomness=(X=0.1,Y=0.1,Z=0.05);
 }
 
 simulated function PostBeginPlay()
@@ -78,7 +94,7 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 	if (SkelComp == Mesh)
 	{
 		nodeListAttack = AnimNodeBlendList(Mesh.FindAnimNode('listAttack'));
-		attackAnim = AnimNodeSequence(Mesh.FindAnimNode('ATTACK_1'));
+		attackAnim = AnimNodeSequence(Mesh.FindAnimNode('Attack_1'));
 	}
 }
 
@@ -96,11 +112,12 @@ state Attacking{
 		}
 		
 		SpawnedProjectile = Spawn(class'BBProjectileCaterpillar',Self,,Boca);
+		SpawnedProjectile.Damage = AttackDamage;
 		SpawnedProjectile.Instigator = self;
 
 		if( SpawnedProjectile != None && !SpawnedProjectile.bDeleteMe )
 		{
-			SpawnedProjectile.CalcAngle(Boca, HitTarget.Location);
+			SpawnedProjectile.CalcAngle(Boca, HitTarget.Location,Randomness);
 		}
 
 		//`Log("Boca: "@Boca);
