@@ -92,11 +92,19 @@ DefaultProperties
 
 
 //bMeleeWeapon=true
+	Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment
+		bEnabled=true
+		ModShadowFadeoutTime=0.25
+		MinTimeBetweenFullUpdates=0.2
+		LightShadowMode=LightShadow_ModulateBetter
+		ShadowFilterQuality=SFQ_High
+		bSynthesizeSHLight=TRUE
+	End Object
+	Components.Add(MyLightEnvironment)
 		
-	Begin Object class=SkeletalMeshComponent Name=Sword
-	SkeletalMesh=SkeletalMesh'Betty_Player.SkModels.Sword'
-	//Begin Object Class=SkeletalMeshComponent Name=Sword
-	//SkeletalMesh=SkeletalMesh'Betty_Player.Tamashinu_sword2'	
+	Begin Object class=StaticMeshComponent Name=Sword
+		StaticMesh=StaticMesh'Betty_Player.SkModels.BettyClub'
+		LightEnvironment=MyLightEnvironment;			
     end object
     Mesh=Sword
     //Components.Add(Sword)
