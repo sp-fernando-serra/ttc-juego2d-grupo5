@@ -10,6 +10,7 @@ var () float timeBetweenShots;
 var () float randomTimeBetweenShots;
 /** Vector  for randomness in prejectile shooting, each component indicates the randomness in each direction*/
 var () Vector randomness;
+
 /** Blend node used for blending attack animations*/
 var AnimNodeBlendList nodeListAttack;
 
@@ -18,7 +19,6 @@ var AnimNodeSequence attackAnim;
 
 DefaultProperties
 {
-
 	//Setting up the light environment
 	Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment
 		ModShadowFadeoutTime=0.25

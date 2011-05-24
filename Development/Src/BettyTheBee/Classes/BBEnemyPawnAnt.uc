@@ -20,7 +20,7 @@ DefaultProperties
 
 	Begin Object Name=CollisionCylinder
 		CollisionHeight=+20.000000
- end object
+	End object
 	
 	Begin Object class=SkeletalMeshComponent Name=InitialPawnSkeletalMesh
 		CastShadow=true
