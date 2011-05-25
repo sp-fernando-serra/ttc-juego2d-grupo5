@@ -9,6 +9,8 @@ var AnimNodeBlendList node_attack_list;
 /** Array containing all the attack animation AnimNodeSlots*/
 var array<AnimNodeSequence> attack_list_anims;
 
+var DynamicLightEnvironmentComponent LightEnvironment;
+
 
 var AnimNodeBlendList node_roll_list;
 var array<AnimNodeSequence> roll_list_anims;
@@ -61,8 +63,7 @@ function stop_estrellas(){
 
 
 function AddDefaultInventory()
-{
-	
+{	
 	InvManager.CreateInventory(class'BettyTheBee.BBWeaponSword');
 	InvManager.CreateInventory(class'BettyTheBee.BBWeaponGrenade');
 }
@@ -172,8 +173,9 @@ simulated function comboSwordAttack()
 	local int i;
 	i = node_attack_list.ActiveChildIndex;
 	BBWeapon(Weapon).animAttackEnd();//end de l'animacio de l'atac basic. Per posar eliminar els enemics de la taula 'lista_enemigos'
-	BBWeapon(Weapon).animAttackStart();	
-	i++;	
+	BBWeapon(Weapon).animAttackStart();
+	if(i<3)	i++;
+	else i = 1;
 	node_attack_list.SetActiveChild(i,0.2f);
 }
 
@@ -279,6 +281,7 @@ DefaultProperties
 		bSynthesizeSHLight=TRUE
 	End Object
 	Components.Add(MyLightEnvironment)
+	LightEnvironment = MyLightEnvironment
 	//Setting up the mesh and animset components
 	Begin Object Class=SkeletalMeshComponent Name=InitialSkeletalMesh
 		CastShadow=true
