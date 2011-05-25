@@ -10,22 +10,24 @@ var Pawn hitPawn;
 
 simulated function TimeWeaponEquipping()
 {
-   // AttachWeaponTo( Instigator.Mesh,'mano_izquierda' );
 	AttachWeaponTo( Instigator.Mesh,'sword_socket' );
-    super.TimeWeaponEquipping();
+	super.TimeWeaponEquipping();
 }
 
 simulated function AttachWeaponTo( SkeletalMeshComponent MeshCpnt, optional Name SocketName )
 {
+	local BBBettyPawn Betty;
+
+	Betty = BBBettyPawn(Instigator);
     MeshCpnt.AttachComponentToSocket(Mesh,SocketName);
+	Mesh.SetLightEnvironment(Betty.LightEnvironment);
 }
 
 simulated function DetachWeapon()
 {
 	Instigator.Mesh.DetachComponent( Mesh );
 	SetBase(None);
-	//Mesh.SetHidden(True);
-	//Mesh.SetLightEnvironment(None);
+	Mesh.SetLightEnvironment(None);
 }
 
 simulated event SetPosition(UDKPawn Holder)
@@ -51,7 +53,7 @@ simulated event SetPosition(UDKPawn Holder)
 
 event Tick(float DeltaTime){
 
-Super.Tick(DeltaTime);
+	Super.Tick(DeltaTime);
 	
 	//if attacking do traces to determine hit
 	if( animacio_attack )
@@ -82,34 +84,10 @@ simulated function bool addListaEnemigos(Actor enemigo){
 
 
 DefaultProperties
-{
-
-
-//WeaponRange=110.0
-
-//InstantHitDamageTypes(0)=class'DmgType_Crushed'
-//InstantHitDamage(0)=10
-
-
-//bMeleeWeapon=true
-	Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment
-		bEnabled=true
-		ModShadowFadeoutTime=0.25
-		MinTimeBetweenFullUpdates=0.2
-		LightShadowMode=LightShadow_ModulateBetter
-		ShadowFilterQuality=SFQ_High
-		bSynthesizeSHLight=TRUE
-	End Object
-	Components.Add(MyLightEnvironment)
-		
-	Begin Object class=StaticMeshComponent Name=Sword
-		StaticMesh=StaticMesh'Betty_Player.SkModels.BettyClub'
-		LightEnvironment=MyLightEnvironment;			
+{		
+	Begin Object class=SkeletalMeshComponent Name=Sword
+		SkeletalMesh=SkeletalMesh'Betty_Player.SkModels.BettyClub'					
     end object
     Mesh=Sword
     //Components.Add(Sword)
-	//FiringStatesArray(0)=WeaponFiring //We don't need to define a new state
- //   WeaponFireTypes(0)=EWFT_InstantHit
-   //FireInterval(0)=1
- //   Spread(0)=0
 }
