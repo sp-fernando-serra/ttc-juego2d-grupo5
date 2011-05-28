@@ -24,6 +24,8 @@ var array<AnimNodeSequence> roll_list_anims;
 //var ParticleSystemComponent Particles_estrellas_antenas;
 //var ParticleSystem EstrellasParticlesEmitter;
 
+/** ParticleSystem que aparece al equipar la espada */
+var ParticleSystem EquipSwordPS;
  
 simulated function name GetDefaultCameraMode(PlayerController RequestedBy)
 {
@@ -64,6 +66,8 @@ function stop_estrellas(){
 
 function AddDefaultInventory()
 {	
+	//La primera sera el arma con que empecemos. Empezamos sin arma equipada
+	InvManager.CreateInventory(class'BettyTheBee.BBWeaponNone');
 	InvManager.CreateInventory(class'BettyTheBee.BBWeaponSword');
 	InvManager.CreateInventory(class'BettyTheBee.BBWeaponGrenade');
 }
@@ -134,25 +138,26 @@ simulated function StartFire(byte FireModeNum)
 	//}
 
 		if(BBWeapon(Weapon).getAnimacioFlag()==false){
-		switch (Weapon.Class){
-
-		case (class'BBWeaponSword'):
-			super.StartFire(FireModeNum);
-			break;
-
-		case  (class'BBWeaponGrenade'):
-			//Worldinfo.Game.Broadcast(self, Name $ ": itemsMiel "$itemsMiel);
-			//if(FireModeNum==0){
-				//if(itemsMiel-5>=0){
-					itemsMiel-=5;
-					//BBWeapon(Weapon).animAattackStart();
-					super.StartFire(FireModeNum);
-					//node_attack_list.SetActiveChild(3,0.2f);
+		switch (Weapon.Class){		
+			case (class'BBWeaponNone'):
+				GetSword();
+				break;
+			case (class'BBWeaponSword'):
+				super.StartFire(FireModeNum);
+				break;
+			case  (class'BBWeaponGrenade'):
+				//Worldinfo.Game.Broadcast(self, Name $ ": itemsMiel "$itemsMiel);
+				//if(FireModeNum==0){
+					//if(itemsMiel-5>=0){
+						itemsMiel-=5;
+						//BBWeapon(Weapon).animAattackStart();
+						super.StartFire(FireModeNum);
+						//node_attack_list.SetActiveChild(3,0.2f);
+					//}
+				//}else{
+					//BBWeaponGrenade(Weapon).calcHitPosition();
 				//}
-			//}else{
-				//BBWeaponGrenade(Weapon).calcHitPosition();
-			//}
-			break;
+				break;
 		}
 	}
 
@@ -161,7 +166,8 @@ simulated function StartFire(byte FireModeNum)
 
 simulated function basicSwordAttack()
 {
-	if(BBWeapon(Weapon).getAnimacioFlag()==false){		
+	if(BBWeapon(Weapon).getAnimacioFlag()==false){
+		BBWeaponSword(Weapon).ResetUnequipTimer();
 		BBWeapon(Weapon).animAttackStart();
 		node_attack_list.SetActiveChild(1,0.2f);
 	}
@@ -172,6 +178,7 @@ simulated function comboSwordAttack()
 	
 	local int i;
 	i = node_attack_list.ActiveChildIndex;
+	BBWeaponSword(Weapon).ResetUnequipTimer();
 	BBWeapon(Weapon).animAttackEnd();//end de l'animacio de l'atac basic. Per posar eliminar els enemics de la taula 'lista_enemigos'
 	BBWeapon(Weapon).animAttackStart();
 	if(i<3)	i++;
@@ -244,13 +251,23 @@ function AnimNodeSequence getRollAnimNode()
 	}
 	return None;
 }
-
+simulated function GetUnequipped()
+{
+	local BBWeaponNone Inv;
+	foreach InvManager.InventoryActors( class'BBWeaponNone', Inv )
+	{
+		InvManager.SetCurrentWeapon( Inv );
+		WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(EquipSwordPS,Mesh,'sword_socket',true);
+		break;
+	}
+}
 simulated function GetSword()
 {
 	local BBWeaponSword Inv;
 	foreach InvManager.InventoryActors( class'BBWeaponSword', Inv )
 	{
 		InvManager.SetCurrentWeapon( Inv );
+		WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(EquipSwordPS,Mesh,'sword_socket',true);
 		break;
 	}
 }
@@ -312,6 +329,8 @@ DefaultProperties
 		CollisionHeight=+0045.000000
 	End Object
 	CylinderComponent=CollisionCylinder
+
+	EquipSwordPS = ParticleSystem'Betty_Player.Particles.EquipSword_PS'
 
 	GroundSpeed=400
 	//Default is 420

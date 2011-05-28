@@ -5,23 +5,20 @@ var bool animacio_attack;
 
 var array<Actor> lista_enemigos;
 
-simulated function TimeWeaponEquipping()
-{
-    AttachWeaponTo( Instigator.Mesh,'mano_izquierda' );
-    super.TimeWeaponEquipping();
-}
-
 simulated function AttachWeaponTo( SkeletalMeshComponent MeshCpnt, optional Name SocketName )
 {
+	local BBBettyPawn Betty;
+
+	Betty = BBBettyPawn(Instigator);
     MeshCpnt.AttachComponentToSocket(Mesh,SocketName);
+	Mesh.SetLightEnvironment(Betty.LightEnvironment);
 }
 
 simulated function DetachWeapon()
 {
 	Instigator.Mesh.DetachComponent( Mesh );
 	SetBase(None);
-	//Mesh.SetHidden(True);
-	//Mesh.SetLightEnvironment(None);
+	Mesh.SetLightEnvironment(None);
 }
 
 
@@ -49,4 +46,6 @@ simulated function bool getAnimacioFlag(){
 DefaultProperties
 {
 	animacio_attack=false;
+	EquipTime = 0;
+	PutDownTime = 0;
 }

@@ -7,43 +7,30 @@ var Vector vStartTrace, vEndTrace;
 var vector  vHitLoc, vHitNorm;
 var Actor lastHitActor, hitActor;
 var Pawn hitPawn;
+/** Pawn holding this weapon */
+var BBBettyPawn Holder;
+/** Seconds to unequip Sword when inactive */
+var int unequipTime;
 
 simulated function TimeWeaponEquipping()
 {
 	AttachWeaponTo( Instigator.Mesh,'sword_socket' );
+	Holder = BBBettyPawn(Instigator);
 	super.TimeWeaponEquipping();
 }
 
-simulated function AttachWeaponTo( SkeletalMeshComponent MeshCpnt, optional Name SocketName )
-{
-	local BBBettyPawn Betty;
-
-	Betty = BBBettyPawn(Instigator);
-    MeshCpnt.AttachComponentToSocket(Mesh,SocketName);
-	Mesh.SetLightEnvironment(Betty.LightEnvironment);
-}
-
-simulated function DetachWeapon()
-{
-	Instigator.Mesh.DetachComponent( Mesh );
-	SetBase(None);
-	Mesh.SetLightEnvironment(None);
-}
-
-simulated event SetPosition(UDKPawn Holder)
+simulated event SetPosition(UDKPawn Holder2)
 {
     local SkeletalMeshComponent compo;
     local SkeletalMeshSocket socket;
     local Vector FinalLocation;
 
-    compo = Holder.Mesh;
-    if (compo != none)
-    {
-	socket = compo.GetSocketByName('sword_socket');
-	if (socket != none)
-	{
-	    FinalLocation = compo.GetBoneLocation(socket.BoneName);
-	}
+    compo = Holder2.Mesh;
+    if (compo != none){
+		socket = compo.GetSocketByName('sword_socket');
+		if (socket != none){
+			FinalLocation = compo.GetBoneLocation(socket.BoneName);
+			}
     }
     //And we probably should do something similar for the rotation :)
     SetLocation(FinalLocation); 
@@ -82,6 +69,36 @@ simulated function bool addListaEnemigos(Actor enemigo){
 	return false;
 }
 
+simulated function resetUnequipTimer(){
+	SetTimer(unequipTime);
+}
+
+event Timer(){
+	Holder.GetUnequipped();
+}
+
+/**
+ * Modificamos el estado para desequiapr el arma pasado un tiempo = unequipTime
+ */
+simulated state Active{
+	
+	simulated event BeginState(name PreviousStateName){
+		SetTimer(unequipTime);
+		super.BeginState(PreviousStateName);
+	}
+}
+
+//simulated state WeaponFiring{
+
+//	event Timer(){
+//		Holder.GetUnequipped();
+//	}
+//	simulated event BeginState( Name PreviousStateName ){
+//		SetTimer(unequipTime);
+//		super.BeginState(PreviousStateName);
+//	}
+//}
+
 
 DefaultProperties
 {		
@@ -90,4 +107,7 @@ DefaultProperties
     end object
     Mesh=Sword
     //Components.Add(Sword)
+	
+	unequipTime = 3;
+
 }
