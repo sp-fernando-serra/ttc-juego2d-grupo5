@@ -88,7 +88,7 @@ exec function myMoveto(Vector Loc, Rotator Rot)
 
 
 exec function GetSword(){
-	BBBettyPawn(Pawn).GetSword();
+	BBBettyPawn(Pawn).GetUnequipped();
 }
 
 
@@ -122,11 +122,15 @@ exec function StopFire( optional byte FireModeNum )
 
 function startAttack()
 {
-	if( BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponSword'){	
+	if(BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponSword'){	
 		PushState('Sword_Attack');
 	}
-	else{
+	else if(BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponGrenade'){
 		PushState('Grenade_Attack');
+	}
+	else{
+		//Pasamos al estado de equipar la espada si no tenemos arma equipada
+		PushState('Equipping_Sword');
 	}
 }
 
@@ -296,7 +300,7 @@ function UpdateRotation2( float DeltaTime, bool updatePawnRot)
 			Pawn.FaceRotation(NewRotation, deltatime);
 	}
 
-	function UpdateRotationSword( float DeltaTime)
+function UpdateRotationSword( float DeltaTime)
 	{
 		local Rotator	DeltaRot, /*NewRotation,*/ ViewRotation;
 
@@ -322,12 +326,12 @@ function UpdateRotation2( float DeltaTime, bool updatePawnRot)
 		//	Pawn.FaceRotation(NewRotation, deltatime);
 	}
 
-	exec function shiftButtonDown()
+exec function shiftButtonDown()
 	{
 			broll = true;
 	}
 
-	exec function shiftButtonUp()
+exec function shiftButtonUp()
 	{
 			broll = false;
 	}
@@ -752,7 +756,15 @@ ignores SeePlayer, HearNoise, Bump;
 Begin:
 }
 
-
+/**
+ * Si no tenemos arma equipada simplemente la equipamos 
+ */
+state Equipping_Sword
+{
+Begin:
+	BBBettyPawn(Pawn).GetSword();
+	PopState();
+}
 
 state Sword_Attack
 {
@@ -795,14 +807,14 @@ state Sword_Attack
    		BBBettyPawn(Pawn).comboSwordAttack();
    	}
 Begin:
-initialAttack();
-FinishAnim(getActiveAnimNode());
-PopState();
+	initialAttack();
+	FinishAnim(getActiveAnimNode());
+	PopState();
 
 Combo:
-comboAttack();
-FinishAnim(getActiveAnimNode());
-PopState();
+	comboAttack();
+	FinishAnim(getActiveAnimNode());
+	PopState();
 
 }
 
@@ -852,9 +864,9 @@ state Grenade_Attack
 	}
 
 Lanzar:
-lanzarAttack();
-FinishAnim(getActiveAnimNode());
-PopState();
+	lanzarAttack();
+	FinishAnim(getActiveAnimNode());
+	PopState();
 
 Begin:
 }
@@ -871,7 +883,7 @@ DefaultProperties
 	sideSpeed = 300;
 	backSpeed = 250;
 
-	radioLockon=600.0;
+	radioLockon=1000.0;
 
 	broll=false;
 
