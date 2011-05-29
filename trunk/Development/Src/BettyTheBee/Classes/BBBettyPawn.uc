@@ -26,6 +26,10 @@ var array<AnimNodeSequence> roll_list_anims;
 
 /** ParticleSystem que aparece al equipar la espada */
 var ParticleSystem EquipSwordPS;
+
+//Sounds
+/** Sound for equipping the Sword */
+var SoundCue EquipSwordCue;
  
 simulated function name GetDefaultCameraMode(PlayerController RequestedBy)
 {
@@ -258,6 +262,7 @@ simulated function GetUnequipped()
 	{
 		InvManager.SetCurrentWeapon( Inv );
 		WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(EquipSwordPS,Mesh,'sword_socket',true);
+		PlaySound(EquipSwordCue);
 		break;
 	}
 }
@@ -268,6 +273,7 @@ simulated function GetSword()
 	{
 		InvManager.SetCurrentWeapon( Inv );
 		WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(EquipSwordPS,Mesh,'sword_socket',true);
+		PlaySound(EquipSwordCue);
 		break;
 	}
 }
@@ -346,6 +352,8 @@ DefaultProperties
 	bIsRolling=false;
 
 
+
+	EquipSwordCue=SoundCue'Betty_Sounds.SoundCues.EquippingSword01_Cue';
 
 
 	//	begin object Class=ParticleSystemComponent Name=ParticleSystemComponent1
