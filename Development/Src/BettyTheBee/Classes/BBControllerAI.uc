@@ -105,7 +105,7 @@ state Chaseplayer
 {
   Begin:
 	
-	MyEnemyTestPawn.GotoState('ChasePlayer');
+	MyEnemyTestPawn.GotoState('Chaseplayer');
     Pawn.Acceleration = vect(0,0,1);
 	
     while (Pawn != none && thePlayer.Health > 0)

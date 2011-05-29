@@ -1,4 +1,4 @@
-class BBControllerAIAnt extends BBControllerAI;
+class BBControllerAIRhino extends BBControllerAI;
 
 DefaultProperties
 {
@@ -15,7 +15,7 @@ state Attacking
         if (distanceToPlayer > attackDistance * 2)
         { 
 			MyEnemyTestPawn.GotoState('Chaseplayer');
-            GotoState('Chaseplayer');
+			GotoState('Chaseplayer');
 			break;
         }
 		Sleep(1);
