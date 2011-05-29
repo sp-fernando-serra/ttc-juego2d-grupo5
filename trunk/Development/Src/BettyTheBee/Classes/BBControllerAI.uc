@@ -5,7 +5,6 @@ var BBPawn thePlayer;
 
 
 var array<BBRoutePoint> MyRoutePoints;
-
 var int actual_node;
 var int last_node;
 
@@ -14,6 +13,7 @@ var float attackDistance;
 var int attackDamage;
 
 var float distanceToPlayer;
+var Vector lastLocation;
 
 
 var bool followingPath;
@@ -73,7 +73,7 @@ auto state Idle
 			distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
 			if (distanceToPlayer < perceptionDistance)
 			{ 
-        		//`Log(MyEnemyTestPawn.name@": I can see you!!");
+        		`Log(MyEnemyTestPawn.name@": I can see you!!");
 				GotoState('Chaseplayer');
 			}
 		}
@@ -85,14 +85,14 @@ auto state Idle
 	}
 
 Begin:
-   // `log(MyEnemyTestPawn.name @ ": Starting Idle state");
+    //`log(MyEnemyTestPawn.name @ ": Starting Idle state");
 	Pawn.Acceleration = vect(0,0,0);
 	MyEnemyTestPawn.GotoState('Idle');
 
 	Sleep(IdleInterval);
 	
 	if(MyRoutePoints.Length>0){
-		`log(MyEnemyTestPawn.name @ ": Going to follow path");
+		//`log(MyEnemyTestPawn.name @ ": Going to follow path");
 		followingPath = true;
 		actual_node = last_node;
 		GotoState('FollowPath');
@@ -109,21 +109,25 @@ state Chaseplayer
     Pawn.Acceleration = vect(0,0,1);
 	
     while (Pawn != none && thePlayer.Health > 0)
+	
     {
-		//Worldinfo.Game.Broadcast(self, "I can see you!!");
+		//Worldinfo.Game.Broadcast(self, "I can see you!!(chasing)");
+		//`log(MyEnemyTestPawn.name @ ": I can see you!!(chasing)");
 		
-		if (ActorReachable(thePlayer))
+    	
+		
+		if (ActorReachable(thePlayer)) //si es alcanzable en linea recta
 		{
 			distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
-			if (distanceToPlayer < attackDistance)
+			if (distanceToPlayer < attackDistance) //si está cerca, atacar
 			{
-				GotoState('Attacking');
+				GotoState('Attacking'); 
 				break;
 			}
-			else //if(distanceToPlayer < 300)
+			else //if(distanceToPlayer < 300) // si está lejos, moverse hacia el, y al llegar, atacar
 			{
-				//Ponemos el factor de 0.85 para que no se quede justo en el rango sino que se acerque un poco  mas
-				MoveToward(thePlayer, thePlayer, AttackDistance*0.85);
+				//Ponemos un factor para que no se quede justo en el rango sino que se acerque un poco
+				MoveToward(thePlayer, thePlayer, AttackDistance-25);
 				if(Pawn.ReachedDestination(thePlayer))
 				{
 					GotoState('Attacking');
@@ -136,23 +140,28 @@ state Chaseplayer
 			MoveTarget = FindPathToward(thePlayer,,perceptionDistance + (perceptionDistance/2));
 			if (MoveTarget != none)
 			{
-			//	Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Moving toward Player");
+				//Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Moving toward Player (findpathtoward)");
+				`log(MyEnemyTestPawn.name @ ": Moving toward Player (findpathtoward)");
 
 				distanceToPlayer = VSize(MoveTarget.Location - Pawn.Location);
-				if (distanceToPlayer < 100)
+				if (distanceToPlayer < 100) //if near, move looking to the player
 					MoveToward(MoveTarget, thePlayer, 20.0f);
-				else
+				else //if far, move looking to the destination
 					MoveToward(MoveTarget, MoveTarget, 20.0f);				
 			}
-			else
+			else // can't reach player?
 			{
-				GotoState('Idle');
+				`log(MyEnemyTestPawn.name @ ": going to lastlocation (in chaseplayer)");
+				//GotoState('Idle');
+				lastLocation=thePlayer.Location;
+				GotoState('GoToLastPlayerLocation');
 				break;
 			}		
 		}
-
+		
 		Sleep(1);
     }
+	
 }
 
 state Attacking {
@@ -168,7 +177,7 @@ state FollowPath
 			distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
 			if (distanceToPlayer < perceptionDistance)
 			{ 
-        		//Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": I can see you!!");
+        		Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": I can see you!! (followpath)");
 				GotoState('Chaseplayer');
 			}
 		}
@@ -211,3 +220,40 @@ state FollowPath
 		Sleep(1);
 	}
 }
+
+state GoToLastPlayerLocation
+{
+	event SeePlayer(Pawn SeenPlayer)
+	{
+		`log(MyEnemyTestPawn.name @ ": seenplayer event (in gotolastlocation)");
+
+		if(bAggressive){
+			thePlayer = BBPawn(SeenPlayer);
+			distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
+			if (distanceToPlayer < perceptionDistance)
+			{ 
+        		`Log(MyEnemyTestPawn.name@": I can see you!! (gotolastlocation)");
+				GotoState('Chaseplayer');
+			}
+		}
+    }
+
+	//event BeginState(name PreviousStateName){
+	//	super.BeginState(PreviousStateName);
+	//	thePlayer = none;
+	//}
+
+Begin:
+	// `log(MyEnemyTestPawn.name @ ": Starting Idle state");
+	Pawn.Acceleration = vect(0,0,1);
+	//MyEnemyTestPawn.GotoState('Idle');
+
+	while (Pawn == none){
+		`log(MyEnemyTestPawn.name @ ": Moving to lastPlayerLocation");
+		MoveTo(lastLocation,,50.0f);
+		`log(MyEnemyTestPawn.name @ ": Moved to lastPlayerLocation");
+	}
+
+	
+}
+
