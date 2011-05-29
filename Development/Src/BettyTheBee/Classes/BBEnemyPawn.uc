@@ -69,8 +69,7 @@ simulated function PostBeginPlay()
 	super.PostBeginPlay();
 	SightRadius = PerceptionDistance;
 	SetPhysics(PHYS_Walking);	
-
-
+	
 	Mesh.GetSocketWorldLocationAndRotation('centro', SocketLocation, SocketRotation, 0 /* Use 1 if you wish to return this in component space*/ );
 	//ParticlesComponent_enemigoFijado.SetTemplate(Particles_enemigoFijado_Emitter);
 }

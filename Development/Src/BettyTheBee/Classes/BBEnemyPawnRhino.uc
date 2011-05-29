@@ -53,7 +53,7 @@ DefaultProperties
     GroundSpeed=80.0 //Making the bot slower than the player
 
 	PerceptionDistance = 1000;
-	AttackDistance = 65;
+	AttackDistance = 75;
 	//AttackDistanceNear = 70;
 	AttackDamage = 10;
 	ChargeDamage = 30;
