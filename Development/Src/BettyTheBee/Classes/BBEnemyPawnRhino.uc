@@ -1,7 +1,7 @@
 class BBEnemyPawnRhino extends BBEnemyPawn placeable;
 
 /** Blend node used for blending attack animations*/
-var AnimNodeBlendList nodeListAttack;
+//var AnimNodeBlendList nodeListAttack;
 var AnimNodeBlendList nodeListCharge;
 
 /** Array containing all the attack animation AnimNodeSlots*/

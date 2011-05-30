@@ -141,7 +141,7 @@ state Chaseplayer
 			if (MoveTarget != none)
 			{
 				//Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": Moving toward Player (findpathtoward)");
-				`log(MyEnemyTestPawn.name @ ": Moving toward Player (findpathtoward)");
+				`log(MyEnemyTestPawn.name @ ": Moving toward waypoint (findpathtoward)");
 
 				distanceToPlayer = VSize(MoveTarget.Location - Pawn.Location);
 				if (distanceToPlayer < 100) //if near, move looking to the player
@@ -161,7 +161,7 @@ state Chaseplayer
 		
 		Sleep(1);
     }
-	
+	GotoState('GoToLastPlayerLocation');
 }
 
 state Attacking {
@@ -250,7 +250,7 @@ Begin:
 
 	while (Pawn == none){
 		`log(MyEnemyTestPawn.name @ ": Moving to lastPlayerLocation");
-		MoveTo(lastLocation,,50.0f);
+		FindPathTo(lastLocation);
 		`log(MyEnemyTestPawn.name @ ": Moved to lastPlayerLocation");
 	}
 

@@ -15,6 +15,7 @@ var float Speed;
 //var SkeletalMeshComponent MyMesh;
 //var bool bplayed;
 var Name AnimSetName;
+var AnimNodeBlendList nodeListAttack;
 var AnimNodeSequence MyAnimPlayControl;
 
 /** Distance to see player */
@@ -74,6 +75,17 @@ simulated function PostBeginPlay()
 	//ParticlesComponent_enemigoFijado.SetTemplate(Particles_enemigoFijado_Emitter);
 }
 
+simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
+{
+	super.PostInitAnimTree(SkelComp);
+	if (SkelComp == Mesh)
+	{
+		nodeListAttack = AnimNodeBlendList(Mesh.FindAnimNode('listAttack'));
+		//attackAnim = AnimNodeSequence(Mesh.FindAnimNode('ATTACK'));
+	}
+}
+
+
 function playPariclesFijado()
 {
 	//`log("play");
@@ -93,6 +105,15 @@ state ChasePlayer{
 }
 
 state Idle{
+
+}
+
+state Dying{
+	event BeginState(Name PreviousStateName)
+	{
+		nodeListAttack.SetActiveChild(5,0.2f);
+		super.BeginState(PreviousStateName);
+	}
 
 }
 
