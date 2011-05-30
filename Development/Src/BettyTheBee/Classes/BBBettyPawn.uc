@@ -262,8 +262,10 @@ simulated function GetUnequipped()
 	local BBWeaponNone Inv;
 	local BBWeaponSword Sword;
 	local BBWeaponGrenade Grenade;
+
 	Sword = BBWeaponSword(Weapon);
 	Grenade = BBWeaponGrenade(Weapon);
+
 	//Miramos si el arma anterior no estaba atacando
 	if((Sword != none && Sword.animacio_attack == false) || (Grenade != none && Grenade.animacio_attack == false)){
 		foreach InvManager.InventoryActors( class'BBWeaponNone', Inv )
@@ -284,6 +286,8 @@ simulated function GetSword()
 	local BBWeaponGrenade Grenade;
 
 	Grenade = BBWeaponGrenade(Weapon);
+
+	//Miramos si el arma anterior no estaba atacando
 	if((Grenade != none && Grenade.animacio_attack == false) || Weapon.Class == class'BBWeaponNone'){		
 		foreach InvManager.InventoryActors( class'BBWeaponSword', Inv )
 		{
@@ -298,11 +302,19 @@ simulated function GetGrenade()
 {
 	local BBWeaponGrenade Inv;
 	local BBWeaponSword Sword;
+
 	Sword = BBWeaponSword(Weapon);
+
+	//Miramos si el arma anterior no estaba atacando
 	if((Sword != none && Sword.animacio_attack == false) || Weapon.Class == class'BBWeaponNone'){
 		foreach InvManager.InventoryActors( class'BBWeaponGrenade', Inv )
 		{
 			InvManager.SetCurrentWeapon( Inv );
+			//Si antes teniamos la espada lanzamos particulas y sonido
+			if(Sword != none){
+				WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(EquipSwordPS,Mesh,'sword_socket',true);
+				PlaySound(EquipSwordCue);
+			}
 			break;
 		}
 	}
