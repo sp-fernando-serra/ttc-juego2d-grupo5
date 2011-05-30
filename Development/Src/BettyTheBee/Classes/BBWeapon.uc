@@ -10,15 +10,19 @@ simulated function AttachWeaponTo( SkeletalMeshComponent MeshCpnt, optional Name
 	local BBBettyPawn Betty;
 
 	Betty = BBBettyPawn(Instigator);
-    MeshCpnt.AttachComponentToSocket(Mesh,SocketName);
-	Mesh.SetLightEnvironment(Betty.LightEnvironment);
+	if(Mesh != none){
+		MeshCpnt.AttachComponentToSocket(Mesh,SocketName);
+		Mesh.SetLightEnvironment(Betty.LightEnvironment);
+	}
 }
 
 simulated function DetachWeapon()
 {
-	Instigator.Mesh.DetachComponent( Mesh );
-	SetBase(None);
-	Mesh.SetLightEnvironment(None);
+	if(Mesh != none){
+		Instigator.Mesh.DetachComponent( Mesh );
+		SetBase(None);
+		Mesh.SetLightEnvironment(None);
+	}
 }
 
 

@@ -62,7 +62,7 @@ event Tick(float DeltaTime){
 }
 
 simulated function bool addListaEnemigos(Actor enemigo){
-	if(enemigo!=none && lista_enemigos.Find(enemigo)==-1){
+	if(BBEnemyPawn(enemigo) != none && lista_enemigos.Find(enemigo)==-1){
 		lista_enemigos.AddItem(enemigo);
 		return true;
 	}
@@ -86,6 +86,13 @@ simulated state Active{
 		SetTimer(unequipTime);
 		super.BeginState(PreviousStateName);
 	}
+}
+
+auto state Inactive{
+	simulated event BeginState( Name PreviousStateName )
+		{
+			ClearTimer();
+		}
 }
 
 //simulated state WeaponFiring{
