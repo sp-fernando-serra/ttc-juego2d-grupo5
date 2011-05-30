@@ -248,9 +248,11 @@ exec function LockOn()
 
 exec function LockOff()
 {
-	array_enemigos.Remove(0,array_enemigos.length);
-	TargetedPawn.stopPariclesFijado();
-	TargetedPawn=none;
+	if(TargetedPawn != none){
+		array_enemigos.Remove(0,array_enemigos.length);
+		TargetedPawn.stopPariclesFijado();
+		TargetedPawn=none;
+	}
 	gotostate('playerwalking');
 }
 
