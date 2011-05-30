@@ -1,7 +1,7 @@
 class BBEnemyPawnAnt extends BBEnemyPawn placeable;
 
 /** Blend node used for blending attack animations*/
-var AnimNodeBlendList nodeListAttack;
+//var AnimNodeBlendList nodeListAttack;
 
 /** Array containing all the attack animation AnimNodeSlots*/
 var AnimNodeSequence attackAnim;

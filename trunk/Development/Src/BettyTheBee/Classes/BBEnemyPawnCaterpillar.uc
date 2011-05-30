@@ -12,7 +12,7 @@ var () float randomTimeBetweenShots;
 var () Vector randomness;
 
 /** Blend node used for blending attack animations*/
-var AnimNodeBlendList nodeListAttack;
+//var AnimNodeBlendList nodeListAttack;
 
 /** Array containing all the attack animation AnimNodeSlots*/
 var AnimNodeSequence attackAnim;
