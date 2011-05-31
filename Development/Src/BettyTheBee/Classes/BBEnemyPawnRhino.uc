@@ -7,7 +7,8 @@ var AnimNodeBlendList nodeListCharge;
 /** Array containing all the attack animation AnimNodeSlots*/
 var AnimNodeSequence attackAnim;
 
-
+/** Damage done by Charge Attack */
+var int ChargeDamage;
 
 DefaultProperties
 {
