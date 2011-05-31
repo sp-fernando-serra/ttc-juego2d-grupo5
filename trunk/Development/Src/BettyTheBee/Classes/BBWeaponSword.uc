@@ -11,6 +11,10 @@ var Pawn hitPawn;
 var BBBettyPawn Holder;
 /** Seconds to unequip Sword when inactive */
 var int unequipTime;
+/** Damage done with each attack */
+var int attackDamage;
+/** Damage type done by this sword */
+var class<DamageType> myDamageType;
 
 simulated function TimeWeaponEquipping()
 {
@@ -40,6 +44,7 @@ simulated event SetPosition(UDKPawn Holder2)
 
 event Tick(float DeltaTime){
 
+	local Vector momentum;
 	Super.Tick(DeltaTime);
 	
 	//if attacking do traces to determine hit
@@ -53,7 +58,8 @@ event Tick(float DeltaTime){
 				if(addListaEnemigos(hitActor)){
 					//Worldinfo.Game.Broadcast(self, Name $ ": weapon hit "$ hitActor);	
 					hitPawn = Pawn(hitActor);
-					hitPawn.Health-=20;
+					momentum = vect(0,0,0);
+					hitPawn.TakeDamage(attackDamage, Holder.Controller,vHitLoc,momentum,MyDamageType);
 					//Worldinfo.Game.Broadcast(self, Name $ ": Health "$hitPawn.Health);
 				}	
 			}
@@ -117,4 +123,6 @@ DefaultProperties
 	
 	unequipTime = 3;
 
+	attackDamage = 25;
+	myDamageType = class'DamageType'
 }

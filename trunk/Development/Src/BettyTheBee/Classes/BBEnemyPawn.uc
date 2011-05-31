@@ -30,7 +30,8 @@ var () bool bAggressive<DisplayName = Is Aggressive?>;
 var () array<BBRoutePoint> MyRoutePoints;
 
 
-var ParticleSystemComponent ParticlesComponent_enemigoFijado;
+var ParticleSystem TargetedPawn_PS;
+var ParticleSystemComponent TargetedPawn_PSC;
 //var ParticleSystem Particles_enemigoFijado_Emitter;
 
 defaultproperties
@@ -50,14 +51,8 @@ defaultproperties
 	//PeripheralVision is Cos of desired vision angle cos(45) = 0.707106
 	PeripheralVision = 0.707106;
 
-	begin object class=particlesystemcomponent name=particlesystemcomponent0
-		Template=ParticleSystem'Betty_Particles.enemigos.enemigo_fijado'
-		bAutoActivate=false
-           //secondsbeforeinactive=10
-    end object
-	ParticlesComponent_enemigoFijado=particlesystemcomponent0
-	components.add(particlesystemcomponent0)
-
+	TargetedPawn_PS=ParticleSystem'Betty_Particles.enemigos.enemigo_fijado'
+		
 	//Particles_enemigoFijado_Emitter=ParticleSystem'Betty_Particles.enemigos.enemigo_fijado'
 
 }
@@ -89,15 +84,15 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 function playPariclesFijado()
 {
 	//`log("play");
-	//ParticlesComponent_enemigoFijado.ActivateSystem();
-	ParticlesComponent_enemigoFijado.SetActive(true);
+	//ParticlesComponent_enemigoFijado.SetActive(true);
+	TargetedPawn_PSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(TargetedPawn_PS,Mesh,'centro',true);
 
 }
 
 function stopPariclesFijado(){
 	//`log("stop");
-	//ParticlesComponent_enemigoFijado.DeactivateSystem();
-	ParticlesComponent_enemigoFijado.SetActive(false);
+	//ParticlesComponent_enemigoFijado.SetActive(false);
+	if(TargetedPawn_PSC != none) TargetedPawn_PSC.SetActive(false);
 }
 
 state ChasePlayer{
@@ -111,6 +106,7 @@ state Idle{
 state Dying{
 	event BeginState(Name PreviousStateName)
 	{
+		stopPariclesFijado();
 		nodeListAttack.SetActiveChild(5,0.2f);
 		super.BeginState(PreviousStateName);
 	}
