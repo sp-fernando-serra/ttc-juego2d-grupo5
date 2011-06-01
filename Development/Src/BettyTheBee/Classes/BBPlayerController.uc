@@ -191,7 +191,7 @@ exec function LockOn()
  //   )
 	foreach WorldInfo.AllPawns( class 'BBEnemyPawn', A , BBBettyPawn(Pawn).Location, radioLockon)
 	{
-
+		
 		if ( array_enemigos.Length>0 )
 			{
 				// Find it's place and put it there.
@@ -634,7 +634,7 @@ ignores SeePlayer, HearNoise, Bump;
 
 		ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
 		SetRotation(ViewRotation);
-`log(ViewRotation);
+		//`log(ViewRotation);
 		ViewShake( deltaTime );
 
 		NewRotation = ViewRotation;

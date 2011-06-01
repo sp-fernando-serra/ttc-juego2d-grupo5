@@ -68,7 +68,7 @@ simulated function PostBeginPlay()
 	SetPhysics(PHYS_Walking);	
 	
 	//Mesh.GetSocketWorldLocationAndRotation('centro', SocketLocation, SocketRotation, 0 /* Use 1 if you wish to return this in component space*/ );
-	Mesh.AttachComponentToSocket(ParticlesComponent_enemigoFijado, 'centro');
+	//Mesh.AttachComponentToSocket(ParticlesComponent_enemigoFijado, 'centro');
 	//ParticlesComponent_enemigoFijado.SetTemplate(Particles_enemigoFijado_Emitter);
 }
 
@@ -89,19 +89,19 @@ function playPariclesFijado()
 	//`log("play");
 	//ParticlesComponent_enemigoFijado.SetActive(true);
 	TargetedPawn_PSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(TargetedPawn_PS,Mesh,'centro',true);
-	
+	//`log(Mesh);
 	tipo_enemigo=string(Instigator.Class);
 
 	switch(tipo_enemigo)
 			{
 				case "BBEnemyPawnAnt" : 
-					ParticlesComponent_enemigoFijado.SetScale(1);
+					TargetedPawn_PSC.SetScale(1);
 					break;
 				case "BBEnemyPawnCaterpillar" :
-					ParticlesComponent_enemigoFijado.SetScale(1.5);
+					TargetedPawn_PSC.SetScale(1.5);
 					break;
 				case "BBEnemyPawnRhino" : 
-					ParticlesComponent_enemigoFijado.SetScale(1.3);
+					TargetedPawn_PSC.SetScale(1.3);
 					break;
 			}
 
