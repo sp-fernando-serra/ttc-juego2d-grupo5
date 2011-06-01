@@ -32,10 +32,12 @@ var () array<BBRoutePoint> MyRoutePoints;
 
 var ParticleSystem TargetedPawn_PS;
 var ParticleSystemComponent TargetedPawn_PSC;
-//var ParticleSystem Particles_enemigoFijado_Emitter;
+
 
 defaultproperties
 {
+	
+
     bCollideActors=true
 	bPushesRigidBodies=true
 	bStatic=False
@@ -53,20 +55,20 @@ defaultproperties
 
 	TargetedPawn_PS=ParticleSystem'Betty_Particles.enemigos.enemigo_fijado'
 		
-	//Particles_enemigoFijado_Emitter=ParticleSystem'Betty_Particles.enemigos.enemigo_fijado'
 
 }
 
 simulated function PostBeginPlay()
 {
-	local Vector SocketLocation;
-	local Rotator SocketRotation;
+	//local Vector SocketLocation;
+	//local Rotator SocketRotation;
 
 	super.PostBeginPlay();
 	SightRadius = PerceptionDistance;
 	SetPhysics(PHYS_Walking);	
 	
-	Mesh.GetSocketWorldLocationAndRotation('centro', SocketLocation, SocketRotation, 0 /* Use 1 if you wish to return this in component space*/ );
+	//Mesh.GetSocketWorldLocationAndRotation('centro', SocketLocation, SocketRotation, 0 /* Use 1 if you wish to return this in component space*/ );
+	Mesh.AttachComponentToSocket(ParticlesComponent_enemigoFijado, 'centro');
 	//ParticlesComponent_enemigoFijado.SetTemplate(Particles_enemigoFijado_Emitter);
 }
 
@@ -83,9 +85,25 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 
 function playPariclesFijado()
 {
+	 local string tipo_enemigo;
 	//`log("play");
 	//ParticlesComponent_enemigoFijado.SetActive(true);
 	TargetedPawn_PSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(TargetedPawn_PS,Mesh,'centro',true);
+	
+	tipo_enemigo=string(Instigator.Class);
+
+	switch(tipo_enemigo)
+			{
+				case "BBEnemyPawnAnt" : 
+					ParticlesComponent_enemigoFijado.SetScale(1);
+					break;
+				case "BBEnemyPawnCaterpillar" :
+					ParticlesComponent_enemigoFijado.SetScale(1.5);
+					break;
+				case "BBEnemyPawnRhino" : 
+					ParticlesComponent_enemigoFijado.SetScale(1.3);
+					break;
+			}
 
 }
 

@@ -37,7 +37,6 @@ event PostRender()
 
 exec function Pause(){
 PlayerOwner.SetPause(true);
-//SetVisible(false);
 }
 
 DefaultProperties

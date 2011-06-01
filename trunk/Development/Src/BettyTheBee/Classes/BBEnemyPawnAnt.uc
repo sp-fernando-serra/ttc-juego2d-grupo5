@@ -6,8 +6,11 @@ class BBEnemyPawnAnt extends BBEnemyPawn placeable;
 /** Array containing all the attack animation AnimNodeSlots*/
 var AnimNodeSequence attackAnim;
 
+
 DefaultProperties
 {
+
+
 	//Setting up the light environment
 	Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment
 		ModShadowFadeoutTime=0.25

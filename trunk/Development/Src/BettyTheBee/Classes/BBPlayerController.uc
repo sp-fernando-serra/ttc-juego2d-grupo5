@@ -10,11 +10,14 @@ var bool bLastStrafe, bLastForward,bLastBackward;
 var bool bUpdateRot;
 
 var bool broll;
+//var bool bPlay_humo_correr;
 
 //array de enemigos para la funcion lock-on(encarar enemigo)
 var array<BBEnemyPawn> array_enemigos;
 //radio de seleccion de enemigos
 var float radioLockon;
+
+var bool block;
 
 simulated event PostBeginPlay() //This event is triggered when play begins
 {
@@ -167,10 +170,10 @@ exec function LockOn()
   //local Rotator EyeRotation;
 
 
-	local BBEnemyPawn A;
+	local BBEnemyPawn A,B;
 	local int i;
 
-	foreach WorldInfo.AllPawns( class 'BBEnemyPawn', A , BBBettyPawn(Pawn).Location, radioLockon)
+	
 	//foreach   VisibleActors(class 'BBEnemyPawn', A , radioLockon)	
 	//GetPlayerViewPoint(EyeLocation, EyeRotation);
 
@@ -186,12 +189,8 @@ exec function LockOn()
  //     Vect(1.f, 1.f, 1.f),, 
  //      TRACEFLAG_PhysicsVolumes
  //   )
+	foreach WorldInfo.AllPawns( class 'BBEnemyPawn', A , BBBettyPawn(Pawn).Location, radioLockon)
 	{
-
-			//`log("A"@A);
-			//`log("distancia"@Vsize( BBBettyPawn(Pawn).Location - A.Location ));
-			//`log("------");
-			
 
 		if ( array_enemigos.Length>0 )
 			{
@@ -302,6 +301,7 @@ function UpdateRotation2( float DeltaTime, bool updatePawnRot)
 			Pawn.FaceRotation(NewRotation, deltatime);
 	}
 
+
 function UpdateRotationSword( float DeltaTime)
 	{
 		local Rotator	DeltaRot, /*NewRotation,*/ ViewRotation;
@@ -353,9 +353,10 @@ state myStaticCamMode extends Spectating
 	event BeginState(name PreviousStateName){
 		Camera('FirstPersonCam');		
 		super.BeginState(PreviousStateName);
-	}
-	function PlayerMove( float DeltaTime )
-	{
+}
+
+function PlayerMove( float DeltaTime )
+{
 		local vector X,Y,Z;
 
 		GetAxes(Rotation,X,Y,Z);
@@ -372,6 +373,7 @@ state myStaticCamMode extends Spectating
 		}
 	}	
 }
+
 
 state myLevelEndedMode extends Spectating{
 	function PlayerMove( float DeltaTime )
@@ -422,31 +424,17 @@ exec function BettyMovement( ){
 	bBettyMovement=!bBettyMovement;
 }
 
+
+
 state PlayerWalking{
-	
+
 	function PlayerMove( float DeltaTime )
 	{
-		
-
-		//local vector			X,Y,Z, NewAccel;
-		//local eDoubleClickDir	DoubleClickMove;
-		//local rotator			OldRotation;
-		//local bool				bSaveJump;
 
 		local vector	 X,Y,Z, NewAccel;
 		local eDoubleClickDir	DoubleClickMove;
 		local bool	 bSaveJump;
 		local Rotator DeltaRot, ViewRotation, OldRotation, NewRot;
-
-		
-		if (PlayerInput.aForward > 0)
-				pawn.GroundSpeed = speed;
-			else if (PlayerInput.aForward <=0 && PlayerInput.aStrafe!=0)
-				pawn.GroundSpeed = sideSpeed;
-			else 
-				pawn.GroundSpeed = backSpeed;
-
-
 
 	if(bBettyMovement){
 		if( Pawn == None )
@@ -455,7 +443,21 @@ state PlayerWalking{
 		}
 		else
 		{
-			
+			if (PlayerInput.aForward > 0){
+				pawn.GroundSpeed = speed;
+			}
+			else if (PlayerInput.aForward <=0 && PlayerInput.aStrafe!=0)
+				pawn.GroundSpeed = sideSpeed;
+			else 
+				pawn.GroundSpeed = backSpeed;
+
+			//if(PlayerInput.aForward!=0) BBBettyPawn(Pawn).play_humo_correr();
+			//else BBBettyPawn(Pawn).stop_humo_correr();
+
+			//if(PlayerInput.aForward!=0 && bPlay_humo_correr) {
+			//	bPlay_humo_correr=false;
+			//	BBBettyPawn(Pawn).play_humo_correr();
+			//}else if (PlayerInput.aForward==0) bPlay_humo_correr=true;
 
 			GetAxes(Pawn.Rotation,X,Y,Z);
 
@@ -464,13 +466,8 @@ state PlayerWalking{
 			NewAccel.Z	= 0;
 			NewAccel = Pawn.AccelRate * Normal(NewAccel);
 
-			//`log("NewAccel X"@NewAccel.x);
-			//`log("NewAccel Y"@NewAccel.y);
-			//`log("NewAccel Z"@NewAccel.z);
-
 			DoubleClickMove = PlayerInput.CheckForDoubleClickMove( DeltaTime/WorldInfo.TimeDilation );
 
-			// Update rotation.
 			
 			OldRotation = Rotation;
 			UpdateRotation2( DeltaTime , VSize(NewAccel) != 0);
@@ -521,6 +518,12 @@ state PlayerWalking{
 			}
 			else
 			{
+			
+			if(PlayerInput.aForward!=0 || PlayerInput.aStrafe!=0){
+				speed = 400;
+			}
+			pawn.GroundSpeed = speed;
+
 			GetAxes(Rotation,X,Y,Z);
 
 			//update viewrotation
@@ -582,30 +585,39 @@ state PlayerWalking{
 	
 }
 
-//state PlayerRolling // extends PlayerWalking
+//exec function gotoFuria()
+//{
+//GotoState('Furia');
+//}
+exec function gotoWalk()
+{
+GotoState('PlayerWalking');
+}
+
+//state Furia extends PlayerWalking
 //{
 
-//function animRollLeft(){
-//	BBBettyPawn(Pawn).animRollLeft();
+
+//event BeginState(Name PreviousStateName)
+//{
+//speed = 650;
+//sideSpeed = 550;
+//backSpeed = 500;
+//}
+
+//event EndState(Name NextStateName)
+//{
+//speed = 400;
+//sideSpeed = 300;
+//backSpeed = 250;
 //}
 //Begin:
-//animRollLeft();
-//FinishAnim(getActiveAnimNode());
-//PopState();
 //}
 
 state CombatStance
 {
 ignores SeePlayer, HearNoise, Bump;
 
-	//event NotifyPhysicsVolumeChange( PhysicsVolume NewVolume )
-	//{
-	//	if ( NewVolume.bWaterVolume && Pawn.bCollideWorld )
-	//	{
-	//		GotoState(Pawn.WaterMovementState);
-	//	}
-	//}
-	
 	function UpdateRotation( float DeltaTime )
 	{
 		local Rotator	DeltaRot, newRotation, ViewRotation;
@@ -618,9 +630,11 @@ ignores SeePlayer, HearNoise, Bump;
 		DeltaRot.Yaw	= PlayerInput.aTurn;
 		DeltaRot.Pitch	= PlayerInput.aLookUp;
 
+		//`log(DeltaRot.Pitch);
+
 		ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
 		SetRotation(ViewRotation);
-
+`log(ViewRotation);
 		ViewShake( deltaTime );
 
 		NewRotation = ViewRotation;
@@ -629,6 +643,7 @@ ignores SeePlayer, HearNoise, Bump;
 		if ( Pawn != None )
 			Pawn.FaceRotation(NewRotation, deltatime);
 		SetRotation(rotator(TargetedPawn.GetTargetLocation() - Pawn.GetPawnViewLocation()));
+
 	}
 
 	function ProcessMove(float DeltaTime, vector NewAccel, eDoubleClickDir DoubleClickMove, rotator DeltaRot)
@@ -787,9 +802,6 @@ state Sword_Attack
 		}
 		else
 		{
-			//`log("AccelerationAttack: "@Velocity);
-			Velocity.Y=1000;
-			
 			ProcessMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
 		}
 	}	
@@ -875,6 +887,7 @@ Begin:
 
 
 
+
 DefaultProperties
 {
 	CameraClass=class 'BBMainCamera' //Telling the player controller to use your custom camera script
@@ -888,5 +901,6 @@ DefaultProperties
 	radioLockon=1000.0;
 
 	broll=false;
+	//bPlay_humo_correr=true;
 
 }

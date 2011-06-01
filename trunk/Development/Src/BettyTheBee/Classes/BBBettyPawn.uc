@@ -15,15 +15,12 @@ var DynamicLightEnvironmentComponent LightEnvironment;
 var AnimNodeBlendList node_roll_list;
 var array<AnimNodeSequence> roll_list_anims;
 
+///**GroundParticles al andar o correr 
+var ParticleSystemComponent ParticlesComponent_humo_correr;
+var ParticleSystemComponent ParticlesComponent_ini_correr;
+var ParticleSystem ParticlesSystem_humo_correr[5];
 
-///**GroundParticles al andar o correr sobre tierra*/
-//var ParticleSystemComponent GroundParticlesEffectLeft;
-//var ParticleSystemComponent GroundParticlesEffectRight;
-//var ParticleSystem GroundParticlesEmitter;
-
-//var ParticleSystemComponent Particles_estrellas_antenas;
-//var ParticleSystem EstrellasParticlesEmitter;
-
+var bool bini;
 /** ParticleSystem que aparece al equipar la espada */
 var ParticleSystem EquipSwordPS;
 
@@ -41,31 +38,60 @@ simulated function name GetDefaultCameraMode(PlayerController RequestedBy)
 //	`log("PawnRotation="@Rotation);
 //}
 
-//event PostBeginPlay()
-//{
-//	local Vector SocketLocation;
-//	local Rotator SocketRotation;
+event PostBeginPlay()
+{
+	//local Vector SocketLocation;
+	//local Rotator SocketRotation;
 
-//	//local SkeletalMeshSocket socket;
-//	super.PostBeginPlay();
+	super.PostBeginPlay();
 
 
-//	Mesh.GetSocketWorldLocationAndRotation('antena_dreta', SocketLocation, SocketRotation, 0 /* Use 1 if you wish to return this in component space*/ );
-//	Particles_estrellas_antenas.SetTemplate(EstrellasParticlesEmitter);
-//	//Particles_estrellas_antenas.DeactivateSystem();
+	//Mesh.GetSocketWorldLocationAndRotation('center', SocketLocation, SocketRotation, 0 /* Use 1 if you wish to return this in component space*/ );
+	Mesh.AttachComponentToSocket(ParticlesComponent_humo_correr, 'center');
+	Mesh.AttachComponentToSocket(ParticlesComponent_ini_correr, 'center');
+	ParticlesComponent_ini_correr.SetActive(false);
+	//ParticlesComponent_humo_correr.SetActive(false);
+	//ParticlesComponent_humo_correr.DeactivateSystem();
+	
+	
+	
+	//ParticlesComponent_humo_correr.SetTemplate(ParticlesSystem_humo_correr[0]);
+	
 		
-//}
-
-
-
-function play_estrellas(){
-	//`log('vv');
-	//Particles_estrellas_antenas.ActivateSystem();
 }
 
-function stop_estrellas(){
+function humo1(){
+ParticlesComponent_humo_correr.SetTemplate(ParticlesSystem_humo_correr[0]);
+}
+function humo2(){
+ParticlesComponent_humo_correr.SetTemplate(ParticlesSystem_humo_correr[1]);
+}
+function humo3(){
+ParticlesComponent_humo_correr.SetTemplate(ParticlesSystem_humo_correr[2]);
+}
+function humo4(){
+ParticlesComponent_humo_correr.SetTemplate(ParticlesSystem_humo_correr[3]);
+}
+function humo5(){
+ParticlesComponent_humo_correr.SetTemplate(ParticlesSystem_humo_correr[4]);
+}
+
+function play_humo_correr(){
+	//ParticlesComponent_humo_correr.SetActive(true);
+	ParticlesComponent_ini_correr.ActivateSystem();
+}
+
+function stop_humo_correr(){
 	//Particles_estrellas_antenas.DeactivateSystem();
+	//ParticlesComponent_humo_correr.SetActive(false);
 }
+
+function play_ini_correr(){
+	ParticlesComponent_ini_correr.ActivateSystem();
+
+}
+
+
 
 
 function AddDefaultInventory()
@@ -385,25 +411,25 @@ DefaultProperties
 	bIsRolling=false;
 
 
+	
+	//begin object Class=ParticleSystemComponent Name=ParticleSystemComponent0
+ //              // Template=ParticleSystem'Betty_Particles.Betty.PS_walking'
+ //     end object
+	//	ParticlesComponent_humo_correr=ParticleSystemComponent0
+ //       Components.Add(ParticleSystemComponent0)
 
 	EquipSwordCue=SoundCue'Betty_Sounds.SoundCues.EquippingSword01_Cue';
 
 
 	//	begin object Class=ParticleSystemComponent Name=ParticleSystemComponent1
- //              // SecondsBeforeInactive=1
+ //             Template=ParticleSystem'Betty_Particles.Betty.PS_ini_walking'
  //       end object
- //       GroundParticlesEffectRight=ParticleSystemComponent1
+ //       ParticlesComponent_ini_correr=ParticleSystemComponent1
  //       Components.Add(ParticleSystemComponent1)
 
-	//GroundParticlesEmitter=ParticleSystem'Betty_Particles.PSWalkingGround'
-
-	//begin object Class=ParticleSystemComponent Name=ParticleSystemComponent0
- //               SecondsBeforeInactive=10
- //       end object
-	//	Particles_estrellas_antenas=ParticleSystemComponent0
- //       Components.Add(ParticleSystemComponent0)
-
-	//EstrellasParticlesEmitter=ParticleSystem'Betty_Particles.prueba'
+	
+bini=true;
+	
 
 	
 	
