@@ -19,6 +19,9 @@ var class<DamageType> myDamageType;
 var ParticleSystem DamagePawn_PS;
 var ParticleSystemComponent DamagePawn_PSC;
 
+
+var bool bDoDamage;
+
 simulated function TimeWeaponEquipping()
 {
 	AttachWeaponTo( Instigator.Mesh,'sword_socket' );
@@ -53,23 +56,24 @@ event Tick(float DeltaTime){
 	//if attacking do traces to determine hit
 	if( animacio_attack )
 	{
-		if(SkeletalMeshComponent(Mesh).GetSocketWorldLocationAndRotation('sword_final',vStartTrace) )
-		{
-			if( SkeletalMeshComponent(Mesh).GetSocketWorldLocationAndRotation('sword_ini',vEndTrace) )
+		if(bDoDamage){
+			if(SkeletalMeshComponent(Mesh).GetSocketWorldLocationAndRotation('sword_final',vStartTrace) )
 			{
-				hitActor = Trace(vHitLoc,vHitNorm,vEndTrace,vStartTrace,true);	
+				if( SkeletalMeshComponent(Mesh).GetSocketWorldLocationAndRotation('sword_ini',vEndTrace) )
+				{
+					hitActor = Trace(vHitLoc,vHitNorm,vEndTrace,vStartTrace,true);	
 				
-				if(addListaEnemigos(hitActor)){
+					if(addListaEnemigos(hitActor)){
 					
-					//Worldinfo.Game.Broadcast(self, Name $ ": weapon hit "$ hitActor);	
-					hitPawn = Pawn(hitActor);
-					momentum = vect(0,0,0);
-					hitPawn.TakeDamage(attackDamage, Holder.Controller,vHitLoc,momentum,MyDamageType);
-					BBEnemyPawnRhino(hitPawn).isAtacked();
-					
-					playPariclesDamage(vHitLoc);
-					//Worldinfo.Game.Broadcast(self, Name $ ": Health "$hitPawn.Health);
-				}	
+						//Worldinfo.Game.Broadcast(self, Name $ ": weapon hit "$ hitActor);	
+						hitPawn = Pawn(hitActor);
+						momentum = vect(0,0,0);
+						hitPawn.TakeDamage(attackDamage, Holder.Controller,vHitLoc,momentum,MyDamageType);
+						//BBEnemyPawnRhino(hitPawn).isAtacked();					
+						playPariclesDamage(vHitLoc);
+						//Worldinfo.Game.Broadcast(self, Name $ ": Health "$hitPawn.Health);
+					}	
+				}
 			}
 		}
 	}
@@ -129,6 +133,10 @@ auto state Inactive{
 //}
 
 
+simulated event ToggleAttack(){
+	bDoDamage=!bDoDamage;
+}
+
 DefaultProperties
 {		
 	Begin Object class=SkeletalMeshComponent Name=Sword
@@ -144,4 +152,6 @@ DefaultProperties
 	myDamageType = class'DamageType'
 
 	DamagePawn_PS=ParticleSystem'Betty_Particles.Damage.Rhino_Damage'
+
+	bDoDamage=false;
 }
