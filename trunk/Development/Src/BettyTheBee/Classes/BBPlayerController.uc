@@ -740,6 +740,7 @@ ignores SeePlayer, HearNoise, Bump;
 
 	event EndState(Name NextStateName)
 	{
+
 		GroundPitch = 0;
 		bCombatStance = false;
 		if ( Pawn != None )

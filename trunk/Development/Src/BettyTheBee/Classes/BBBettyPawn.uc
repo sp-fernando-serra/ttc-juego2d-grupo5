@@ -346,7 +346,9 @@ simulated function GetGrenade()
 	}
 }
 
-
+simulated event ToggleAttack(){
+BBWeaponSword(Weapon).ToggleAttack();
+}
 
 DefaultProperties
 {
