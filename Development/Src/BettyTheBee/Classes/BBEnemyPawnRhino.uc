@@ -84,6 +84,10 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 	}
 }
 
+//function AnimNodeSequence getActiveAnimNode()
+//{
+//	return  nodeListAttack.ActiveChildIndex;
+//}
 
 state Attacking{
 
@@ -109,11 +113,13 @@ state Attacking{
 	}
 	
 	simulated event BeginState(name NextStateName){
+		
 		super.BeginState(NextStateName);
 		nodeListAttack.SetActiveChild(2,0.2f);
 	}
 
 	simulated event EndState(name NextStateName){
+		
 		super.EndState(NextStateName);
 		nodeListAttack.SetActiveChild(1,0.2f);
 	}
@@ -121,3 +127,20 @@ Begin:
 	FinishAnim(attackAnim);
 	goto 'Begin';
 }
+
+
+//function isAtacked(){
+//PushState('Attacked');
+//nodelistAttack.SetActiveChild(4,0.2f);
+//}
+
+//state Attacked{
+
+
+//	event PoppedState(){
+//		nodeListAttack.SetActiveChild(1,0.4f);
+//	}
+//Begin:	
+//	FinishAnim(AnimNodeSequence(Mesh.FindAnimNode('Attacked')));
+//	PopState();
+//}

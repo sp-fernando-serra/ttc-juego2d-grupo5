@@ -33,6 +33,9 @@ var () array<BBRoutePoint> MyRoutePoints;
 var ParticleSystem TargetedPawn_PS;
 var ParticleSystemComponent TargetedPawn_PSC;
 
+var ParticleSystem DamagePawn_PS;
+var ParticleSystemComponent DamagePawn_PSC;
+
 
 defaultproperties
 {
@@ -53,8 +56,7 @@ defaultproperties
 	//PeripheralVision is Cos of desired vision angle cos(45) = 0.707106
 	PeripheralVision = 0.707106;
 
-	TargetedPawn_PS=ParticleSystem'Betty_Particles.enemigos.enemigo_fijado'
-		
+	TargetedPawn_PS=ParticleSystem'Betty_Particles.enemigos.enemigo_fijado'	
 
 }
 
