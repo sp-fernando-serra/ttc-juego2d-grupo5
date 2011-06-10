@@ -31,8 +31,10 @@ We'll go over how to change the function of keys later (if, for instance, you di
 {
 	if (PlayerCamera.FreeCamDistance < 512) //Checks that the the value FreeCamDistance, which tells the camera how far to offset from the view target, isn't further than we want the camera to go. Change this to your liking.
 	{
-		`Log("MouseScrollDown"); //Another log message to tell us what's happening in the code
-		PlayerCamera.FreeCamDistance += 64*(PlayerCamera.FreeCamDistance/256); /*This portion increases the camera distance.
+		//`Log("MouseScrollDown"); //Another log message to tell us what's happening in the code
+		PlayerCamera.FreeCamDistance += 64*(PlayerCamera.FreeCamDistance/256); 
+		if(PlayerCamera.FreeCamDistance>370) PlayerCamera.FreeCamDistance=370;
+		/*This portion increases the camera distance.
 By taking a base zoom increment (64) and multiplying it by the current distance (d) over 256, we decrease the zoom increment for when the camera is close,
 (d < 256), and increase it for when it's far away (d > 256).
 Just a little feature to make the zoom feel better. You can tweak the values or take out the scaling altogether and just use the base zoom increment if you like */
@@ -43,8 +45,9 @@ exec function PrevWeapon()
 {
 	if (PlayerCamera.FreeCamDistance > 64) //Checking if the distance is at our minimum distance
 	{
-		`Log("MouseScrollUp");
+		//`Log("MouseScrollUp");
 		PlayerCamera.FreeCamDistance -= 64*(PlayerCamera.FreeCamDistance/256); //Once again scaling the zoom for distance
+		if(PlayerCamera.FreeCamDistance<180) PlayerCamera.FreeCamDistance=180;
 	}
 }
 
@@ -279,6 +282,8 @@ function UpdateRotation2( float DeltaTime, bool updatePawnRot)
 		local Rotator	DeltaRot, newRotation, ViewRotation;
 
 		ViewRotation = Rotation;
+
+		//`log("walking"@ViewRotation.Pitch);
 		if (Pawn!=none && updatePawnRot)
 		{
 			Pawn.SetDesiredRotation(ViewRotation);
@@ -629,10 +634,13 @@ ignores SeePlayer, HearNoise, Bump;
 		DeltaRot.Yaw	= PlayerInput.aTurn;
 		DeltaRot.Pitch	= PlayerInput.aLookUp;
 
-		//`log(DeltaRot.Pitch);
-
+		//`log(ViewRotation);
+		//ViewRotation.Pitch=PlayerInput.aLookUp;
+		//ViewRotation.Yaw=PlayerInput.aTurn;
+		//`log(ViewRotation);
 		ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
-		SetRotation(ViewRotation);
+		
+		//SetRotation(ViewRotation);
 		//`log(ViewRotation);
 		ViewShake( deltaTime );
 
@@ -641,7 +649,8 @@ ignores SeePlayer, HearNoise, Bump;
 
 		if ( Pawn != None )
 			Pawn.FaceRotation(NewRotation, deltatime);
-		SetRotation(rotator(TargetedPawn.GetTargetLocation() - Pawn.GetPawnViewLocation()));
+		//SetRotation(rotator(TargetedPawn.GetTargetLocation() - Pawn.GetPawnViewLocation()));
+		SetRotation(rotator(TargetedPawn.GetTargetLocation() - Pawn.GetTargetLocation()));
 
 	}
 
@@ -667,8 +676,10 @@ ignores SeePlayer, HearNoise, Bump;
 	{
 		local vector			X,Y,Z, NewAccel;
 		local eDoubleClickDir	DoubleClickMove;
-		local rotator			OldRotation;
+		local rotator			OldRotation,ViewRotation,DeltaRot,NewRot;
 		local bool				bSaveJump;
+
+	
 
 		if( Pawn == None )
 		{
@@ -688,6 +699,7 @@ ignores SeePlayer, HearNoise, Bump;
 			// Update rotation.
 			OldRotation = Rotation;
 			UpdateRotation( DeltaTime );
+			
 			bDoubleJump = false;
 
 			if( bPressedJump && Pawn.CannotJumpNow() )
@@ -720,6 +732,69 @@ ignores SeePlayer, HearNoise, Bump;
 				}
 			}
 			bPressedJump = bSaveJump;
+
+
+		//	GetAxes(Rotation,X,Y,Z);
+
+		//	//update viewrotation
+
+		//	ViewRotation = Rotation;
+
+		//	// Calculate Delta to be applied on ViewRotation
+		//	DeltaRot.Yaw	= PlayerInput.aTurn;
+		//	DeltaRot.Pitch	= PlayerInput.aLookUp;
+
+		//	SetRotation(ViewRotation);
+
+		////	ViewRotation.Yaw	= PlayerInput.aTurn;
+		//	//ViewRotation.Pitch	= PlayerInput.aLookUp;
+		//	`log("Controller"@ViewRotation);
+		//	ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
+			
+
+		//	// Update acceleration.
+		//	NewAccel = PlayerInput.aForward*X + PlayerInput.aStrafe*Y;
+		//	NewAccel.Z	= 0;
+
+
+
+		//	// pawn face newaccel direction // 
+
+		//	OldRotation = Pawn.Rotation;
+
+		//	if( Pawn != None )
+
+		//	{ if( NewAccel.X > 0.0 || NewAccel.X < 0.0 || NewAccel.Y > 0.0 || NewAccel.Y < 0.0 )
+
+		//	NewRot = Rotator(NewAccel);
+		//	else
+		//	NewRot = Pawn.Rotation;	
+
+		//	}
+		//	Pawn.FaceRotation(RInterpTo(OldRotation,NewRot,Deltatime,90000,true),Deltatime);
+
+		//	SetRotation(rotator(TargetedPawn.GetTargetLocation() - Pawn.GetTargetLocation()));
+
+
+		//	NewAccel = Pawn.AccelRate * Normal(NewAccel);
+
+		//	DoubleClickMove = PlayerInput.CheckForDoubleClickMove( DeltaTime/WorldInfo.TimeDilation );
+
+		//	if( bPressedJump && Pawn.CannotJumpNow() )
+		//	{
+		//	bSaveJump = true;
+		//	bPressedJump = false;
+		//	}
+		//	else
+		//	{
+		//	bSaveJump = false;
+		//	}
+
+		//	ProcessMove(DeltaTime, NewAccel, DoubleClickMove,Rotation);
+
+
+		//	bPressedJump = bSaveJump;
+
 		}
 	}
 
