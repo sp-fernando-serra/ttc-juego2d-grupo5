@@ -36,6 +36,7 @@ var ParticleSystemComponent TargetedPawn_PSC;
 var ParticleSystem DamagePawn_PS;
 var ParticleSystemComponent DamagePawn_PSC;
 
+var bool bIsDying;
 
 defaultproperties
 {
@@ -52,6 +53,8 @@ defaultproperties
 	LedgeCheckThreshold=0.5f
 
 	bAggressive = true;
+
+	bIsDying=false;
 	
 	//PeripheralVision is Cos of desired vision angle cos(45) = 0.707106
 	PeripheralVision = 0.707106;
@@ -123,11 +126,16 @@ state Idle{
 
 }
 
+function bool isDying(){
+	
+}
+
 state Dying{
 	event BeginState(Name PreviousStateName)
 	{
 		stopPariclesFijado();
 		nodeListAttack.SetActiveChild(5,0.2f);
+		bIsDying=true;
 		super.BeginState(PreviousStateName);
 	}
 

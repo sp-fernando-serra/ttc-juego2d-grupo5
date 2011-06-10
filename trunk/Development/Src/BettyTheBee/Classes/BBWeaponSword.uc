@@ -63,7 +63,7 @@ event Tick(float DeltaTime){
 				{
 					hitActor = Trace(vHitLoc,vHitNorm,vEndTrace,vStartTrace,true);	
 				
-					if(addListaEnemigos(hitActor)){
+					if(addListaEnemigos(hitActor) && !BBEnemyPawn(hitActor).bIsDying){
 					
 						//Worldinfo.Game.Broadcast(self, Name $ ": weapon hit "$ hitActor);	
 						hitPawn = Pawn(hitActor);
