@@ -191,33 +191,32 @@ exec function LockOn()
  //   )
 	foreach WorldInfo.AllPawns( class 'BBEnemyPawn', A , BBBettyPawn(Pawn).Location, radioLockon)
 	{
-		
-		if ( array_enemigos.Length>0 )
-			{
-				// Find it's place and put it there.
-
-				for (i=0;i<array_enemigos.Length;i++)
+		if(!A.bIsDying){
+			if ( array_enemigos.Length>0 )
 				{
-	
-					if( Vsize( BBBettyPawn(Pawn).Location - array_enemigos[i].Location ) > Vsize( BBBettyPawn(Pawn).Location - A.Location))
+
+					for (i=0;i<array_enemigos.Length;i++)
 					{
-						array_enemigos.Insert(i,1);
+	
+						if( Vsize( BBBettyPawn(Pawn).Location - array_enemigos[i].Location ) > Vsize( BBBettyPawn(Pawn).Location - A.Location))
+						{
+							array_enemigos.Insert(i,1);
+							array_enemigos[i] = A;
+							break;
+						}
+					}
+					if (i==array_enemigos.Length)
+					{
+						array_enemigos.Length = array_enemigos.Length+1;
 						array_enemigos[i] = A;
-						break;
 					}
 				}
-				if (i==array_enemigos.Length)
+				else
 				{
-					array_enemigos.Length = array_enemigos.Length+1;
-					array_enemigos[i] = A;
+					array_enemigos.Length = 1;
+					array_enemigos[0] = A;
 				}
-			}
-			else
-			{
-				array_enemigos.Length = 1;
-				array_enemigos[0] = A;
-			}
-    
+		}
 		
 	}
 
