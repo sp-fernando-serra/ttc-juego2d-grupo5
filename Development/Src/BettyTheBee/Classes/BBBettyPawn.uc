@@ -20,7 +20,6 @@ var ParticleSystemComponent ParticlesComponent_humo_correr;
 var ParticleSystemComponent ParticlesComponent_ini_correr;
 var ParticleSystem ParticlesSystem_humo_correr[5];
 
-var bool bini;
 /** ParticleSystem que aparece al equipar la espada */
 var ParticleSystem EquipSwordPS;
 
@@ -414,34 +413,15 @@ DefaultProperties
 
 
 	// FOV / Sight
-	ViewPitchMin=-10000
+	ViewPitchMin=-6000
 	ViewPitchMax=5000
 	//aquets parametres no me mirat perque funcionen
 	RotationRate=(Pitch=20000,Yaw=20000,Roll=20000)
 	MaxPitchLimit=3072
 
 
-	
-	//begin object Class=ParticleSystemComponent Name=ParticleSystemComponent0
- //              // Template=ParticleSystem'Betty_Particles.Betty.PS_walking'
- //     end object
-	//	ParticlesComponent_humo_correr=ParticleSystemComponent0
- //       Components.Add(ParticleSystemComponent0)
-
 	EquipSwordCue=SoundCue'Betty_Sounds.SoundCues.EquippingSword01_Cue';
 
-
-	//	begin object Class=ParticleSystemComponent Name=ParticleSystemComponent1
- //             Template=ParticleSystem'Betty_Particles.Betty.PS_ini_walking'
- //       end object
- //       ParticlesComponent_ini_correr=ParticleSystemComponent1
- //       Components.Add(ParticleSystemComponent1)
-
-	
-bini=true;
-	
-
-	
 	
 }
 
