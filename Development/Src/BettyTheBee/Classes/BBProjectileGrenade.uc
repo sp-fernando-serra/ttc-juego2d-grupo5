@@ -18,8 +18,18 @@ var MorphNodeWeight morph2Weight;
 
 function Init(vector Direction)
 {
+	local vector newVecDirection;
+
+	local BBBettyPawn UTP;
+
+	UTP = BBBettyPawn(Instigator);
+
+	newVecDirection=vector(UTP.Rotation);
+	newVecDirection.Z=Direction.Z;
+
 	SetRotation(rotator(Direction));
-	Velocity = Speed * Direction;
+
+	Velocity = Speed * newVecDirection;
 	Velocity.Z += TossZ;
 	Acceleration = AccelRate * Normal(Velocity);
 }

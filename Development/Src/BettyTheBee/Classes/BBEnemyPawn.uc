@@ -36,7 +36,6 @@ var ParticleSystemComponent TargetedPawn_PSC;
 var ParticleSystem DamagePawn_PS;
 var ParticleSystemComponent DamagePawn_PSC;
 
-var bool bIsDying;
 
 defaultproperties
 {
@@ -135,7 +134,6 @@ state Dying{
 	{
 		stopPariclesFijado();
 		nodeListAttack.SetActiveChild(5,0.2f);
-		bIsDying=true;
 		super.BeginState(PreviousStateName);
 	}
 
