@@ -190,7 +190,8 @@ exec function LockOn()
  //   )
 	foreach WorldInfo.AllPawns( class 'BBEnemyPawn', A , BBBettyPawn(Pawn).Location, radioLockon)
 	{
-		if(!A.bIsDying){
+		if(!A.bPlayedDeath){
+			
 			if ( array_enemigos.Length>0 )
 				{
 
@@ -219,7 +220,7 @@ exec function LockOn()
 		
 	}
 
-		//`log("----");
+		
 	if(array_enemigos.length>0){
 		TargetedPawn=array_enemigos[0];	
 		array_enemigos[0].playPariclesFijado();
@@ -627,10 +628,8 @@ ignores SeePlayer, HearNoise, Bump;
 		ViewShake( deltaTime );
 
 		NewRotation=rotator(TargetedPawn.GetTargetLocation() - Pawn.GetTargetLocation());
-		`log(NewRotation);
 		if ( Pawn != None )
-			//Pawn.FaceRotation(NewRotation, deltatime);
-			Pawn.FaceRotation(rotator(TargetedPawn.GetTargetLocation() - Pawn.GetTargetLocation()), deltatime);
+			Pawn.FaceRotation(NewRotation, deltatime);
 
 		ViewRotation.Yaw=NewRotation.Yaw;
 		SetRotation(ViewRotation);
@@ -663,7 +662,7 @@ ignores SeePlayer, HearNoise, Bump;
 	{
 		local vector			X,Y,Z, NewAccel;
 		local eDoubleClickDir	DoubleClickMove;
-		local rotator			OldRotation,ViewRotation,DeltaRot,NewRot;
+		local rotator			OldRotation;
 		local bool				bSaveJump;
 
 	
@@ -720,67 +719,6 @@ ignores SeePlayer, HearNoise, Bump;
 			}
 			bPressedJump = bSaveJump;
 
-
-		//	GetAxes(Rotation,X,Y,Z);
-
-		//	//update viewrotation
-
-		//	ViewRotation = Rotation;
-
-		//	// Calculate Delta to be applied on ViewRotation
-		//	DeltaRot.Yaw	= PlayerInput.aTurn;
-		//	DeltaRot.Pitch	= PlayerInput.aLookUp;
-
-		//	SetRotation(ViewRotation);
-
-		////	ViewRotation.Yaw	= PlayerInput.aTurn;
-		//	//ViewRotation.Pitch	= PlayerInput.aLookUp;
-		//	`log("Controller"@ViewRotation);
-		//	ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
-			
-
-		//	// Update acceleration.
-		//	NewAccel = PlayerInput.aForward*X + PlayerInput.aStrafe*Y;
-		//	NewAccel.Z	= 0;
-
-
-
-		//	// pawn face newaccel direction // 
-
-		//	OldRotation = Pawn.Rotation;
-
-		//	if( Pawn != None )
-
-		//	{ if( NewAccel.X > 0.0 || NewAccel.X < 0.0 || NewAccel.Y > 0.0 || NewAccel.Y < 0.0 )
-
-		//	NewRot = Rotator(NewAccel);
-		//	else
-		//	NewRot = Pawn.Rotation;	
-
-		//	}
-		//	Pawn.FaceRotation(RInterpTo(OldRotation,NewRot,Deltatime,90000,true),Deltatime);
-
-		//	SetRotation(rotator(TargetedPawn.GetTargetLocation() - Pawn.GetTargetLocation()));
-
-
-		//	NewAccel = Pawn.AccelRate * Normal(NewAccel);
-
-		//	DoubleClickMove = PlayerInput.CheckForDoubleClickMove( DeltaTime/WorldInfo.TimeDilation );
-
-		//	if( bPressedJump && Pawn.CannotJumpNow() )
-		//	{
-		//	bSaveJump = true;
-		//	bPressedJump = false;
-		//	}
-		//	else
-		//	{
-		//	bSaveJump = false;
-		//	}
-
-		//	ProcessMove(DeltaTime, NewAccel, DoubleClickMove,Rotation);
-
-
-		//	bPressedJump = bSaveJump;
 
 		}
 	}
@@ -854,7 +792,15 @@ state Sword_Attack
 		//local vector NewAccel;
 
 		GetAxes(Rotation,X,Y,Z);
+		
+		//`log("Rotation"@Rotation);
+
 		Acceleration = 0*X + 0*Y + 0*vect(0,0,1);
+
+		//Acceleration = 1*X + 1*Y;
+		//Acceleration.Z	= 0;
+		//Acceleration = Pawn.AccelRate * Normal(Acceleration);
+
 
 		UpdateRotationSword(DeltaTime);
 
@@ -896,24 +842,6 @@ Combo:
 
 state Grenade_Attack
 {
-	//function PlayerMove( float DeltaTime )
-	//{
-	//	local vector X,Y,Z;
-
-	//	GetAxes(Rotation,X,Y,Z);
-	//	Acceleration = 0*X + 0*Y + 0*vect(0,0,1);
-	//	UpdateRotation(DeltaTime);
-
-	//	if (Role < ROLE_Authority) // then save this move and replicate it
-	//	{
-	//		ReplicateMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
-	//	}
-	//	else
-	//	{
-	//		ProcessMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
-	//	}
-	//}	
- 
 
 	function prepararAttack()
 	{
