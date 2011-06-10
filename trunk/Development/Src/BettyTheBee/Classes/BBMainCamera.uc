@@ -52,11 +52,13 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 					Loc = OutVT.Target.Location; // Setting the camera location and rotation to the viewtarget's
 					Rot = OutVT.Target.Rotation;
 					//`log('loc'@Loc);
-					//`log('Rot'@Rot);
+					//`log('Rot'@Rot.Pitch);
 
 					if (CameraStyle == 'ThirdPerson')
 					{
-						Rot = PCOwner.Rotation; //setting the rotation of the camera to the rotation of the pawn						
+						Rot = PCOwner.Rotation; //setting the rotation of the camera to the rotation of the pawn	
+						//`log('Rot'@Rot.Pitch);
+						
 					}
 
 					OutVT.Target.GetActorEyesViewPoint(Loc, Rot);
@@ -81,6 +83,7 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 					HitActor = Trace(HitLocation, HitNormal, Pos, Loc, FALSE, vect(12,12,12));
 					//This is where the location and rotation of the camera are actually set
 					OutVT.POV.Location = (HitActor == None) ? Pos : HitLocation;
+					
 					OutVT.POV.Rotation = Rot;
 
 				break; //This is where our code leaves the switch-case statement, preventing it from executing the commands intended for the FirstPerson case.
