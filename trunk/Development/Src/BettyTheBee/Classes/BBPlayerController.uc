@@ -51,10 +51,6 @@ exec function PrevWeapon()
 	}
 }
 
-//event PlayerTick(float DeltaTime){
-//	super.PlayerTick(DeltaTime);
-//	`log("Player in state: "$GetStateName());
-//}
 
 exec function ThirdPersonCam(){
 	local BBBettyPawn P;
@@ -237,14 +233,6 @@ exec function LockOn()
 		gotostate('playerwalking');
 	}
 
-
-	//for (i = 0; i < array_enemigos.length; ++i) {
-	//	`log("enemigo"@array_enemigos[i]);
-	//}
-
-	//`log("******");
-
-
 }
 
 exec function LockOff()
@@ -303,6 +291,7 @@ function UpdateRotation2( float DeltaTime, bool updatePawnRot)
 
 		if ( Pawn != None && updatePawnRot)
 			Pawn.FaceRotation(NewRotation, deltatime);
+		
 	}
 
 
@@ -462,9 +451,8 @@ state PlayerWalking{
 			//	bPlay_humo_correr=false;
 			//	BBBettyPawn(Pawn).play_humo_correr();
 			//}else if (PlayerInput.aForward==0) bPlay_humo_correr=true;
-
+			
 			GetAxes(Pawn.Rotation,X,Y,Z);
-
 
 			NewAccel = PlayerInput.aForward*X + PlayerInput.aStrafe*Y;
 			NewAccel.Z	= 0;
@@ -634,23 +622,18 @@ ignores SeePlayer, HearNoise, Bump;
 		DeltaRot.Yaw	= PlayerInput.aTurn;
 		DeltaRot.Pitch	= PlayerInput.aLookUp;
 
-		//`log(ViewRotation);
-		//ViewRotation.Pitch=PlayerInput.aLookUp;
-		//ViewRotation.Yaw=PlayerInput.aTurn;
-		//`log(ViewRotation);
+
 		ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
-		
-		//SetRotation(ViewRotation);
-		//`log(ViewRotation);
 		ViewShake( deltaTime );
 
-		NewRotation = ViewRotation;
-		NewRotation.Roll = Rotation.Roll;
-
+		NewRotation=rotator(TargetedPawn.GetTargetLocation() - Pawn.GetTargetLocation());
+		`log(NewRotation);
 		if ( Pawn != None )
-			Pawn.FaceRotation(NewRotation, deltatime);
-		//SetRotation(rotator(TargetedPawn.GetTargetLocation() - Pawn.GetPawnViewLocation()));
-		SetRotation(rotator(TargetedPawn.GetTargetLocation() - Pawn.GetTargetLocation()));
+			//Pawn.FaceRotation(NewRotation, deltatime);
+			Pawn.FaceRotation(rotator(TargetedPawn.GetTargetLocation() - Pawn.GetTargetLocation()), deltatime);
+
+		ViewRotation.Yaw=NewRotation.Yaw;
+		SetRotation(ViewRotation);
 
 	}
 
@@ -671,6 +654,10 @@ ignores SeePlayer, HearNoise, Bump;
 
 		CheckJumpOrDuck();
 	}
+
+
+
+
 
 	function PlayerMove( float DeltaTime )
 	{

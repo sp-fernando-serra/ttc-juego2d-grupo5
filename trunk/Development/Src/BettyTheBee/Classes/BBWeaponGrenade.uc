@@ -32,6 +32,18 @@ simulated function calcHitPosition(){
 }
 
 
+//simulated state WeaponFiring{
+
+
+//	simulated event BeginState( Name PreviousStateName ){
+//		super.BeginState(PreviousStateName);
+//		`log(CurrentFireMode);
+
+
+//	}
+//}
+
+
 DefaultProperties
 {
 
