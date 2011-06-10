@@ -413,6 +413,14 @@ DefaultProperties
 	bIsRolling=false;
 
 
+	// FOV / Sight
+	ViewPitchMin=-10000
+	ViewPitchMax=5000
+	//aquets parametres no me mirat perque funcionen
+	RotationRate=(Pitch=20000,Yaw=20000,Roll=20000)
+	MaxPitchLimit=3072
+
+
 	
 	//begin object Class=ParticleSystemComponent Name=ParticleSystemComponent0
  //              // Template=ParticleSystem'Betty_Particles.Betty.PS_walking'
