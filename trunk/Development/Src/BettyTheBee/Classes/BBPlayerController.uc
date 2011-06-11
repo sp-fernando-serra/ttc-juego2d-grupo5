@@ -14,8 +14,12 @@ var bool broll;
 
 //array de enemigos para la funcion lock-on(encarar enemigo)
 var array<BBEnemyPawn> array_enemigos;
+
 //radio de seleccion de enemigos
 var float radioLockon;
+
+//velocidad de rotacion de betty para giros mas suaves(en modo normal...no mario64)
+var float RotationSpeed;
 
 var bool block;
 
@@ -269,10 +273,9 @@ exec function changeLockOn()
 function UpdateRotation2( float DeltaTime, bool updatePawnRot)
 	{
 		local Rotator	DeltaRot, newRotation, ViewRotation;
-
+	
 		ViewRotation = Rotation;
 
-		//`log("walking"@ViewRotation.Pitch);
 		if (Pawn!=none && updatePawnRot)
 		{
 			Pawn.SetDesiredRotation(ViewRotation);
@@ -291,7 +294,8 @@ function UpdateRotation2( float DeltaTime, bool updatePawnRot)
 		NewRotation.Roll = Rotation.Roll;
 
 		if ( Pawn != None && updatePawnRot)
-			Pawn.FaceRotation(NewRotation, deltatime);
+			//Pawn.FaceRotation(NewRotation, deltatime);
+			Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, RotationSpeed, true), DeltaTime);
 		
 	}
 
@@ -892,5 +896,7 @@ DefaultProperties
 
 	broll=false;
 	//bPlay_humo_correr=true;
+
+	RotationSpeed=150000;
 
 }
