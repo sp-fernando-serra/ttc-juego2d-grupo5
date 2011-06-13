@@ -29,7 +29,13 @@ simulated event PostBeginPlay() //This event is triggered when play begins
 	`Log("I am alive!"); //This sends the message "I am alive!" to thelog (to see the log, you need to run UDK with the -log switch)	
 }
 
-//Functions for zooming in and out
+//-----------------------------------------------------------------------------------------------
+//--------------------------------FUNCIONES EXEC-------------------------------------------------
+
+
+
+
+//RUEDA RATON
 exec function NextWeapon() /*The "exec" command tells UDK that this function can be called by the console or keybind.
 We'll go over how to change the function of keys later (if, for instance, you didn't want you use the scroll wheel, but page up and down for zooming instead.)*/
 {
@@ -45,6 +51,7 @@ Just a little feature to make the zoom feel better. You can tweak the values or 
 	}
 }
 
+//RUEDA RATON
 exec function PrevWeapon()
 {
 	if (PlayerCamera.FreeCamDistance > 64) //Checking if the distance is at our minimum distance
@@ -103,7 +110,7 @@ exec function GetGrenade(){
 }
 
 
-
+//BOTON IZQUIERDO RATON (DOWN)
 exec function StartFire( optional byte FireModeNum )
 {	
 	if ( BBBettyPawn(Pawn) != None && !bCinematicMode && !WorldInfo.bPlayersOnly )
@@ -116,7 +123,7 @@ exec function StartFire( optional byte FireModeNum )
 
 }
 
-
+//BOTON IZQUIERDO RATON (UP)
 exec function StopFire( optional byte FireModeNum )
 {	
 	if ( BBBettyPawn(Pawn) != None )
@@ -126,45 +133,9 @@ exec function StopFire( optional byte FireModeNum )
 	
 }
 
-function startAttack()
-{
-	if(BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponSword'){	
-		PushState('Sword_Attack');
-	}
-	else if(BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponGrenade'){
-		PushState('Grenade_Attack');
-	}
-	else{
-		//Pasamos al estado de equipar la espada si no tenemos arma equipada
-		PushState('Equipping_Sword');
-	}
-}
-
-function AnimNodeSequence getActiveAnimNode()
-{
-	local AnimNodeSequence animSeq;
-	if(IsInState('PlayerRolling')) animSeq = BBBettyPawn(Pawn).getRollAnimNode();	
-	if(IsInState('Sword_Attack')) animSeq = BBBettyPawn(Pawn).getAttackAnimNode();	
-	if(animSeq==None)
-	{
-		return None;
-	}
-	return animSeq;
-}
-
-function bool canCombo()
-{
-	local BBBettyPawn p;
-	
-	p = BBBettyPawn(Pawn);
-	if(p!=None)
-	{
-		return p.canStartCombo();
-	}
-	return false;
-}
 
 
+//BOTON DERECHO RATON (DOWN)
 exec function LockOn()
 {
 
@@ -173,7 +144,7 @@ exec function LockOn()
   //local Rotator EyeRotation;
 
 
-	local BBEnemyPawn A,B;
+	local BBEnemyPawn A;//,B;
 	local int i;
 
 	
@@ -240,6 +211,8 @@ exec function LockOn()
 
 }
 
+
+//BOTON DERECHO RATON (UP)
 exec function LockOff()
 {
 	if(TargetedPawn != none){
@@ -250,6 +223,8 @@ exec function LockOff()
 	gotostate('playerwalking');
 }
 
+
+//LETRA 'Q'
 exec function changeLockOn()
 {
 
@@ -269,6 +244,36 @@ exec function changeLockOn()
 
 	}
 }
+
+//LETRA 'SHIFT_IZQ' (DOWN)
+exec function shiftButtonDown()
+	{
+			broll = true;
+	}
+
+//LETRA 'SHIFT_IZQ' (UP)
+exec function shiftButtonUp()
+	{
+			broll = false;
+	}
+
+//LETRA 'M' (cambio de movimento normal a mario64)
+exec function BettyMovement( ){
+	bBettyMovement=!bBettyMovement;
+}
+
+
+
+//--------------------------------FUNCIONES EXEC-------------------------------------------------
+//-----------------------------------------------------------------------------------------------
+
+
+
+
+
+//-----------------------------------------------------------------------------------------------
+//--------------------------------FUNCIONES ROTACION CAMARA Y PLAYER-----------------------------
+
 
 function UpdateRotation2( float DeltaTime, bool updatePawnRot)
 	{
@@ -326,15 +331,40 @@ function UpdateRotationSword( float DeltaTime)
 		//	Pawn.FaceRotation(NewRotation, deltatime);
 	}
 
-exec function shiftButtonDown()
-	{
-			broll = true;
-	}
+//--------------------------------FUNCIONES ROTACION CAMARA Y PLAYER-----------------------------
+//-----------------------------------------------------------------------------------------------
 
-exec function shiftButtonUp()
+
+
+
+
+function AnimNodeSequence getActiveAnimNode()
+{
+	local AnimNodeSequence animSeq;
+	if(IsInState('PlayerRolling')) animSeq = BBBettyPawn(Pawn).getRollAnimNode();	
+	if(IsInState('Sword_Attack')) animSeq = BBBettyPawn(Pawn).getAttackAnimNode();	
+	if(animSeq==None)
 	{
-			broll = false;
+		return None;
 	}
+	return animSeq;
+}
+
+function bool canCombo()
+{
+	local BBBettyPawn p;
+	
+	p = BBBettyPawn(Pawn);
+	if(p!=None)
+	{
+		return p.canStartCombo();
+	}
+	return false;
+}
+
+
+
+
 
 
 
@@ -418,9 +448,7 @@ Begin:
 }
 
 
-exec function BettyMovement( ){
-	bBettyMovement=!bBettyMovement;
-}
+
 
 
 
@@ -552,7 +580,7 @@ state PlayerWalking{
 			NewRot = Pawn.Rotation;	
 
 			}
-			Pawn.FaceRotation(RInterpTo(OldRotation,NewRot,Deltatime,90000,true),Deltatime);
+			Pawn.FaceRotation(RInterpTo(OldRotation,NewRot,Deltatime,70000,true),Deltatime);
 
 
 
@@ -844,6 +872,43 @@ Combo:
 
 }
 
+
+
+
+//LETRA 'E' (UP) (lanzamos granada)
+//exec function EButtonUP(){
+
+//	//BBBettyPawn(Pawn).StartFire( 0 );
+	
+//	GotoState('Grenade_Attack','LanzarGranada');
+//	BBBettyPawn(Pawn).GetUnequipped();
+//}
+
+
+
+
+//LETRA 'E' (DOWN) (escojemos 'granada' como weapon)
+exec function EButtonDown(){
+	BBBettyPawn(Pawn).GetGrenade();	
+	startAttack();
+	//GotoState('Grenade_Attack');
+	//pushState('Grenade_Attack');
+}
+
+function startAttack()
+{
+	if(BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponSword'){	
+		PushState('Sword_Attack');
+	}
+	else if(BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponGrenade'){
+		PushState('Grenade_Attack');
+	}
+	else{
+		//Pasamos al estado de equipar la espada si no tenemos arma equipada
+		PushState('Equipping_Sword');
+	}
+}
+
 state Grenade_Attack
 {
 
@@ -854,22 +919,31 @@ state Grenade_Attack
 
 	function lanzarAttack()
 	{
-		//Worldinfo.Game.Broadcast(self, Name $ ": lanzarAttack ");
 		BBBettyPawn(Pawn).GrenadeAttack();
    	}	
 	   	
 	exec function StopFire( optional byte FireModeNum )
+	//exec function EButtonUP( )
 	{	
+	
 		if(BBBettyPawn(Pawn).itemsMiel-5>=0){
 			GotoState('Grenade_Attack','Lanzar');
 			if ( BBBettyPawn(Pawn) != None )
 			{
-			BBBettyPawn(Pawn).StartFire( FireModeNum );
-			BBBettyPawn(Pawn).StopFire( FireModeNum );
+			BBBettyPawn(Pawn).StartFire( 0 );
+			BBBettyPawn(Pawn).StopFire( 0 );
+			//PopState();
 			}
 		}else PopState();
 
 	}
+
+	//event PoppedState(){
+	//	//BBBettyPawn(Pawn).GetUnequipped();
+	//	//BBBettyPawn(Pawn).GetSword();
+	//	//`log("dd");
+	//	//PushState('Equipping_Sword');
+	//}
 
 Lanzar:
 	lanzarAttack();
