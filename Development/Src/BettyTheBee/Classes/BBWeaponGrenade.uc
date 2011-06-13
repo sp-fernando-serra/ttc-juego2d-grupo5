@@ -6,13 +6,13 @@ simulated event vector GetPhysicalFireStartLoc(optional vector AimDir)
 {
 	
     local SkeletalMeshComponent compo;
-	local Vector location;
+	local Vector socket_loc;
 
 	compo = Instigator.Mesh;
     if (compo != none)
     {
-		compo.GetSocketWorldLocationAndRotation('grenade_socket',location);
-		return location;
+		compo.GetSocketWorldLocationAndRotation('grenade_socket',socket_loc);
+		return socket_loc;
     }
 }
 
