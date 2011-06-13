@@ -113,12 +113,21 @@ exec function GetGrenade(){
 //BOTON IZQUIERDO RATON (DOWN)
 exec function StartFire( optional byte FireModeNum )
 {	
+	//if ( BBBettyPawn(Pawn) != None && !bCinematicMode && !WorldInfo.bPlayersOnly )
+	//{
+	//	if( BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponSword'){			
+	//		BBBettyPawn(Pawn).StartFire( FireModeNum );			
+	//	}
+	//	startAttack();
+	//}
+
 	if ( BBBettyPawn(Pawn) != None && !bCinematicMode && !WorldInfo.bPlayersOnly )
 	{
+
 		if( BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponSword'){			
-			BBBettyPawn(Pawn).StartFire( FireModeNum );			
+			if(FireModeNum==0) BBBettyPawn(Pawn).StartFire( FireModeNum );			
 		}
-		startAttack();
+		startAttack(FireModeNum);
 	}
 
 }
@@ -263,6 +272,18 @@ exec function BettyMovement( ){
 }
 
 
+//LETRA 'E' (DOWN) (escojemos 'granada' como weapon)
+exec function EButtonDown(){
+	startAttack(1);
+}
+
+exec function GetVida(){
+	if(BBBettyPawn(Pawn).itemsMiel-20>=0 && BBBettyPawn(Pawn).Health<100){
+		BBBettyPawn(Pawn).itemsMiel-=20;
+		BBBettyPawn(Pawn).Health+=20;
+		if(BBBettyPawn(Pawn).Health>100)BBBettyPawn(Pawn).Health=100;
+	}
+}
 
 //--------------------------------FUNCIONES EXEC-------------------------------------------------
 //-----------------------------------------------------------------------------------------------
@@ -335,7 +356,17 @@ function UpdateRotationSword( float DeltaTime)
 //-----------------------------------------------------------------------------------------------
 
 
-
+function startAttack(optional byte FireModeNum )
+{
+	if(BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponSword'){	
+		if(FireModeNum==0)PushState('Sword_Attack');
+		if(FireModeNum==1)PushState('Grenade_Attack');
+	}
+	else{
+		//Pasamos al estado de equipar la espada si no tenemos arma equipada
+		PushState('Equipping_Sword');
+	}
+}
 
 
 function AnimNodeSequence getActiveAnimNode()
@@ -846,7 +877,7 @@ state Sword_Attack
 		}
 	}	
 
-	function startAttack()
+	function startAttack(optional byte FireModeNum)
 	{
 		if(canCombo())	GotoState('Sword_Attack','Combo');
 	}
@@ -873,42 +904,6 @@ Combo:
 }
 
 
-
-
-//LETRA 'E' (UP) (lanzamos granada)
-//exec function EButtonUP(){
-
-//	//BBBettyPawn(Pawn).StartFire( 0 );
-	
-//	GotoState('Grenade_Attack','LanzarGranada');
-//	BBBettyPawn(Pawn).GetUnequipped();
-//}
-
-
-
-
-//LETRA 'E' (DOWN) (escojemos 'granada' como weapon)
-exec function EButtonDown(){
-	BBBettyPawn(Pawn).GetGrenade();	
-	startAttack();
-	//GotoState('Grenade_Attack');
-	//pushState('Grenade_Attack');
-}
-
-function startAttack()
-{
-	if(BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponSword'){	
-		PushState('Sword_Attack');
-	}
-	else if(BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponGrenade'){
-		PushState('Grenade_Attack');
-	}
-	else{
-		//Pasamos al estado de equipar la espada si no tenemos arma equipada
-		PushState('Equipping_Sword');
-	}
-}
-
 state Grenade_Attack
 {
 
@@ -922,28 +917,20 @@ state Grenade_Attack
 		BBBettyPawn(Pawn).GrenadeAttack();
    	}	
 	   	
-	exec function StopFire( optional byte FireModeNum )
-	//exec function EButtonUP( )
+	//exec function StopFire( optional byte FireModeNum )
+	exec function EButtonUP( )
 	{	
 	
 		if(BBBettyPawn(Pawn).itemsMiel-5>=0){
 			GotoState('Grenade_Attack','Lanzar');
 			if ( BBBettyPawn(Pawn) != None )
 			{
-			BBBettyPawn(Pawn).StartFire( 0 );
-			BBBettyPawn(Pawn).StopFire( 0 );
-			//PopState();
+			BBBettyPawn(Pawn).StartFire( 1 );
+			BBBettyPawn(Pawn).StopFire( 1 );
 			}
 		}else PopState();
 
 	}
-
-	//event PoppedState(){
-	//	//BBBettyPawn(Pawn).GetUnequipped();
-	//	//BBBettyPawn(Pawn).GetSword();
-	//	//`log("dd");
-	//	//PushState('Equipping_Sword');
-	//}
 
 Lanzar:
 	lanzarAttack();
