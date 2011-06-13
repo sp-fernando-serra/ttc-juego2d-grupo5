@@ -16,9 +16,9 @@ var AnimNodeBlendList node_roll_list;
 var array<AnimNodeSequence> roll_list_anims;
 
 ///**GroundParticles al andar o correr 
-var ParticleSystemComponent ParticlesComponent_humo_correr;
-var ParticleSystemComponent ParticlesComponent_ini_correr;
-var ParticleSystem ParticlesSystem_humo_correr[5];
+//var ParticleSystemComponent ParticlesComponent_humo_correr;
+//var ParticleSystemComponent ParticlesComponent_ini_correr;
+//var ParticleSystem ParticlesSystem_humo_correr[5];
 
 /** ParticleSystem que aparece al equipar la espada */
 var ParticleSystem EquipSwordPS;
@@ -37,57 +37,42 @@ simulated function name GetDefaultCameraMode(PlayerController RequestedBy)
 //	`log("PawnRotation="@Rotation);
 //}
 
-event PostBeginPlay()
-{
-	//local Vector SocketLocation;
-	//local Rotator SocketRotation;
+//event PostBeginPlay()
+//{
+//	//local Vector SocketLocation;
+//	//local Rotator SocketRotation;
 
-	super.PostBeginPlay();
+//	super.PostBeginPlay();
 
-	//Mesh.GetSocketWorldLocationAndRotation('center', SocketLocation, SocketRotation, 0 /* Use 1 if you wish to return this in component space*/ );
-	Mesh.AttachComponentToSocket(ParticlesComponent_humo_correr, 'center');
-	Mesh.AttachComponentToSocket(ParticlesComponent_ini_correr, 'center');
-	ParticlesComponent_ini_correr.SetActive(false);
-	//ParticlesComponent_humo_correr.SetActive(false);
-	//ParticlesComponent_humo_correr.DeactivateSystem();
+//	//Mesh.GetSocketWorldLocationAndRotation('center', SocketLocation, SocketRotation, 0 /* Use 1 if you wish to return this in component space*/ );
+//	Mesh.AttachComponentToSocket(ParticlesComponent_humo_correr, 'center');
+//	Mesh.AttachComponentToSocket(ParticlesComponent_ini_correr, 'center');
+//	ParticlesComponent_ini_correr.SetActive(false);
+//	//ParticlesComponent_humo_correr.SetActive(false);
+//	//ParticlesComponent_humo_correr.DeactivateSystem();
 	
 	
 	
-	//ParticlesComponent_humo_correr.SetTemplate(ParticlesSystem_humo_correr[0]);
+//	//ParticlesComponent_humo_correr.SetTemplate(ParticlesSystem_humo_correr[0]);
 	
 		
-}
+//}
 
-function humo1(){
-ParticlesComponent_humo_correr.SetTemplate(ParticlesSystem_humo_correr[0]);
-}
-function humo2(){
-ParticlesComponent_humo_correr.SetTemplate(ParticlesSystem_humo_correr[1]);
-}
-function humo3(){
-ParticlesComponent_humo_correr.SetTemplate(ParticlesSystem_humo_correr[2]);
-}
-function humo4(){
-ParticlesComponent_humo_correr.SetTemplate(ParticlesSystem_humo_correr[3]);
-}
-function humo5(){
-ParticlesComponent_humo_correr.SetTemplate(ParticlesSystem_humo_correr[4]);
-}
 
-function play_humo_correr(){
-	//ParticlesComponent_humo_correr.SetActive(true);
-	ParticlesComponent_ini_correr.ActivateSystem();
-}
+//function play_humo_correr(){
+//	//ParticlesComponent_humo_correr.SetActive(true);
+//	ParticlesComponent_ini_correr.ActivateSystem();
+//}
 
-function stop_humo_correr(){
-	//Particles_estrellas_antenas.DeactivateSystem();
-	//ParticlesComponent_humo_correr.SetActive(false);
-}
+//function stop_humo_correr(){
+//	//Particles_estrellas_antenas.DeactivateSystem();
+//	//ParticlesComponent_humo_correr.SetActive(false);
+//}
 
-function play_ini_correr(){
-	ParticlesComponent_ini_correr.ActivateSystem();
+//function play_ini_correr(){
+//	ParticlesComponent_ini_correr.ActivateSystem();
 
-}
+//}
 
 
 
@@ -97,7 +82,7 @@ function AddDefaultInventory()
 	//La primera sera el arma con que empecemos. Empezamos sin arma equipada
 	InvManager.CreateInventory(class'BettyTheBee.BBWeaponNone');
 	InvManager.CreateInventory(class'BettyTheBee.BBWeaponSword');
-	InvManager.CreateInventory(class'BettyTheBee.BBWeaponGrenade');
+	//InvManager.CreateInventory(class'BettyTheBee.BBWeaponGrenade');
 }
 
 
@@ -142,26 +127,31 @@ function bool isRolling(){
 simulated function StartFire(byte FireModeNum)
 {
 
+	//	if(BBWeapon(Weapon).getAnimacioFlag()==false){
+			
+	//	switch (Weapon.Class){		
+	//		case (class'BBWeaponSword'):
+	//				super.StartFire(FireModeNum);
+	//			break;
+	//		case  (class'BBWeaponGrenade'):
+	//				itemsMiel-=5;
+	//				super.StartFire(FireModeNum);
+	//			break;
+	//		default:
+	//			break;
+	//	}
+	//}
+
+	
 		if(BBWeapon(Weapon).getAnimacioFlag()==false){
+			
 		switch (Weapon.Class){		
-			//case (class'BBWeaponNone'):
-			//	GetSword();
-			//	break;
 			case (class'BBWeaponSword'):
-				super.StartFire(FireModeNum);
-				break;
-			case  (class'BBWeaponGrenade'):
-				//Worldinfo.Game.Broadcast(self, Name $ ": itemsMiel "$itemsMiel);
-				//if(FireModeNum==0){
-					//if(itemsMiel-5>=0){
+					if(FireModeNum==0)super.StartFire(FireModeNum);
+					else{
 						itemsMiel-=5;
-						//BBWeapon(Weapon).animAattackStart();
 						super.StartFire(FireModeNum);
-						//node_attack_list.SetActiveChild(3,0.2f);
-					//}
-				//}else{
-					//BBWeaponGrenade(Weapon).calcHitPosition();
-				//}
+					}
 				break;
 			default:
 				break;
@@ -304,6 +294,7 @@ simulated function GetGrenade()
 	local BBWeaponGrenade Inv;
 	local BBWeaponSword Sword;
 
+//`loginternal("fff");
 	Sword = BBWeaponSword(Weapon);
 
 	//Miramos si el arma anterior no estaba atacando
@@ -352,7 +343,7 @@ BBWeaponSword(Weapon).ToggleAttack();
   
 //  if (Physics == PHYS_RigidBody)
 //  {
-//    //@note: Falling instead of None so Velocity/Acceleration don't get cleared
+
 //    setPhysics(PHYS_Falling);
 //  }
 //  PreRagdollCollisionComponent = CollisionComponent;
