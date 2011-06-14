@@ -77,13 +77,23 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 					}
 
 					Pos = Loc - Vector(Rot) * Dist; /*Instead of using FreeCamDistance here, which would cause the camera to jump by the entire increment, we use Dist, which increments in small steps to the desired value of FreeCamDistance using the Lerp function above*/
+					
 					// @fixme, respect BlockingVolume.bBlockCamera=false
-
+					
+					
 					//This determines if the camera will pass through a mesh by tracing a path to the view target.
 					HitActor = Trace(HitLocation, HitNormal, Pos, Loc, FALSE, vect(12,12,12));
 					//This is where the location and rotation of the camera are actually set
-					OutVT.POV.Location = (HitActor == None) ? Pos : HitLocation;
 					
+
+					
+
+					OutVT.POV.Location = (HitActor == None) ? Pos : HitLocation;
+					//OutVT.POV.Location = (HitActor == None) ? Pos : PCOwner.Location;
+					
+					`log(OutVT.POV.Location);
+
+					//OutVT.POV.Location =Pos;
 					OutVT.POV.Rotation = Rot;
 
 				break; //This is where our code leaves the switch-case statement, preventing it from executing the commands intended for the FirstPerson case.
