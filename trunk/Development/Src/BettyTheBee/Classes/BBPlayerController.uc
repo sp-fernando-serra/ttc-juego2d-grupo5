@@ -123,7 +123,7 @@ exec function StartFire( optional byte FireModeNum )
 
 	if ( BBBettyPawn(Pawn) != None && !bCinematicMode && !WorldInfo.bPlayersOnly )
 	{
-
+		
 		if( BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponSword'){			
 			if(FireModeNum==0) BBBettyPawn(Pawn).StartFire( FireModeNum );			
 		}
@@ -906,6 +906,26 @@ Combo:
 
 state Grenade_Attack
 {
+
+		function PlayerMove( float DeltaTime )
+	{
+		local vector X,Y,Z;
+
+		GetAxes(Rotation,X,Y,Z);
+		
+		Acceleration = 0*X + 0*Y + 0*vect(0,0,1);
+
+		UpdateRotationSword(DeltaTime);
+
+		if (Role < ROLE_Authority) // then save this move and replicate it
+		{
+			ReplicateMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
+		}
+		else
+		{
+			ProcessMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
+		}
+	}	
 
 	function prepararAttack()
 	{

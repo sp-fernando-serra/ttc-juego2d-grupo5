@@ -26,7 +26,8 @@ var ParticleSystem EquipSwordPS;
 //Sounds
 /** Sound for equipping the Sword */
 var SoundCue EquipSwordCue;
- 
+
+
 simulated function name GetDefaultCameraMode(PlayerController RequestedBy)
 {
 	return 'ThirdPerson';
