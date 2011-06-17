@@ -16,15 +16,61 @@ simulated event vector GetPhysicalFireStartLoc(optional vector AimDir)
     }
 }
 
-simulated function calcHitPosition(){
-	local vector HitLocation,HitNormal;
-	HitNormal = normal(Velocity * -1);
-	HitNormal=vect(0,0,-1);
-	//Worldinfo.Game.Broadcast(self, Name $ ": Location "$Location);
-	//Worldinfo.Game.Broadcast(self, Name $ ": HitNormal "$HitNormal);
-	//Worldinfo.Game.Broadcast(self, Name $ ": Velocity "$Velocity);
-	Trace(HitLocation,HitNormal,(Location + (HitNormal*-32)), Location + (HitNormal*32),true,vect(0,0,0));
-	//Worldinfo.Game.Broadcast(self, Name $ ": calcHitPosition "$HitLocation);
+//simulated function calcHitPosition(){
+//	local vector		StartTrace, EndTrace, RealStartLoc, AimDir;
+//	local ImpactInfo	TestImpact;
+//	StartTrace = Instigator.GetWeaponStartTraceLocation();
+//		AimDir = Vector(GetAdjustedAim( StartTrace ));
+
+//	EndTrace = StartTrace + AimDir * GetTraceRange();
+//	TestImpact = CalcWeaponFire( StartTrace, EndTrace );
+
+//	`log(TestImpact.HitLocation);
+
+//}
+
+
+simulated function Projectile ProjectileFire()
+{
+	local vector		StartTrace, EndTrace, RealStartLoc, AimDir;
+	local ImpactInfo	TestImpact;
+	local Projectile	SpawnedProjectile;
+
+	// tell remote clients that we fired, to trigger effects
+	IncrementFlashCount();
+
+	if( Role == ROLE_Authority )
+	{
+		// This is where we would start an instant trace. (what CalcWeaponFire uses)
+		StartTrace = Instigator.GetWeaponStartTraceLocation();
+		AimDir = Vector(GetAdjustedAim( StartTrace ));
+
+		// this is the location where the projectile is spawned.
+		RealStartLoc = GetPhysicalFireStartLoc(AimDir);
+
+		if( StartTrace != RealStartLoc )
+		{
+			// if projectile is spawned at different location of crosshair,
+			// then simulate an instant trace where crosshair is aiming at, Get hit info.
+			EndTrace = StartTrace + AimDir * GetTraceRange();
+			TestImpact = CalcWeaponFire( StartTrace, EndTrace );
+
+			// Then we realign projectile aim direction to match where the crosshair did hit.
+			AimDir = Normal(TestImpact.HitLocation - RealStartLoc);
+		}
+
+		// Spawn projectile
+		SpawnedProjectile = Spawn(GetProjectileClass(), Self,, RealStartLoc);
+		if( SpawnedProjectile != None && !SpawnedProjectile.bDeleteMe )
+		{
+			SpawnedProjectile.Init( AimDir );
+		}
+
+		// Return it up the line
+		return SpawnedProjectile;
+	}
+
+	return None;
 }
 
 

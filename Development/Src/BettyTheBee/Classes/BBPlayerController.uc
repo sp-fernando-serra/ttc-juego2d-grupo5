@@ -33,8 +33,6 @@ simulated event PostBeginPlay() //This event is triggered when play begins
 //--------------------------------FUNCIONES EXEC-------------------------------------------------
 
 
-
-
 //RUEDA RATON
 exec function NextWeapon() /*The "exec" command tells UDK that this function can be called by the console or keybind.
 We'll go over how to change the function of keys later (if, for instance, you didn't want you use the scroll wheel, but page up and down for zooming instead.)*/
@@ -275,6 +273,9 @@ exec function BettyMovement( ){
 //LETRA 'E' (DOWN) (escojemos 'granada' como weapon)
 exec function EButtonDown(){
 	startAttack(1);
+	//if(BBBettyPawn(Pawn).itemsMiel-5>=0){
+	//	BBBettyPawn(Pawn).GrenadeAttack();
+	//}
 }
 
 exec function GetVida(){
@@ -287,9 +288,6 @@ exec function GetVida(){
 
 //--------------------------------FUNCIONES EXEC-------------------------------------------------
 //-----------------------------------------------------------------------------------------------
-
-
-
 
 
 //-----------------------------------------------------------------------------------------------
@@ -312,6 +310,7 @@ function UpdateRotation2( float DeltaTime, bool updatePawnRot)
 		DeltaRot.Pitch	= PlayerInput.aLookUp;
 
 		ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
+		
 		SetRotation(ViewRotation);
 
 		ViewShake( deltaTime );
@@ -364,7 +363,9 @@ function startAttack(optional byte FireModeNum )
 	}
 	else{
 		//Pasamos al estado de equipar la espada si no tenemos arma equipada
-		PushState('Equipping_Sword');
+		
+		if(FireModeNum==0)PushState('Equipping_Sword');
+		if(FireModeNum==1)PushState('Grenade_Attack');
 	}
 }
 
@@ -907,7 +908,7 @@ Combo:
 state Grenade_Attack
 {
 
-		function PlayerMove( float DeltaTime )
+	function PlayerMove( float DeltaTime )
 	{
 		local vector X,Y,Z;
 
@@ -929,7 +930,9 @@ state Grenade_Attack
 
 	function prepararAttack()
 	{
-		//aqui calcularem on impactara la granada
+		//BBWeaponNone(Weapon).calcHitPosition();
+		BBBettyPawn(Pawn).calcHitLocation();
+
    	}
 
 	function lanzarAttack()
@@ -958,6 +961,7 @@ Lanzar:
 	PopState();
 
 Begin:
+	prepararAttack();
 }
 
 

@@ -27,7 +27,11 @@ function Init(vector Direction)
 	newVecDirection=vector(UTP.Rotation);
 	newVecDirection.Z=Direction.Z;
 
-	SetRotation(rotator(Direction));
+	//SetRotation(rotator(Direction));
+	
+	
+	//`log("GetFOVAngle"@camera.GetFOVAngle());
+	
 
 	Velocity = Speed * newVecDirection;
 	Velocity.Z += TossZ;
@@ -168,5 +172,7 @@ DefaultProperties
 	TerminalVelocity=3500.0
 
 	RibbonParticleSystem = ParticleSystem'Betty_Player.Particles.Grenade_Particles'
+
+
 	
 }
