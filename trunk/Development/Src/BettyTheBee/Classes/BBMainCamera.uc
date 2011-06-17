@@ -87,11 +87,10 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 					
 
 					
-
 					OutVT.POV.Location = (HitActor == None) ? Pos : HitLocation;
 					//OutVT.POV.Location = (HitActor == None) ? Pos : PCOwner.Location;
-					
-					`log(OutVT.POV.Location);
+					//`log("Pos-"@Pos);
+					//`log("instigator-"@BBBettyPawn.Location);
 
 					//OutVT.POV.Location =Pos;
 					OutVT.POV.Rotation = Rot;

@@ -53,8 +53,6 @@ defaultproperties
 
 	bAggressive = true;
 
-	bIsDying=false;
-	
 	//PeripheralVision is Cos of desired vision angle cos(45) = 0.707106
 	PeripheralVision = 0.707106;
 

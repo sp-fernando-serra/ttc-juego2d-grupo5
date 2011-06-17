@@ -28,6 +28,69 @@ var ParticleSystem EquipSwordPS;
 var SoundCue EquipSwordCue;
 
 
+
+
+//-----------------------------------------------------------------------------------------------
+//-----------------------------------NOTIFYS-----------------------------------------------------
+
+
+//animacion lanzar granada
+simulated event lanzaGranada(){
+
+//	local Projectile	SpawnedProjectile;
+//	local Vector grenade_socket;
+
+//		local vector		StartTrace, EndTrace, RealStartLoc, AimDir;
+//	local ImpactInfo	TestImpact;
+
+//// This is where we would start an instant trace. (what CalcWeaponFire uses)
+//		StartTrace = Instigator.GetWeaponStartTraceLocation();
+//		//AimDir = Vector(GetAdjustedAim( StartTrace ));
+//		AimDir =Normal( StartTrace );
+
+//		// this is the location where the projectile is spawned.
+//		Mesh.GetSocketWorldLocationAndRotation('grenade_socket' , RealStartLoc);
+//		//RealStartLoc = GetPhysicalFireStartLoc(AimDir);
+	
+//		if( StartTrace != RealStartLoc )
+//		{
+//			// if projectile is spawned at different location of crosshair,
+//			// then simulate an instant trace where crosshair is aiming at, Get hit info.
+
+//			//WeaponRange=16384
+//			EndTrace = StartTrace + AimDir * 16384;
+//			TestImpact = CalcWeaponFire( StartTrace, EndTrace );
+
+//			// Then we realign projectile aim direction to match where the crosshair did hit.
+//			AimDir = Normal(TestImpact.HitLocation - RealStartLoc);
+//		}
+
+//		// Spawn projectile
+//		SpawnedProjectile = Spawn(GetProjectileClass(), Self,, RealStartLoc);
+//		if( SpawnedProjectile != None && !SpawnedProjectile.bDeleteMe )
+//		{
+//			SpawnedProjectile.Init( AimDir );
+//		}
+	
+//	itemsMiel-=5;
+//	Mesh.GetSocketWorldLocationAndRotation('grenade_socket' , grenade_socket);
+//	SpawnedProjectile = Spawn(class 'BBProjectileGrenade',self,, grenade_socket);
+
+
+////`log("Direction"@Direction);
+//		if( SpawnedProjectile != None && !SpawnedProjectile.bDeleteMe )
+//		{
+//			//SpawnedProjectile.Init( Vector(GetAdjustedAim( grenade_socket )) );
+//			SpawnedProjectile.Init(  Normal(grenade_socket)  );
+//		}
+
+}
+
+//-----------------------------------NOTIFYS-----------------------------------------------------
+//-----------------------------------------------------------------------------------------------
+
+
+
 simulated function name GetDefaultCameraMode(PlayerController RequestedBy)
 {
 	return 'ThirdPerson';
@@ -125,6 +188,12 @@ function bool isRolling(){
 	return bIsRolling;
 }
 
+
+simulated function calcHitLocation()
+{
+	BBWeapon(Weapon).calcHitPosition();
+}
+
 simulated function StartFire(byte FireModeNum)
 {
 
@@ -143,13 +212,20 @@ simulated function StartFire(byte FireModeNum)
 	//	}
 	//}
 
-	
+		
+
 		if(BBWeapon(Weapon).getAnimacioFlag()==false){
 			
 		switch (Weapon.Class){		
 			case (class'BBWeaponSword'):
 					if(FireModeNum==0)super.StartFire(FireModeNum);
 					else{
+						itemsMiel-=5;
+						super.StartFire(FireModeNum);
+					}
+				break;
+			case (class'BBWeaponNone'):
+					if(FireModeNum==1){
 						itemsMiel-=5;
 						super.StartFire(FireModeNum);
 					}
