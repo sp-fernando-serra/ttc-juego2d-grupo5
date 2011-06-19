@@ -55,8 +55,8 @@ function Tick( float DeltaTime ){
 	//incr = 0.1;
 
 	//Cada tick cambiamos los pesos de los Morphs para conseguir un comportamiento como de miel
-	morph1Weight.SetNodeWeight((Sin(WorldInfo.TimeSeconds*10)+1)/2);
-	morph2Weight.SetNodeWeight((Cos(WorldInfo.TimeSeconds*10)+1)/2);
+	morph1Weight.SetNodeWeight((Sin(WorldInfo.TimeSeconds*15)+1));
+	morph2Weight.SetNodeWeight((Cos(WorldInfo.TimeSeconds*15)+1));
 	
 }
 

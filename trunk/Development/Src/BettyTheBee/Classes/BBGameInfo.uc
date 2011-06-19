@@ -6,7 +6,7 @@ DefaultProperties //Self explanatory
 {
 	bDelayedStart = false
 	PlayerControllerClass = class 'BettyTheBee.BBPlayerController' //Setting the Player Controller to your custom script
-	HUDType=class'BettyTheBee.BBHUD'
+	//HUDType=class'BettyTheBee.BBHUD'
 	DefaultPawnClass = class 'BettyTheBee.BBBettyPawn' //Setting the Pawn to your custom script
 
 }

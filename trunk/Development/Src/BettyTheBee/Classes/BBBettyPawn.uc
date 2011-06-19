@@ -4,6 +4,11 @@ var int itemsMiel;//contador de items 'Mel'
 
 var bool bIsRolling;
 
+/** Bool to know when player wants to jump
+ *  First we have to play PerJump animation and later do the jump.
+ */
+var bool bPreparingJump;
+
 /** Blend node used for blending attack animations*/
 var AnimNodeBlendList node_attack_list;
 /** Array containing all the attack animation AnimNodeSlots*/
@@ -11,6 +16,10 @@ var array<AnimNodeSequence> attack_list_anims;
 
 var DynamicLightEnvironmentComponent LightEnvironment;
 
+/** AnimNode used to play custom anims */
+var AnimNodePlayCustomAnim customAnimSlot;
+
+var name preJumpAnimName;
 
 var AnimNodeBlendList node_roll_list;
 var array<AnimNodeSequence> roll_list_anims;
@@ -98,7 +107,6 @@ simulated function name GetDefaultCameraMode(PlayerController RequestedBy)
 
 //event Tick(float DeltaTime){
 //	super.Tick(DeltaTime);
-//	`log("PawnRotation="@Rotation);
 //}
 
 //event PostBeginPlay()
@@ -164,6 +172,10 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 		node_roll_list = AnimNodeBlendList(Mesh.FindAnimNode('roll_list'));
 		roll_list_anims.AddItem(AnimNodeSequence(Mesh.FindAnimNode('roll_left')));
 		roll_list_anims.AddItem(AnimNodeSequence(Mesh.FindAnimNode('roll_right')));
+
+		customAnimSlot = AnimNodePlayCustomAnim(SkelComp.FindAnimNode('CustomAnim'));
+
+		preJumpAnimName = 'Betty_Jump_2_Start';
 	}
 }
 
@@ -188,6 +200,14 @@ function bool isRolling(){
 	return bIsRolling;
 }
 
+simulated function prepareJump(){
+	if(!bPreparingJump && Physics != PHYS_Falling){
+		bPreparingJump = true;
+		//When this animation ends it activates a notify called StartJump for jumping
+		customAnimSlot.PlayCustomAnim(preJumpAnimName,1.5f,0.0f,0.0f,false,true);
+	}
+
+}
 
 simulated function calcHitLocation()
 {
@@ -287,6 +307,10 @@ function bool canStartCombo()
 	return false;
 }
 
+simulated event StartJump(){
+	bPreparingJump = false;
+	DoJump(false);
+}
 
 simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float ExcessTime)
 {
