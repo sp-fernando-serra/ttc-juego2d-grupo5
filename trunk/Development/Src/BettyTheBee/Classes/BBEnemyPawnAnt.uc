@@ -6,53 +6,6 @@ class BBEnemyPawnAnt extends BBEnemyPawn placeable;
 /** Array containing all the attack animation AnimNodeSlots*/
 var AnimNodeSequence attackAnim;
 
-
-DefaultProperties
-{
-
-
-	//Setting up the light environment
-	Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment
-		ModShadowFadeoutTime=0.25
-		MinTimeBetweenFullUpdates=0.2
-		LightShadowMode=LightShadow_ModulateBetter
-		ShadowFilterQuality=SFQ_High
-		bSynthesizeSHLight=TRUE
-	End Object
-	Components.Add(MyLightEnvironment)
-
-	Begin Object Name=CollisionCylinder
-		CollisionHeight=+20.000000
-	End object
-	
-	Begin Object class=SkeletalMeshComponent Name=InitialPawnSkeletalMesh
-		CastShadow=true
-		bCastDynamicShadow=true
-		bOwnerNoSee=false
-		LightEnvironment=MyLightEnvironment;
-		BlockRigidBody=true;
-		CollideActors=true;
-		BlockZeroExtent=true;
-
- 		AnimSets(0)=AnimSet'Betty_ant.SkModels.AntAnimSet'
-		AnimTreeTemplate=AnimTree'Betty_ant.SkModels.AntAnimTree'
-		SkeletalMesh=SkeletalMesh'Betty_ant.SkModels.Ant'
-		HiddenGame=FALSE 
-		HiddenEditor=FALSE
-    End Object
-    Mesh=InitialPawnSkeletalMesh
-    Components.Add(InitialPawnSkeletalMesh)
-    
-    bJumpCapable=false
-    bCanJump=false
-    GroundSpeed=200.0 //Making the bot slower than the player
-
-	PerceptionDistance = 1500;
-	AttackDistance = 60;
-	AttackDamage = 500;
-
-}
-
 simulated function PostBeginPlay()
 {
 	super.PostBeginPlay();
@@ -110,5 +63,52 @@ state Attacking{
 Begin:	
 	FinishAnim(attackAnim);
 	goto 'Begin';
+}
+
+
+DefaultProperties
+{
+
+
+	//Setting up the light environment
+	Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment
+		ModShadowFadeoutTime=0.25
+		MinTimeBetweenFullUpdates=0.2
+		LightShadowMode=LightShadow_ModulateBetter
+		ShadowFilterQuality=SFQ_High
+		bSynthesizeSHLight=TRUE
+	End Object
+	Components.Add(MyLightEnvironment)
+
+	Begin Object Name=CollisionCylinder
+		CollisionHeight=+20.000000
+	End object
+	
+	Begin Object class=SkeletalMeshComponent Name=InitialPawnSkeletalMesh
+		CastShadow=true
+		bCastDynamicShadow=true
+		bOwnerNoSee=false
+		LightEnvironment=MyLightEnvironment;
+		BlockRigidBody=true;
+		CollideActors=true;
+		BlockZeroExtent=true;
+
+ 		AnimSets(0)=AnimSet'Betty_ant.SkModels.AntAnimSet'
+		AnimTreeTemplate=AnimTree'Betty_ant.SkModels.AntAnimTree'
+		SkeletalMesh=SkeletalMesh'Betty_ant.SkModels.Ant'
+		HiddenGame=FALSE 
+		HiddenEditor=FALSE
+    End Object
+    Mesh=InitialPawnSkeletalMesh
+    Components.Add(InitialPawnSkeletalMesh)
+    
+    bJumpCapable=false
+    bCanJump=false
+    GroundSpeed=200.0 //Making the bot slower than the player
+
+	PerceptionDistance = 1500;
+	AttackDistance = 60;
+	AttackDamage = 10;
+
 }
 

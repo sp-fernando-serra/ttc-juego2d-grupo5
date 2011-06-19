@@ -269,7 +269,7 @@ exec function changeLockOn()
 
 //LETRA 'SHIFT_IZQ' (DOWN)
 exec function shiftButtonDown(){
-	if(canUseRoll()) broll = true;
+	broll = true;
 }
 
 //LETRA 'SHIFT_IZQ' (UP)
@@ -421,7 +421,7 @@ simulated function bool canUseHeal(){
 }
 
 simulated function bool canUseRoll(){
-	if(reactivateTime[HN_Roll] == 0 && Pawn.Physics != PHYS_Falling) return true;
+	if(broll && reactivateTime[HN_Roll] == 0 && Pawn.Physics != PHYS_Falling) return true;
 	else return false;
 }
 
@@ -597,15 +597,14 @@ state PlayerWalking{
 			else
 			{
 				if(!BBBettyPawn(Pawn).IsRolling()){
-					if(broll  && PlayerInput.aStrafe>0){
-						BBBettyPawn(Pawn).animRollRight();	
+					if(canUseRoll()  && PlayerInput.aStrafe>0){
+						BBBettyPawn(Pawn).animRollRight();
+						reactivateTime[HN_Roll] = coldDowns[HN_Roll];
 					}
-					else if (broll  && PlayerInput.aStrafe<0){
-						BBBettyPawn(Pawn).animRollLeft();	
-						//`log("Acceleration: "@NewAccel);
+					else if (canUseRoll()  && PlayerInput.aStrafe<0){
+						BBBettyPawn(Pawn).animRollLeft();
+						reactivateTime[HN_Roll] = coldDowns[HN_Roll];
 					}
-					//PushState('PlayerRolling');	
-					//`log("Acceleration: ");
 					ProcessMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);
 				}
 				
@@ -816,15 +815,14 @@ ignores SeePlayer, HearNoise, Bump;
 			else
 			{
 				if(!BBBettyPawn(Pawn).IsRolling()){
-					if(broll  && PlayerInput.aStrafe>0){
-						BBBettyPawn(Pawn).animRollRight();	
+					if(canUseRoll()  && PlayerInput.aStrafe>0){
+						BBBettyPawn(Pawn).animRollRight();
+						reactivateTime[HN_Roll] = coldDowns[HN_Roll];
 					}
-					else if (broll  && PlayerInput.aStrafe<0){
+					else if (canUseRoll()  && PlayerInput.aStrafe<0){
 						BBBettyPawn(Pawn).animRollLeft();
-						//`log("Acceleration: "@NewAccel);
+						reactivateTime[HN_Roll] = coldDowns[HN_Roll];
 					}
-					//PushState('PlayerRolling');	
-					//`log("Acceleration: ");
 					ProcessMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);
 				}
 			}
