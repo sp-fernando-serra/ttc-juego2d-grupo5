@@ -10,6 +10,7 @@ var bool bLastStrafe, bLastForward,bLastBackward;
 var bool bUpdateRot;
 
 var bool broll;
+
 //var bool bPlay_humo_correr;
 
 //array de enemigos para la funcion lock-on(encarar enemigo)
@@ -23,9 +24,24 @@ var float RotationSpeed;
 
 var bool block;
 
+var int costHeal;
+var float amountHealed;
+var class<DamageType> HealDamageType;
+var int costGrenade;
+
+enum EHabilityNames
+{
+	HN_Heal,
+	HN_Frenesi,
+	HN_Roll,
+	HN_Grenade
+};
+var float coldDowns[EHabilityNames];
+var float reactivateTime[EHabilityNames];
+
 simulated event PostBeginPlay() //This event is triggered when play begins
 {
-	super.PostBeginPlay();	
+	super.PostBeginPlay();
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -252,16 +268,14 @@ exec function changeLockOn()
 }
 
 //LETRA 'SHIFT_IZQ' (DOWN)
-exec function shiftButtonDown()
-	{
-			broll = true;
-	}
+exec function shiftButtonDown(){
+	if(canUseRoll()) broll = true;
+}
 
 //LETRA 'SHIFT_IZQ' (UP)
-exec function shiftButtonUp()
-	{
-			broll = false;
-	}
+exec function shiftButtonUp(){
+	broll = false;
+}
 
 //LETRA 'M' (cambio de movimento normal a mario64)
 exec function BettyMovement( ){
@@ -278,10 +292,12 @@ exec function EButtonDown(){
 }
 
 exec function GetVida(){
-	if(BBBettyPawn(Pawn).itemsMiel-20>=0 && BBBettyPawn(Pawn).Health<100){
-		BBBettyPawn(Pawn).itemsMiel-=20;
-		BBBettyPawn(Pawn).Health+=20;
-		if(BBBettyPawn(Pawn).Health>100)BBBettyPawn(Pawn).Health=100;
+	if(canUseHeal()){
+		//Returns true only if healing has been sucessfull
+		if(Pawn.HealDamage(amountHealed,self,HealDamageType)){
+			BBBettyPawn(Pawn).itemsMiel -= costHeal;
+			reactivateTime[HN_Heal] = coldDowns[HN_Heal];
+		}
 	}
 }
 
@@ -358,13 +374,13 @@ function startAttack(optional byte FireModeNum )
 {
 	if(BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponSword'){	
 		if(FireModeNum==0)PushState('Sword_Attack');
-		if(FireModeNum==1)PushState('Grenade_Attack');
+		if(FireModeNum==1 && canThrowGrenade())PushState('Grenade_Attack');
 	}
 	else{
 		//Pasamos al estado de equipar la espada si no tenemos arma equipada
 		
 		if(FireModeNum==0)PushState('Equipping_Sword');
-		if(FireModeNum==1)PushState('Grenade_Attack');
+		if(FireModeNum==1 && canThrowGrenade())PushState('Grenade_Attack');
 	}
 }
 
@@ -393,11 +409,43 @@ function bool canCombo()
 	return false;
 }
 
+simulated function bool canThrowGrenade(){
+	
+	if(reactivateTime[HN_Grenade] == 0 && Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costGrenade) return true;
+	else return false;
+}
 
+simulated function bool canUseHeal(){
+	if(reactivateTime[HN_Heal] == 0 && Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costHeal) return true;
+	else return false;
+}
 
+simulated function bool canUseRoll(){
+	if(reactivateTime[HN_Roll] == 0 && Pawn.Physics != PHYS_Falling) return true;
+	else return false;
+}
 
+function CheckJumpOrDuck()
+{
+	if ( bPressedJump && (Pawn != None) )
+	{
+		BBBettyPawn(Pawn).prepareJump();
+	}
+}
 
+event PlayerTick(float DeltaTime){
+	local int i;
+	super.PlayerTick(DeltaTime);
 
+	//Uptade all remaining times
+	for( i = 0; i < ArrayCount(reactivateTime); i++){
+		if(reactivateTime[i] > 0)
+			reactivateTime[i] -= DeltaTime;
+		else if(reactivateTime[i] < 0)
+			reactivateTime[i] = 0;
+	}
+	
+}
 
 state mySpectatorMode extends Spectating
 {
@@ -772,7 +820,7 @@ ignores SeePlayer, HearNoise, Bump;
 						BBBettyPawn(Pawn).animRollRight();	
 					}
 					else if (broll  && PlayerInput.aStrafe<0){
-						BBBettyPawn(Pawn).animRollLeft();	
+						BBBettyPawn(Pawn).animRollLeft();
 						//`log("Acceleration: "@NewAccel);
 					}
 					//PushState('PlayerRolling');	
@@ -823,7 +871,7 @@ ignores SeePlayer, HearNoise, Bump;
 	
 	event PlayerTick(float DeltaTime)
 	{
-		Super.PlayerTick(DeltaTime);
+		Global.PlayerTick(DeltaTime);
 		if(TargetedPawn!=None)
 		{
 			if(TargetedPawn.Health <=0)
@@ -906,7 +954,6 @@ Combo:
 
 state Grenade_Attack
 {
-
 	function PlayerMove( float DeltaTime )
 	{
 		local vector X,Y,Z;
@@ -960,6 +1007,7 @@ Lanzar:
 	PopState();
 
 Begin:
+	reactivateTime[HN_Grenade] = coldDowns[HN_Grenade];
 	prepararAttack();
 }
 
@@ -982,5 +1030,16 @@ DefaultProperties
 	//bPlay_humo_correr=true;
 
 	RotationSpeed=150000;
+
+	costHeal = 20;
+	amountHealed = 50;
+	HealDamageType = class'DamageType';
+	costGrenade = 5;
+	
+	//Heal, Frenesi, Roll, Grenade
+	coldDowns[HN_Heal] = 10.0f;
+	coldDowns[HN_Frenesi] = 20.0f;
+	coldDowns[HN_Roll] = 3.0f;
+	coldDowns[HN_Grenade] = 5.0f;
 
 }
