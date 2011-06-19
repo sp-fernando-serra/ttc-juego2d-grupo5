@@ -15,11 +15,11 @@ simulated function calcHitPosition(){
 	local ImpactInfo	TestImpact;
 	//local vector newVecDirection,SimulatedLocation;
 
-	local BBBettyPawn UTP;
+	//local BBBettyPawn UTP;
 
-	UTP = BBBettyPawn(Instigator);
+	//UTP = BBBettyPawn(Instigator);
 
-	newVecDirection=vector(UTP.Rotation);
+	//newVecDirection=vector(UTP.Rotation);
 
 
 	StartTrace = Instigator.GetWeaponStartTraceLocation();
