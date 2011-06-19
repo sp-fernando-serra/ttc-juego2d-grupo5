@@ -56,8 +56,8 @@ DefaultProperties
 	PerceptionDistance = 1000;
 	AttackDistance = 75;
 	//AttackDistanceNear = 70;
-	AttackDamage = 10;
-	ChargeDamage = 30;
+	AttackDamage = 25;
+	ChargeDamage = 50;
 
 }
 
@@ -106,7 +106,7 @@ state Attacking{
 		if(HitActor != none){
 			//Worldinfo.Game.Broadcast(self, Name $ ": Hit actor "$HitActor.Name);
 			if(HitActor.Class == class'BBBettyPawn'){
-				BBBettyPawn(HitActor).Health -= AttackDamage;
+				BBBettyPawn(HitActor).TakeDamage(AttackDamage,Controller,HitLocation,vect(0,0,0),MyDamageType);
 				//Worldinfo.Game.Broadcast(self,BBBettyPawn(HitActor).name $ " Actual Life: "$BBBettyPawn(HitActor).Health);
 			}
 		}

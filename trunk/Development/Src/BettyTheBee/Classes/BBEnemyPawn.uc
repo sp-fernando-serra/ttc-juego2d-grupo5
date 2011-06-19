@@ -29,6 +29,9 @@ var () bool bAggressive<DisplayName = Is Aggressive?>;
 /** Array of BBRoutePoints to patroll */
 var () array<BBRoutePoint> MyRoutePoints;
 
+var bool bIsDying;
+var class<DamageType> MyDamageType;
+
 
 var ParticleSystem TargetedPawn_PS;
 var ParticleSystemComponent TargetedPawn_PSC;
@@ -56,7 +59,9 @@ defaultproperties
 	//PeripheralVision is Cos of desired vision angle cos(45) = 0.707106
 	PeripheralVision = 0.707106;
 
-	TargetedPawn_PS=ParticleSystem'Betty_Particles.enemigos.enemigo_fijado'	
+	TargetedPawn_PS=ParticleSystem'Betty_Particles.enemigos.enemigo_fijado'
+
+	MyDamageType = class'DamageType'
 
 }
 

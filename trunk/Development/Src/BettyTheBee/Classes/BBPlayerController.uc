@@ -25,8 +25,7 @@ var bool block;
 
 simulated event PostBeginPlay() //This event is triggered when play begins
 {
-	super.PostBeginPlay();
-	`Log("I am alive!"); //This sends the message "I am alive!" to thelog (to see the log, you need to run UDK with the -log switch)	
+	super.PostBeginPlay();	
 }
 
 //-----------------------------------------------------------------------------------------------
