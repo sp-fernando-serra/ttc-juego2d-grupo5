@@ -5,24 +5,25 @@ var int itemsMiel;//contador de items 'Mel'
 var bool bIsRolling;
 
 /** Bool to know when player wants to jump
- *  First we have to play PerJump animation and later do the jump.
+ *  First we have to play PreJump animation and later do the jump.
  */
 var bool bPreparingJump;
 
-/** Blend node used for blending attack animations*/
-var AnimNodeBlendList node_attack_list;
-/** Array containing all the attack animation AnimNodeSlots*/
-var array<AnimNodeSequence> attack_list_anims;
-
 var DynamicLightEnvironmentComponent LightEnvironment;
 
-/** AnimNode used to play custom anims */
-var AnimNodePlayCustomAnim customAnimSlot;
+/** AnimNode used to play custom fullbody anims */
+var AnimNodeSlot fullBodySlot;
+/** AnimNode used to play custom upperbody anims */
+var AnimNodeSlot upperBodySlot;
 
 var name preJumpAnimName;
-
-var AnimNodeBlendList node_roll_list;
-var array<AnimNodeSequence> roll_list_anims;
+var name attackAnimNames[3];
+/** Indicates the index of next attack anim (0, 1 or 2) */
+var int nextAttackIndex;
+var name grenadeAnimName;
+const ROLL_LEFT = 0;
+const ROLL_RIGHT = 1;
+var name rollAnimNames[2];
 
 ///**GroundParticles al andar o correr 
 //var ParticleSystemComponent ParticlesComponent_humo_correr;
@@ -163,19 +164,17 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 	super.PostInitAnimTree(SkelComp);
 	if (SkelComp == Mesh)
 	{
-		node_attack_list = AnimNodeBlendList(Mesh.FindAnimNode('attack_list'));
-		attack_list_anims.AddItem(AnimNodeSequence(Mesh.FindAnimNode('Atacar')));
-		attack_list_anims.AddItem(AnimNodeSequence(Mesh.FindAnimNode('Atacar2')));
-		attack_list_anims.AddItem(AnimNodeSequence(Mesh.FindAnimNode('Atacar3')));
-		attack_list_anims.AddItem(AnimNodeSequence(Mesh.FindAnimNode('LanzarGranada')));
-
-		node_roll_list = AnimNodeBlendList(Mesh.FindAnimNode('roll_list'));
-		roll_list_anims.AddItem(AnimNodeSequence(Mesh.FindAnimNode('roll_left')));
-		roll_list_anims.AddItem(AnimNodeSequence(Mesh.FindAnimNode('roll_right')));
-
-		customAnimSlot = AnimNodePlayCustomAnim(SkelComp.FindAnimNode('CustomAnim'));
+		fullBodySlot = AnimNodeSlot(SkelComp.FindAnimNode('FullBodySlot'));
+		upperBodySlot = AnimNodeSlot(SkelComp.FindAnimNode('UpperBodySlot'));
 
 		preJumpAnimName = 'Betty_Jump_2_Start';
+		attackAnimNames[0] = 'B_attack_seq';
+		attackAnimNames[1] = 'Betty_attack_2_seq';
+		attackAnimNames[2] = 'Betty_attack_3_seq';
+		grenadeAnimName = 'Betty_grenade_seq';
+
+		rollAnimNames[ROLL_LEFT] = 'Betty_roll Left_seq';
+		rollAnimNames[ROLL_RIGHT] = 'Betty_roll Right_seq';
 	}
 }
 
@@ -183,16 +182,14 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 
 
 function  animRollLeft(){
-
+	
 	bIsRolling=true;
-	node_roll_list.setactivechild(1,0.1f);
-
+	fullBodySlot.PlayCustomAnim(rollAnimNames[ROLL_LEFT],1.0f,0.0f,0.0f);	
 }
 function  animRollRight(){
-
+	
 	bIsRolling=true;
-	node_roll_list.setactivechild(2,0.1f);
-
+	fullBodySlot.PlayCustomAnim(rollAnimNames[ROLL_RIGHT],1.0f,0.0f,0.0f);
 }
 
 
@@ -204,7 +201,7 @@ simulated function prepareJump(){
 	if(!bPreparingJump && Physics != PHYS_Falling){
 		bPreparingJump = true;
 		//When this animation ends it activates a notify called StartJump for jumping
-		customAnimSlot.PlayCustomAnim(preJumpAnimName,1.5f,0.0f,0.0f,false,true);
+		fullBodySlot.PlayCustomAnim(preJumpAnimName,1.5f,0.0f,0.0f,false,true);
 	}
 
 }
@@ -216,23 +213,6 @@ simulated function calcHitLocation()
 
 simulated function StartFire(byte FireModeNum)
 {
-
-	//	if(BBWeapon(Weapon).getAnimacioFlag()==false){
-			
-	//	switch (Weapon.Class){		
-	//		case (class'BBWeaponSword'):
-	//				super.StartFire(FireModeNum);
-	//			break;
-	//		case  (class'BBWeaponGrenade'):
-	//				itemsMiel-=5;
-	//				super.StartFire(FireModeNum);
-	//			break;
-	//		default:
-	//			break;
-	//	}
-	//}
-
-		
 
 		if(BBWeapon(Weapon).getAnimacioFlag()==false){
 			
@@ -263,48 +243,57 @@ simulated function basicSwordAttack()
 	if(BBWeapon(Weapon).getAnimacioFlag()==false){
 		BBWeaponSword(Weapon).ResetUnequipTimer();
 		BBWeapon(Weapon).animAttackStart();
-		node_attack_list.SetActiveChild(1,0.2f);
+		
+		upperBodySlot.PlayCustomAnim(attackAnimNames[0],1.0f,0.15f,0.15f);
+		upperBodySlot.SetActorAnimEndNotification(true);
+		nextAttackIndex = 1;
 	}
 }
 
 simulated function comboSwordAttack()
 {
 	
-	local int i;
-	i = node_attack_list.ActiveChildIndex;
 	BBWeaponSword(Weapon).ResetUnequipTimer();
 	BBWeapon(Weapon).animAttackEnd();//end de l'animacio de l'atac basic. Per posar eliminar els enemics de la taula 'lista_enemigos'
 	BBWeapon(Weapon).animAttackStart();
-	if(i<3)	i++;
-	else i = 1;
-	node_attack_list.SetActiveChild(i,0.2f);
+	if(nextAttackIndex < 2){
+		upperBodySlot.PlayCustomAnim(attackAnimNames[nextAttackIndex],1.0f,0.15f,0.15f);
+		upperBodySlot.SetActorAnimEndNotification(true);
+		nextAttackIndex++;
+	}else{
+		fullBodySlot.PlayCustomAnim(attackAnimNames[nextAttackIndex],1.0f,0.15f,0.15f);
+		upperBodySlot.SetActorAnimEndNotification(true);
+		nextAttackIndex = 0;
+	}
 }
 
 simulated function GrenadeAttack()
 {
 	if(BBWeapon(Weapon).getAnimacioFlag()==false){	
 		BBWeapon(Weapon).animAttackStart();
-		node_attack_list.SetActiveChild(4,0.2f);
+		upperBodySlot.PlayCustomAnim(grenadeAnimName,1.0f,0.15f,0.15f);
+		upperBodySlot.SetActorAnimEndNotification(true);
 	}
 }
 
 function bool canStartCombo()
 {
-	local AnimNodeSequence a;
-	local float animCompletion;
+	//local AnimNodeSequence a;
+	//local float animCompletion;
 	
-	a = getAttackAnimNode();
-	if(a!=None)
-	{
-		animCompletion = a.GetNormalizedPosition();
-		//`log("normallized position is"@animCompletion);
-		//Worldinfo.Game.Broadcast(self, Name $ ":animCompletion "$animCompletion);
-		if(animCompletion > 0.65 && animCompletion < 1.0)
-		{
-			return true;
-		}
-	}
-	return false;
+	//a = getAttackAnimNode();
+	//if(a!=None)
+	//{
+	//	animCompletion = a.GetNormalizedPosition();
+	//	//`log("normallized position is"@animCompletion);
+	//	//Worldinfo.Game.Broadcast(self, Name $ ":animCompletion "$animCompletion);
+	//	if(animCompletion > 0.65 && animCompletion < 1.0)
+	//	{
+	//		return true;
+	//	}
+	//}
+	//return false;
+	return true;
 }
 
 function ForceJump(BBSequenceActionJump MyAction)
@@ -320,43 +309,28 @@ simulated event StartJump(){
 	DoJump(false);
 }
 
+simulated event EndRoll(){
+	bIsRolling = false;
+}
+simulated event EndAttack(){
+	BBWeapon(Weapon).animAttackEnd();
+}
+
 simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float ExcessTime)
 {
-	// Tell mesh to stop using root motion
-	if(SeqNode == getAttackAnimNode())
-	{
-		//Mesh.RootMotionMode = RMM_Ignore;
-		node_attack_list.SetActiveChild(0,0.2f);
-		BBWeapon(Weapon).animAttackEnd();
-	}else if (SeqNode == getRollAnimNode()){
-		bIsRolling=false;
-		node_roll_list.SetActiveChild(0,0.2f);
-	}
+	//Only attack anims have OnAnimEnd event
+	BBWeapon(Weapon).animAttackEnd();	
 }
 
 
 function AnimNodeSequence getAttackAnimNode()
 {
-	local int i;
-	i = node_attack_list.ActiveChildIndex;
-	if(i > 0)
-	{
-		i = i-1;
-		return attack_list_anims[i];
-	}
-	return None;
+	local AnimNodeSequence currentPlay;
+	currentPlay = upperBodySlot.GetCustomAnimNodeSeq();
+	if(currentPlay == none) currentPlay = fullBodySlot.GetCustomAnimNodeSeq();
+	return currentPlay;
 }
-function AnimNodeSequence getRollAnimNode()
-{
-	local int i;
-	i = node_roll_list.ActiveChildIndex;
-	if(i > 0)
-	{
-		i = i-1;
-		return roll_list_anims[i];
-	}
-	return None;
-}
+
 simulated function GetUnequipped()
 {
 	local BBWeaponNone Inv;
@@ -403,7 +377,7 @@ simulated function GetGrenade()
 	local BBWeaponGrenade Inv;
 	local BBWeaponSword Sword;
 
-//`loginternal("fff");
+
 	Sword = BBWeaponSword(Weapon);
 
 	//Miramos si el arma anterior no estaba atacando

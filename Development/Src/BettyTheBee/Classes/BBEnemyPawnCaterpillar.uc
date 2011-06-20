@@ -17,65 +17,6 @@ var () Vector randomness;
 /** Array containing all the attack animation AnimNodeSlots*/
 var AnimNodeSequence attackAnim;
 
-DefaultProperties
-{
-	//Setting up the light environment
-	Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment
-		ModShadowFadeoutTime=0.25
-		MinTimeBetweenFullUpdates=0.2
-		LightShadowMode=LightShadow_ModulateBetter
-		ShadowFilterQuality=SFQ_High
-		bSynthesizeSHLight=TRUE
-	End Object
-	Components.Add(MyLightEnvironment)
-
-	Begin Object Name=CollisionCylinder
-			
-		BlockNonZeroExtent=false
-		BlockZeroExtent=false
-		BlockActors=false
-		BlockRigidBody=false
-		CollideActors=false
-
-		CollisionHeight=+45.0
-		CollisionRadius=+20.0
-		//Translation=(X=0.0,Y=0.0,Z=40.0)
-    end object
-
-	Begin Object class=SkeletalMeshComponent Name=SkMesh
-		CastShadow=true
-		bCastDynamicShadow=true
-		
-		LightEnvironment=MyLightEnvironment;
-		bAllowAmbientOcclusion=false
-
-		BlockNonZeroExtent = True
-        BlockZeroExtent = True
-        BlockActors = True
-        CollideActors =True
-
-		AnimSets(0)=AnimSet'Betty_caterpillar.SkModels.Caterpillar_anims'
-		AnimTreeTemplate=AnimTree'Betty_caterpillar.SkModels.Caterpillar_AnimTree'
-		PhysicsAsset=PhysicsAsset'Betty_caterpillar.SkModels.Caterpillar_Physics'
-		SkeletalMesh=SkeletalMesh'Betty_caterpillar.SkModels.Caterpillar'
-    End Object
-	//CollisionComponent=SkMesh
-	Mesh=SkMesh
-    Components.Add(SkMesh)
-    
-    bJumpCapable=false
-    bCanJump=false
-    GroundSpeed=200.0 //Making the bot slower than the player
-
-	PerceptionDistance = 4500;
-	AttackDistance = 400;
-	AttackDamage = 10;
-
-	timeBetweenShots = 2;
-	randomTimeBetweenShots = 1;
-	randomness=(X=0.1,Y=0.1,Z=0.05);
-}
-
 simulated function PostBeginPlay()
 {
 	super.PostBeginPlay();
@@ -138,4 +79,64 @@ Begin:
 	FinishAnim(attackAnim);
 	Sleep(timeBetweenShots + randomTimeBetweenShots * FRand());
 	goto 'Begin';
+}
+
+
+DefaultProperties
+{
+	//Setting up the light environment
+	Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment
+		ModShadowFadeoutTime=0.25
+		MinTimeBetweenFullUpdates=0.2
+		LightShadowMode=LightShadow_ModulateBetter
+		ShadowFilterQuality=SFQ_High
+		bSynthesizeSHLight=TRUE
+	End Object
+	Components.Add(MyLightEnvironment)
+
+	Begin Object Name=CollisionCylinder
+			
+		BlockNonZeroExtent=false
+		BlockZeroExtent=false
+		BlockActors=false
+		BlockRigidBody=false
+		CollideActors=false
+
+		CollisionHeight=+45.0
+		CollisionRadius=+20.0
+		//Translation=(X=0.0,Y=0.0,Z=40.0)
+    end object
+
+	Begin Object class=SkeletalMeshComponent Name=SkMesh
+		CastShadow=true
+		bCastDynamicShadow=true
+		
+		LightEnvironment=MyLightEnvironment;
+		bAllowAmbientOcclusion=false
+
+		BlockNonZeroExtent = True
+        BlockZeroExtent = True
+        BlockActors = True
+        CollideActors =True
+
+		AnimSets(0)=AnimSet'Betty_caterpillar.SkModels.Caterpillar_anims'
+		AnimTreeTemplate=AnimTree'Betty_caterpillar.SkModels.Caterpillar_AnimTree'
+		PhysicsAsset=PhysicsAsset'Betty_caterpillar.SkModels.Caterpillar_Physics'
+		SkeletalMesh=SkeletalMesh'Betty_caterpillar.SkModels.Caterpillar'
+    End Object
+	//CollisionComponent=SkMesh
+	Mesh=SkMesh
+    Components.Add(SkMesh)
+    
+    bJumpCapable=false
+    bCanJump=false
+    GroundSpeed=200.0 //Making the bot slower than the player
+
+	PerceptionDistance = 4500;
+	AttackDistance = 400;
+	AttackDamage = 10;
+
+	timeBetweenShots = 2;
+	randomTimeBetweenShots = 1;
+	randomness=(X=0.1,Y=0.1,Z=0.05);
 }
