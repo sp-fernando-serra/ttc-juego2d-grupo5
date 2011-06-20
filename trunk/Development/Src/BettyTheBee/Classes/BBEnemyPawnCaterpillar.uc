@@ -11,12 +11,6 @@ var () float randomTimeBetweenShots;
 /** Vector  for randomness in prejectile shooting, each component indicates the randomness in each direction*/
 var () Vector randomness;
 
-/** Blend node used for blending attack animations*/
-//var AnimNodeBlendList nodeListAttack;
-
-/** Array containing all the attack animation AnimNodeSlots*/
-var AnimNodeSequence attackAnim;
-
 simulated function PostBeginPlay()
 {
 	super.PostBeginPlay();
@@ -34,8 +28,9 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 	super.PostInitAnimTree(SkelComp);
 	if (SkelComp == Mesh)
 	{
-		nodeListAttack = AnimNodeBlendList(Mesh.FindAnimNode('listAttack'));
-		attackAnim = AnimNodeSequence(Mesh.FindAnimNode('Attack_1'));
+		//Name of diferent animations for playing in custom node (esta aqui porque en defaultProperties no funciona)
+		attackAnimName = 'Attack_1';
+		dyingAnimName = '';
 	}
 }
 
@@ -67,16 +62,15 @@ state Attacking{
 	
 	simulated event BeginState(name NextStateName){
 		super.BeginState(NextStateName);
-		nodeListAttack.SetActiveChild(1,0.2f);
+		customAnimSlot.PlayCustomAnim(attackAnimName,1.0f,0.25f,0.25f,true);
 	}
 
 	simulated event EndState(name NextStateName){
 		super.EndState(NextStateName);
-		nodeListAttack.SetActiveChild(0,0.2f);
+		customAnimSlot.StopCustomAnim(0.25f);
 	}
 Begin:
-	
-	FinishAnim(attackAnim);
+	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());
 	Sleep(timeBetweenShots + randomTimeBetweenShots * FRand());
 	goto 'Begin';
 }

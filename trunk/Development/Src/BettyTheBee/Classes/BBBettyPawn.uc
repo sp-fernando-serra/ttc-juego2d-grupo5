@@ -216,7 +216,7 @@ simulated function StartFire(byte FireModeNum)
 
 		if(BBWeapon(Weapon).getAnimacioFlag()==false){
 			
-		switch (Weapon.Class){		
+			switch (Weapon.Class){		
 			case (class'BBWeaponSword'):
 					if(FireModeNum==0)super.StartFire(FireModeNum);
 					else{
@@ -232,22 +232,20 @@ simulated function StartFire(byte FireModeNum)
 				break;
 			default:
 				break;
+			}
 		}
-	}
 
 	
 }
 
 simulated function basicSwordAttack()
 {
-	if(BBWeapon(Weapon).getAnimacioFlag()==false){
-		BBWeaponSword(Weapon).ResetUnequipTimer();
-		BBWeapon(Weapon).animAttackStart();
-		
-		upperBodySlot.PlayCustomAnim(attackAnimNames[0],1.0f,0.15f,0.15f);
-		upperBodySlot.SetActorAnimEndNotification(true);
-		nextAttackIndex = 1;
-	}
+	BBWeaponSword(Weapon).ResetUnequipTimer();
+	BBWeapon(Weapon).animAttackStart();
+	upperBodySlot.PlayCustomAnim(attackAnimNames[0],1.0f,0.15f,0.15f);
+	upperBodySlot.SetActorAnimEndNotification(true);
+	nextAttackIndex = 1;
+	
 }
 
 simulated function comboSwordAttack()
@@ -262,7 +260,7 @@ simulated function comboSwordAttack()
 		nextAttackIndex++;
 	}else{
 		fullBodySlot.PlayCustomAnim(attackAnimNames[nextAttackIndex],1.0f,0.15f,0.15f);
-		upperBodySlot.SetActorAnimEndNotification(true);
+		fullBodySlot.SetActorAnimEndNotification(true);
 		nextAttackIndex = 0;
 	}
 }
@@ -278,22 +276,21 @@ simulated function GrenadeAttack()
 
 function bool canStartCombo()
 {
-	//local AnimNodeSequence a;
-	//local float animCompletion;
+	local AnimNodeSequence a;
+	local float animCompletion;
 	
-	//a = getAttackAnimNode();
-	//if(a!=None)
-	//{
-	//	animCompletion = a.GetNormalizedPosition();
-	//	//`log("normallized position is"@animCompletion);
-	//	//Worldinfo.Game.Broadcast(self, Name $ ":animCompletion "$animCompletion);
-	//	if(animCompletion > 0.65 && animCompletion < 1.0)
-	//	{
-	//		return true;
-	//	}
-	//}
-	//return false;
-	return true;
+	a = getAttackAnimNode();
+	if(a!=None)
+	{
+		animCompletion = a.GetNormalizedPosition();
+		//`log("normallized position is"@animCompletion);
+		//Worldinfo.Game.Broadcast(self, Name $ ":animCompletion "$animCompletion);
+		if(animCompletion > 0.65 && animCompletion < 1.0)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 function ForceJump(BBSequenceActionJump MyAction)
@@ -311,9 +308,6 @@ simulated event StartJump(){
 
 simulated event EndRoll(){
 	bIsRolling = false;
-}
-simulated event EndAttack(){
-	BBWeapon(Weapon).animAttackEnd();
 }
 
 simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float ExcessTime)
@@ -396,8 +390,7 @@ simulated function GetGrenade()
 }
 
 simulated event ToggleAttack(){
-BBWeaponSword(Weapon).ToggleAttack();
-
+	BBWeaponSword(Weapon).ToggleAttack();
 }
 
 

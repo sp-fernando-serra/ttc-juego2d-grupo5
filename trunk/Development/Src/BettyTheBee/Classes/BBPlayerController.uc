@@ -388,7 +388,7 @@ function startAttack(optional byte FireModeNum )
 function AnimNodeSequence getActiveAnimNode()
 {
 	local AnimNodeSequence animSeq;	
-	if(IsInState('Sword_Attack')) animSeq = BBBettyPawn(Pawn).getAttackAnimNode();	
+	if(IsInState('Sword_Attack') || IsInState('Grenade_Attack')) animSeq = BBBettyPawn(Pawn).getAttackAnimNode();	
 	if(animSeq==None)
 	{
 		return None;
@@ -398,7 +398,7 @@ function AnimNodeSequence getActiveAnimNode()
 
 function bool canAttack(){
 
-	if(IsInState('PlayerWalking') && Pawn.Physics != PHYS_Falling) return true;	
+	if(Pawn.Physics != PHYS_Falling && !IsInState('Grenade_Attack')) return true;	
 	return false;
 }
 
@@ -416,17 +416,17 @@ function bool canCombo()
 
 simulated function bool canThrowGrenade(){
 	
-	if(reactivateTime[HN_Grenade] == 0 && IsInState('PlayerWalking') && Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costGrenade) return true;
+	if(reactivateTime[HN_Grenade] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costGrenade) return true;
 	else return false;
 }
 
 simulated function bool canUseHeal(){
-	if(reactivateTime[HN_Heal] == 0 && IsInState('PlayerWalking') && Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costHeal) return true;
+	if(reactivateTime[HN_Heal] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costHeal) return true;
 	else return false;
 }
 
 simulated function bool canUseRoll(){
-	if(broll && reactivateTime[HN_Roll] == 0 && IsInState('PlayerWalking') && Pawn.Physics != PHYS_Falling) return true;
+	if(broll && reactivateTime[HN_Roll] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && Pawn.Physics != PHYS_Falling) return true;
 	else return false;
 }
 
@@ -964,25 +964,25 @@ Combo:
 
 state Grenade_Attack
 {
-	function PlayerMove( float DeltaTime )
-	{
-		local vector X,Y,Z;
+	//function PlayerMove( float DeltaTime )
+	//{
+	//	local vector X,Y,Z;
 
-		GetAxes(Rotation,X,Y,Z);
+	//	GetAxes(Rotation,X,Y,Z);
 		
-		Acceleration = 0*X + 0*Y + 0*vect(0,0,1);
+	//	Acceleration = 0*X + 0*Y + 0*vect(0,0,1);
 
-		UpdateRotationSword(DeltaTime);
+	//	UpdateRotationSword(DeltaTime);
 
-		if (Role < ROLE_Authority) // then save this move and replicate it
-		{
-			ReplicateMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
-		}
-		else
-		{
-			ProcessMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
-		}
-	}	
+	//	if (Role < ROLE_Authority) // then save this move and replicate it
+	//	{
+	//		ReplicateMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
+	//	}
+	//	else
+	//	{
+	//		ProcessMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
+	//	}
+	//}	
 
 	function prepararAttack()
 	{
@@ -1012,12 +1012,14 @@ state Grenade_Attack
 	}
 
 Lanzar:
-	lanzarAttack();
-	FinishAnim(getActiveAnimNode());
-	PopState();
-
-Begin:
-	reactivateTime[HN_Grenade] = coldDowns[HN_Grenade];
+	if(reactivateTime[HN_Grenade] == 0){
+		reactivateTime[HN_Grenade] = coldDowns[HN_Grenade];
+		lanzarAttack();
+		FinishAnim(getActiveAnimNode());
+	}
+	PopState();	
+	
+Begin:	
 	prepararAttack();
 }
 

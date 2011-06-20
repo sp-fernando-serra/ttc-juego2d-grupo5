@@ -1,10 +1,5 @@
 class BBEnemyPawnAnt2 extends BBEnemyPawn placeable;
 
-/** AnimNode used to play custom anims */
-var AnimNodePlayCustomAnim customAnimSlot;
-
-var name attackAnimName;
-
 simulated function PostBeginPlay()
 {
 	super.PostBeginPlay();
@@ -24,8 +19,7 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 	{
 		//Name of diferent animations for playing in custom node (esta aqui porque en defaultProperties no funciona)
 		attackAnimName = 'Ant_attack_seq';
-
-		customAnimSlot = AnimNodePlayCustomAnim(SkelComp.FindAnimNode('CustomAnim'));
+		dyingAnimName = 'Ant_iddle_seq';
 	}
 }
 
@@ -65,8 +59,6 @@ state Attacking{
 
 DefaultProperties
 {
-
-
 	//Setting up the light environment
 	Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment
 		ModShadowFadeoutTime=0.25

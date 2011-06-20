@@ -1,14 +1,83 @@
 class BBEnemyPawnRhino extends BBEnemyPawn placeable;
 
-/** Blend node used for blending attack animations*/
-//var AnimNodeBlendList nodeListAttack;
-var AnimNodeBlendList nodeListCharge;
-
-/** Array containing all the attack animation AnimNodeSlots*/
-var AnimNodeSequence attackAnim;
-
 /** Damage done by Charge Attack */
 var int ChargeDamage;
+
+simulated function PostBeginPlay()
+{
+	super.PostBeginPlay();
+
+	if (MyController == none)
+	{
+		MyController = Spawn(class'BettyTheBee.BBControllerAIRhino');
+		MyController.SetPawn(self);		
+	}
+    
+}
+
+simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
+{
+	super.PostInitAnimTree(SkelComp);
+	if (SkelComp == Mesh)
+	{
+		//Name of diferent animations for playing in custom node (esta aqui porque en defaultProperties no funciona)
+		attackAnimName = 'Attack';
+		dyingAnimName = 'Dead';
+	}
+}
+
+state Attacking{
+
+	simulated event doDamage(){
+		local Vector CuernoDown, CuernoUp;
+		local Vector HitLocation, HitNormal;
+		local Actor HitActor;
+
+		//Worldinfo.Game.Broadcast(self, Name $ ": Calculating Attack Collision");
+
+		
+		Mesh.GetSocketWorldLocationAndRotation('CuernoDown' , CuernoDown);
+		Mesh.GetSocketWorldLocationAndRotation('CuernoUp', CuernoUp);
+		HitActor = Trace(HitLocation, HitNormal, CuernoUp, CuernoDown, true);
+		
+		if(HitActor != none){
+			//Worldinfo.Game.Broadcast(self, Name $ ": Hit actor "$HitActor.Name);
+			if(HitActor.Class == class'BBBettyPawn'){
+				BBBettyPawn(HitActor).TakeDamage(AttackDamage,Controller,HitLocation,vect(0,0,0),MyDamageType);
+				//Worldinfo.Game.Broadcast(self,BBBettyPawn(HitActor).name $ " Actual Life: "$BBBettyPawn(HitActor).Health);
+			}
+		}
+	}
+	
+	simulated event BeginState(name NextStateName){
+		
+		super.BeginState(NextStateName);
+		customAnimSlot.PlayCustomAnim(attackAnimName,1.0f,0.25f,0.25f,true);
+	}
+
+	simulated event EndState(name NextStateName){
+		
+		super.EndState(NextStateName);
+		customAnimSlot.StopCustomAnim(0.25f);
+	}
+}
+
+
+//function isAtacked(){
+//PushState('Attacked');
+//nodelistAttack.SetActiveChild(4,0.2f);
+//}
+
+//state Attacked{
+
+
+//	event PoppedState(){
+//		nodeListAttack.SetActiveChild(1,0.4f);
+//	}
+//Begin:	
+//	FinishAnim(AnimNodeSequence(Mesh.FindAnimNode('Attacked')));
+//	PopState();
+//}
 
 DefaultProperties
 {
@@ -60,87 +129,3 @@ DefaultProperties
 	ChargeDamage = 50;
 
 }
-
-simulated function PostBeginPlay()
-{
-	super.PostBeginPlay();
-
-	if (MyController == none)
-	{
-		MyController = Spawn(class'BettyTheBee.BBControllerAIRhino');
-		MyController.SetPawn(self);		
-	}
-    
-}
-
-simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
-{
-	super.PostInitAnimTree(SkelComp);
-	if (SkelComp == Mesh)
-	{
-		nodeListAttack = AnimNodeBlendList(Mesh.FindAnimNode('listAttack'));
-		attackAnim = AnimNodeSequence(Mesh.FindAnimNode('ATTACK'));
-		nodeListCharge = AnimNodeBlendList(Mesh.FindAnimNode('listCharge'));
-	}
-}
-
-//function AnimNodeSequence getActiveAnimNode()
-//{
-//	return  nodeListAttack.ActiveChildIndex;
-//}
-
-state Attacking{
-
-	simulated event doDamage(){
-		local Vector CuernoDown, CuernoUp;
-		local Vector HitLocation, HitNormal;
-		local Actor HitActor;
-
-		//Worldinfo.Game.Broadcast(self, Name $ ": Calculating Attack Collision");
-
-		
-		Mesh.GetSocketWorldLocationAndRotation('CuernoDown' , CuernoDown);
-		Mesh.GetSocketWorldLocationAndRotation('CuernoUp', CuernoUp);
-		HitActor = Trace(HitLocation, HitNormal, CuernoUp, CuernoDown, true);
-		
-		if(HitActor != none){
-			//Worldinfo.Game.Broadcast(self, Name $ ": Hit actor "$HitActor.Name);
-			if(HitActor.Class == class'BBBettyPawn'){
-				BBBettyPawn(HitActor).TakeDamage(AttackDamage,Controller,HitLocation,vect(0,0,0),MyDamageType);
-				//Worldinfo.Game.Broadcast(self,BBBettyPawn(HitActor).name $ " Actual Life: "$BBBettyPawn(HitActor).Health);
-			}
-		}
-	}
-	
-	simulated event BeginState(name NextStateName){
-		
-		super.BeginState(NextStateName);
-		nodeListAttack.SetActiveChild(2,0.2f);
-	}
-
-	simulated event EndState(name NextStateName){
-		
-		super.EndState(NextStateName);
-		nodeListAttack.SetActiveChild(1,0.2f);
-	}
-Begin:	
-	FinishAnim(attackAnim);
-	goto 'Begin';
-}
-
-
-//function isAtacked(){
-//PushState('Attacked');
-//nodelistAttack.SetActiveChild(4,0.2f);
-//}
-
-//state Attacked{
-
-
-//	event PoppedState(){
-//		nodeListAttack.SetActiveChild(1,0.4f);
-//	}
-//Begin:	
-//	FinishAnim(AnimNodeSequence(Mesh.FindAnimNode('Attacked')));
-//	PopState();
-//}
