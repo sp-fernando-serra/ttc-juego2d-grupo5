@@ -228,7 +228,7 @@ exec function LockOn()
 		gotostate('combatstance');
 	}else{
 		TargetedPawn=none;
-		gotostate('playerwalking');
+		gotostate('PlayerWalking');
 	}
 
 }
@@ -242,7 +242,7 @@ exec function LockOff()
 		TargetedPawn.stopPariclesFijado();
 		TargetedPawn=none;
 	}
-	gotostate('playerwalking');
+	gotostate('PlayerWalking');
 }
 
 
@@ -373,13 +373,13 @@ function UpdateRotationSword( float DeltaTime)
 function startAttack(optional byte FireModeNum )
 {
 	if(BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponSword'){	
-		if(FireModeNum==0)PushState('Sword_Attack');
+		if(FireModeNum==0 && canAttack())PushState('Sword_Attack');
 		if(FireModeNum==1 && canThrowGrenade())PushState('Grenade_Attack');
 	}
 	else{
 		//Pasamos al estado de equipar la espada si no tenemos arma equipada
 		
-		if(FireModeNum==0)PushState('Equipping_Sword');
+		if(FireModeNum==0 && canAttack())PushState('Equipping_Sword');
 		if(FireModeNum==1 && canThrowGrenade())PushState('Grenade_Attack');
 	}
 }
@@ -387,8 +387,7 @@ function startAttack(optional byte FireModeNum )
 
 function AnimNodeSequence getActiveAnimNode()
 {
-	local AnimNodeSequence animSeq;
-	if(IsInState('PlayerRolling')) animSeq = BBBettyPawn(Pawn).getRollAnimNode();	
+	local AnimNodeSequence animSeq;	
 	if(IsInState('Sword_Attack')) animSeq = BBBettyPawn(Pawn).getAttackAnimNode();	
 	if(animSeq==None)
 	{
@@ -397,31 +396,37 @@ function AnimNodeSequence getActiveAnimNode()
 	return animSeq;
 }
 
+function bool canAttack(){
+
+	if(IsInState('PlayerWalking') && Pawn.Physics != PHYS_Falling) return true;	
+	return false;
+}
+
 function bool canCombo()
 {
-	local BBBettyPawn p;
+	local BBBettyPawn tempPawn;
 	
-	p = BBBettyPawn(Pawn);
-	if(p!=None)
+	tempPawn = BBBettyPawn(Pawn);
+	if(tempPawn!=None)
 	{
-		return p.canStartCombo();
+		if(tempPawn.canStartCombo() && IsInState('Sword_Attack') && Pawn.Physics != PHYS_Falling) return true;
 	}
 	return false;
 }
 
 simulated function bool canThrowGrenade(){
 	
-	if(reactivateTime[HN_Grenade] == 0 && Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costGrenade) return true;
+	if(reactivateTime[HN_Grenade] == 0 && IsInState('PlayerWalking') && Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costGrenade) return true;
 	else return false;
 }
 
 simulated function bool canUseHeal(){
-	if(reactivateTime[HN_Heal] == 0 && Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costHeal) return true;
+	if(reactivateTime[HN_Heal] == 0 && IsInState('PlayerWalking') && Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costHeal) return true;
 	else return false;
 }
 
 simulated function bool canUseRoll(){
-	if(broll && reactivateTime[HN_Roll] == 0 && Pawn.Physics != PHYS_Falling) return true;
+	if(broll && reactivateTime[HN_Roll] == 0 && IsInState('PlayerWalking') && Pawn.Physics != PHYS_Falling) return true;
 	else return false;
 }
 
@@ -447,99 +452,12 @@ event PlayerTick(float DeltaTime){
 	
 }
 
-state mySpectatorMode extends Spectating
-{
-	event BeginState(name PreviousStateName){
-		Camera('FirstPersonCam');		
-		super.BeginState(PreviousStateName);
-	}
-}
+function PlayerMove( float DeltaTime ){
 
-state myStaticCamMode extends Spectating
-{
-	event BeginState(name PreviousStateName){
-		Camera('FirstPersonCam');		
-		super.BeginState(PreviousStateName);
-}
-
-function PlayerMove( float DeltaTime )
-{
-		local vector X,Y,Z;
-
-		GetAxes(Rotation,X,Y,Z);
-		Acceleration = 0*X + 0*Y + 0*vect(0,0,1);
-		UpdateRotation(DeltaTime);
-
-		if (Role < ROLE_Authority) // then save this move and replicate it
-		{
-			ReplicateMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
-		}
-		else
-		{
-			ProcessMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
-		}
-	}	
-}
-
-
-state myLevelEndedMode extends Spectating{
-	function PlayerMove( float DeltaTime )
-	{
-		local vector X,Y,Z;
-
-		GetAxes(Rotation,X,Y,Z);
-		Acceleration = 0*X + 0*Y + 0*vect(0,0,1);
-		UpdateRotation(DeltaTime);
-
-		if (Role < ROLE_Authority) // then save this move and replicate it
-		{
-			ReplicateMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
-		}
-		else
-		{
-			ProcessMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
-		}
-	}
-Begin:
-	WorldInfo.Game.Broadcast(self,"Level Completed!");
-	WorldInfo.Game.Broadcast(self,"Restarting level in...");
-	WorldInfo.Game.Broadcast(self,"3");
-	Sleep(1);
-	WorldInfo.Game.Broadcast(self,"2");
-	Sleep(1);
-	WorldInfo.Game.Broadcast(self,"1");
-	Sleep(1);
-	WorldInfo.SeamlessTravel("BB-BettyLevelMenu");
-}
-
-state Dead{
-Begin:
-	`log("Player Muerto");
-	WorldInfo.Game.Broadcast(self,"You are Dead!");
-	WorldInfo.Game.Broadcast(self,"Restarting level in...");
-	WorldInfo.Game.Broadcast(self,"3");
-	Sleep(1);
-	WorldInfo.Game.Broadcast(self,"2");
-	Sleep(1);
-	WorldInfo.Game.Broadcast(self,"1");
-	Sleep(1);
-	WorldInfo.SeamlessTravel("BB-BettyLevelMenu");
-}
-
-
-
-
-
-
-state PlayerWalking{
-
-	function PlayerMove( float DeltaTime )
-	{
-
-		local vector	 X,Y,Z, NewAccel;
-		local eDoubleClickDir	DoubleClickMove;
-		local bool	 bSaveJump;
-		local Rotator DeltaRot, ViewRotation, OldRotation, NewRot;
+	local vector	 X,Y,Z, NewAccel;
+	local eDoubleClickDir	DoubleClickMove;
+	local bool	 bSaveJump;
+	local Rotator DeltaRot, ViewRotation, OldRotation, NewRot;
 
 	if(bBettyMovement){
 		if( Pawn == None )
@@ -679,13 +597,104 @@ state PlayerWalking{
 			ProcessMove(DeltaTime, NewAccel, DoubleClickMove,Rotation);
 
 
-			bPressedJump = bSaveJump;
-			}
+		bPressedJump = bSaveJump;
 		}
+	}
 	
+}
+
+
+
+state mySpectatorMode extends Spectating
+{
+	event BeginState(name PreviousStateName){
+		Camera('FirstPersonCam');		
+		super.BeginState(PreviousStateName);
+	}
+}
+
+state myStaticCamMode extends Spectating{
+	event BeginState(name PreviousStateName){
+		Camera('FirstPersonCam');		
+		super.BeginState(PreviousStateName);
 	}
 
-	
+	function PlayerMove( float DeltaTime )
+	{
+		local vector X,Y,Z;
+
+		GetAxes(Rotation,X,Y,Z);
+		Acceleration = 0*X + 0*Y + 0*vect(0,0,1);
+		UpdateRotation(DeltaTime);
+
+		if (Role < ROLE_Authority) // then save this move and replicate it
+		{
+			ReplicateMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
+		}
+		else
+		{
+			ProcessMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
+		}
+	}	
+}
+
+
+state myLevelEndedMode extends Spectating{
+	function PlayerMove( float DeltaTime )
+	{
+		local vector X,Y,Z;
+
+		GetAxes(Rotation,X,Y,Z);
+		Acceleration = 0*X + 0*Y + 0*vect(0,0,1);
+		UpdateRotation(DeltaTime);
+
+		if (Role < ROLE_Authority) // then save this move and replicate it
+		{
+			ReplicateMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
+		}
+		else
+		{
+			ProcessMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
+		}
+	}
+Begin:
+	WorldInfo.Game.Broadcast(self,"Level Completed!");
+	WorldInfo.Game.Broadcast(self,"Restarting level in...");
+	WorldInfo.Game.Broadcast(self,"3");
+	Sleep(1);
+	WorldInfo.Game.Broadcast(self,"2");
+	Sleep(1);
+	WorldInfo.Game.Broadcast(self,"1");
+	Sleep(1);
+	WorldInfo.SeamlessTravel("BB-BettyLevelMenu");
+}
+
+state Dead{
+Begin:
+	`log("Player Muerto");
+	WorldInfo.Game.Broadcast(self,"You are Dead!");
+	WorldInfo.Game.Broadcast(self,"Restarting level in...");
+	WorldInfo.Game.Broadcast(self,"3");
+	Sleep(1);
+	WorldInfo.Game.Broadcast(self,"2");
+	Sleep(1);
+	WorldInfo.Game.Broadcast(self,"1");
+	Sleep(1);
+	WorldInfo.SeamlessTravel("BB-BettyLevelMenu");
+}
+
+
+
+
+
+
+state PlayerWalking{
+
+	//NANDO: Aqui estaba la funcion PlayerMove() que ahora esta fuera de cualquier estado ya que este era el estado por defecto
+	//       Si se quiere modificar el comportameinto de PlayerMove en algun estado basta con sobreescribir esta funcion.
+	function PlayerMove(float DeltaTime){
+		global.PlayerMove(DeltaTime);
+	}
 }
 
 //exec function gotoFuria()
@@ -694,10 +703,10 @@ state PlayerWalking{
 //}
 exec function gotoWalk()
 {
-GotoState('PlayerWalking');
+	GotoState('PlayerWalking');
 }
 
-//state Furia extends PlayerWalking
+//state Furia
 //{
 
 
@@ -895,33 +904,35 @@ Begin:
 state Sword_Attack
 {
 
-	function PlayerMove( float DeltaTime )
-	{
-		local vector X,Y,Z;
-		//local vector NewAccel;
+	//Modificar el movimiento de betty para que no se pueda mover durante los ataques
+	//NANDO: Lo he comentado para que si se pueda mover
+	//function PlayerMove( float DeltaTime )
+	//{
+	//	local vector X,Y,Z;
+	//	//local vector NewAccel;
 
-		GetAxes(Rotation,X,Y,Z);
+	//	GetAxes(Rotation,X,Y,Z);
 		
-		//`log("Rotation"@Rotation);
+	//	//`log("Rotation"@Rotation);
 
-		Acceleration = 0*X + 0*Y + 0*vect(0,0,1);
+	//	Acceleration = 0*X + 0*Y + 0*vect(0,0,1);
 
-		//Acceleration = 1*X + 1*Y;
-		//Acceleration.Z	= 0;
-		//Acceleration = Pawn.AccelRate * Normal(Acceleration);
+	//	//Acceleration = 1*X + 1*Y;
+	//	//Acceleration.Z	= 0;
+	//	//Acceleration = Pawn.AccelRate * Normal(Acceleration);
 
 
-		UpdateRotationSword(DeltaTime);
+	//	UpdateRotationSword(DeltaTime);
 
-		if (Role < ROLE_Authority) // then save this move and replicate it
-		{
-			ReplicateMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
-		}
-		else
-		{
-			ProcessMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
-		}
-	}	
+	//	if (Role < ROLE_Authority) // then save this move and replicate it
+	//	{
+	//		ReplicateMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
+	//	}
+	//	else
+	//	{
+	//		ProcessMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
+	//	}
+	//}	
 
 	function startAttack(optional byte FireModeNum)
 	{
@@ -943,6 +954,7 @@ Begin:
 	PopState();
 
 Combo:
+	if(getActiveAnimNode() != none) FinishAnim(getActiveAnimNode());
 	comboAttack();
 	FinishAnim(getActiveAnimNode());
 	PopState();
