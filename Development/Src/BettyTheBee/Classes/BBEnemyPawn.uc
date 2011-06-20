@@ -1,22 +1,10 @@
-class BBEnemyPawn extends BBPawn
+class BBEnemyPawn extends BBPawn abstract
 	classGroup(BBActor);
-
-//// members for the custom mesh
-
-//var AnimTree defaultAnimTree;
-//var array<AnimSet> defaultAnimSet;
-//var AnimNodeSequence defaultAnimSeq;
-//var PhysicsAsset defaultPhysicsAsset;
 
 var BBControllerAI MyController;
 
 var float Speed;
 
-//var SkeletalMeshComponent MyMesh;
-//var bool bplayed;
-var Name AnimSetName;
-var AnimNodeBlendList nodeListAttack;
-var AnimNodeSequence MyAnimPlayControl;
 
 /** Distance to see player */
 var () float PerceptionDistance<DisplayName=Perception Distance>;
@@ -32,38 +20,17 @@ var () array<BBRoutePoint> MyRoutePoints;
 var bool bIsDying;
 var class<DamageType> MyDamageType;
 
+/** AnimNode used to play custom anims */
+var AnimNodePlayCustomAnim customAnimSlot;
+
+var name attackAnimName;
+var name dyingAnimName;
 
 var ParticleSystem TargetedPawn_PS;
 var ParticleSystemComponent TargetedPawn_PSC;
 
 var ParticleSystem DamagePawn_PS;
 var ParticleSystemComponent DamagePawn_PSC;
-
-
-defaultproperties
-{
-	
-
-    bCollideActors=true
-	bPushesRigidBodies=true
-	bStatic=False
-	bMovable=True
-
-	bAvoidLedges=true
-	bStopAtLedges=true
-
-	LedgeCheckThreshold=0.5f
-
-	bAggressive = true;
-
-	//PeripheralVision is Cos of desired vision angle cos(45) = 0.707106
-	PeripheralVision = 0.707106;
-
-	TargetedPawn_PS=ParticleSystem'Betty_Particles.enemigos.enemigo_fijado'
-
-	MyDamageType = class'DamageType'
-
-}
 
 simulated function PostBeginPlay()
 {
@@ -84,8 +51,7 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 	super.PostInitAnimTree(SkelComp);
 	if (SkelComp == Mesh)
 	{
-		nodeListAttack = AnimNodeBlendList(Mesh.FindAnimNode('listAttack'));
-		//attackAnim = AnimNodeSequence(Mesh.FindAnimNode('ATTACK'));
+		customAnimSlot = AnimNodePlayCustomAnim(SkelComp.FindAnimNode('CustomAnim'));
 	}
 }
 
@@ -93,7 +59,6 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 function playPariclesFijado()
 {
 	 local string tipo_enemigo;
-	//`log("play");
 	//ParticlesComponent_enemigoFijado.SetActive(true);
 	TargetedPawn_PSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(TargetedPawn_PS,Mesh,'centro',true);
 	//`log(Mesh);
@@ -128,17 +93,44 @@ state Idle{
 
 }
 
-function bool isDying(){
-	
-}
+function bool isDying();
 
 state Dying{
 	event BeginState(Name PreviousStateName)
 	{
 		stopPariclesFijado();
-		nodeListAttack.SetActiveChild(5,0.2f);
+		customAnimSlot.PlayCustomAnim(dyingAnimName,1.0f,0.25,0.0f,false,true);		
 		super.BeginState(PreviousStateName);
 	}
+
+begin:
+	Sleep(customAnimSlot.GetCustomAnimNodeSeq().GetTimeLeft() - 0.05f);
+	//customAnimSlot.GetCustomAnimNodeSeq().SetPosition(1.0f,false);
+	customAnimSlot.StopAnim();
+}
+
+defaultproperties
+{
+	
+
+    bCollideActors=true
+	bPushesRigidBodies=true
+	bStatic=False
+	bMovable=True
+
+	bAvoidLedges=true
+	bStopAtLedges=true
+
+	LedgeCheckThreshold=0.5f
+
+	bAggressive = true;
+
+	//PeripheralVision is Cos of desired vision angle cos(45) = 0.707106
+	PeripheralVision = 0.707106;
+
+	TargetedPawn_PS=ParticleSystem'Betty_Particles.enemigos.enemigo_fijado'
+
+	MyDamageType = class'DamageType'
 
 }
 
