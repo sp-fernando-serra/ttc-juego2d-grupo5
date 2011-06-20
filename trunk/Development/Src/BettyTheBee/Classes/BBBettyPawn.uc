@@ -307,6 +307,14 @@ function bool canStartCombo()
 	return false;
 }
 
+function ForceJump(BBSequenceActionJump MyAction)
+{
+ //`log("betty jump");
+
+ PrepareJump();
+}
+
+
 simulated event StartJump(){
 	bPreparingJump = false;
 	DoJump(false);
