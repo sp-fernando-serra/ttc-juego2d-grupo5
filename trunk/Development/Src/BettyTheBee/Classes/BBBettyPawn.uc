@@ -4,10 +4,21 @@ var int itemsMiel;//contador de items 'Mel'
 
 var bool bIsRolling;
 
+/** Speed whe rolling = 
+ *  NormalSpeed * RollingSpeedModifier
+ */
+var float RollingSpeedModifier;
+
 /** Bool to know when player wants to jump
  *  First we have to play PreJump animation and later do the jump.
  */
 var bool bPreparingJump;
+/** Bool to know it next jump is a mushroom jump
+ *  Mushroom jump is higher than normal jump. Using mushroomJumpZModifier
+ */
+var bool bMushroomJump;
+/** Amount to modify the normal height jump ina mushroom jump */
+var float mushroomJumpZModifier;
 
 var DynamicLightEnvironmentComponent LightEnvironment;
 
@@ -184,11 +195,13 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 function  animRollLeft(){
 	
 	bIsRolling=true;
+	MovementSpeedModifier = RollingSpeedModifier;
 	fullBodySlot.PlayCustomAnim(rollAnimNames[ROLL_LEFT],1.0f,0.0f,0.0f);	
 }
 function  animRollRight(){
 	
 	bIsRolling=true;
+	MovementSpeedModifier = RollingSpeedModifier;
 	fullBodySlot.PlayCustomAnim(rollAnimNames[ROLL_RIGHT],1.0f,0.0f,0.0f);
 }
 
@@ -295,18 +308,23 @@ function bool canStartCombo()
 
 function ForceJump(BBSequenceActionJump MyAction)
 {
- //`log("betty jump");
-
- PrepareJump();
+ 	PrepareJump();
+	bMushroomJump = true;
+	JumpZ *= mushroomJumpZModifier;
 }
 
 
 simulated event StartJump(){
 	bPreparingJump = false;
 	DoJump(false);
+	if(bMushroomJump){
+		bMushroomJump = false;
+		JumpZ /= mushroomJumpZModifier;
+	}
 }
 
 simulated event EndRoll(){
+	MovementSpeedModifier = 1;
 	bIsRolling = false;
 }
 
@@ -521,12 +539,15 @@ DefaultProperties
 
 
 	Health = 100;
-	itemsMiel=10000;
-	bCanPickupInventory=true;
-	InventoryManagerClass=class'BettyTheBee.BBInventoryManager';
+	itemsMiel = 10000;
+	bCanPickupInventory = true;
+	InventoryManagerClass = class'BettyTheBee.BBInventoryManager';
 
 
-	bIsRolling=false;
+	bIsRolling = false;
+	RollingSpeedModifier = 2.5f;
+
+	mushroomJumpZModifier = 1.5f;
 
 
 	// FOV / Sight
