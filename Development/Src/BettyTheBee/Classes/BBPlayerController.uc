@@ -515,18 +515,16 @@ function PlayerMove( float DeltaTime ){
 			else
 			{
 				if(!BBBettyPawn(Pawn).IsRolling()){
-					if(canUseRoll()  && PlayerInput.aStrafe>0){
+					if(canUseRoll()  && PlayerInput.aStrafe>0 && PlayerInput.aForward == 0){
 						BBBettyPawn(Pawn).animRollRight();
 						reactivateTime[HN_Roll] = coldDowns[HN_Roll];
 					}
-					else if (canUseRoll()  && PlayerInput.aStrafe<0){
+					else if (canUseRoll()  && PlayerInput.aStrafe<0 && PlayerInput.aForward == 0){
 						BBBettyPawn(Pawn).animRollLeft();
 						reactivateTime[HN_Roll] = coldDowns[HN_Roll];
 					}
 					ProcessMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);
-				}
-				
-				
+				}				
 			}
 			bPressedJump = bSaveJump;
 		}
@@ -932,11 +930,11 @@ state Sword_Attack
 	//	{
 	//		ProcessMove(DeltaTime, Acceleration, DCLICK_None, rot(0,0,0));
 	//	}
-	//}	
-
+	//}
+	
 	function startAttack(optional byte FireModeNum)
 	{
-		if(canCombo())	GotoState('Sword_Attack','Combo');
+		if(canCombo())	GotoState(,'Combo');
 	}
 	
 	function initialAttack()
