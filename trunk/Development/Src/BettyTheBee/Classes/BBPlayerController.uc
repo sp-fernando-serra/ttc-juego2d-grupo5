@@ -575,7 +575,7 @@ function PlayerMove( float DeltaTime ){
 			NewRot = Pawn.Rotation;	
 
 			}
-			Pawn.FaceRotation(RInterpTo(OldRotation,NewRot,Deltatime,70000,true),Deltatime);
+			Pawn.FaceRotation(RInterpTo(OldRotation,NewRot,Deltatime,100000,true),Deltatime);
 
 
 

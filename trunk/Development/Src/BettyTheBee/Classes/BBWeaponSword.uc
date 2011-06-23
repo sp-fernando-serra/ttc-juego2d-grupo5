@@ -19,6 +19,9 @@ var class<DamageType> myDamageType;
 var ParticleSystem DamagePawn_PS;
 var ParticleSystemComponent DamagePawn_PSC;
 
+var ParticleSystem Miel_PS;
+var ParticleSystemComponent Miel_PSC;
+
 
 var bool bDoDamage;
 
@@ -72,14 +75,28 @@ event Tick(float DeltaTime){
 						momentum = vect(0,0,0);
 						hitPawn.TakeDamage(attackDamage, Holder.Controller,vHitLoc,momentum,MyDamageType);
 						//BBEnemyPawnRhino(hitPawn).isAtacked();					
-						playPariclesDamage(vHitLoc);
+						playPariclesDamage(vHitLoc);						
+						
+						//slowTimeDown();
+		
 						//Worldinfo.Game.Broadcast(self, Name $ ": Health "$hitPawn.Health);
-					}	
+					}
+					
 				}
 			}
 		}
 	}
 }
+
+//function slowTimeDown(){
+//WorldInfo.Game.SetGameSpeed(0.2);
+//SetTimer(0.05f, true, 'slowTimeup' );
+////WorldInfo.Game.SetGameSpeed(1);
+//}
+//function slowTimeup(){
+//WorldInfo.Game.SetGameSpeed(1);
+//ClearTimer('slowTimeup');
+//}
 
 function playPariclesDamage(Vector HitLoc)
 {
@@ -107,11 +124,13 @@ event Timer(){
 
 /**
  * Modificamos el estado para desequiapr el arma pasado un tiempo = unequipTime
+
  */
 simulated state Active{
 	
 	simulated event BeginState(name PreviousStateName){
 		SetTimer(unequipTime);
+		Miel_PSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(Miel_PS,SkeletalMeshComponent(Mesh),'miel',true);
 		super.BeginState(PreviousStateName);
 	}
 }
@@ -120,6 +139,8 @@ auto state Inactive{
 	simulated event BeginState( Name PreviousStateName )
 		{
 			ClearTimer();
+			
+			WorldInfo.MyEmitterPool.OnParticleSystemFinished(Miel_PSC);
 		}
 }
 
@@ -274,7 +295,9 @@ DefaultProperties
 	attackDamage = 25;
 	myDamageType = class'DamageType'
 
-	DamagePawn_PS=ParticleSystem'Betty_Particles.Damage.Rhino_Damage'
+	//DamagePawn_PS=ParticleSystem'Betty_Particles.Damage.Rhino_Damage'
+	DamagePawn_PS=ParticleSystem'Betty_Particles.Damage.otro'
+	Miel_PS=ParticleSystem'Betty_Particles.Damage.miel_espada'
 
 	bDoDamage=false;
 
