@@ -296,6 +296,7 @@ exec function GetVida(){
 		//Returns true only if healing has been sucessfull
 		if(Pawn.HealDamage(amountHealed,self,HealDamageType)){
 			BBBettyPawn(Pawn).itemsMiel -= costHeal;
+			BBBettyPawn(Pawn).healUsed();
 			reactivateTime[HN_Heal] = coldDowns[HN_Heal];
 		}
 	}
