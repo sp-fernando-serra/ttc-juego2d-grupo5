@@ -295,9 +295,9 @@ DefaultProperties
 	attackDamage = 25;
 	myDamageType = class'DamageType'
 
-	//DamagePawn_PS=ParticleSystem'Betty_Particles.Damage.Rhino_Damage'
-	DamagePawn_PS=ParticleSystem'Betty_Particles.Damage.otro'
-	Miel_PS=ParticleSystem'Betty_Particles.Damage.miel_espada'
+	DamagePawn_PS=ParticleSystem'Betty_Particles.Damage.Rhino_Damage'
+	//DamagePawn_PS=ParticleSystem'Betty_Particles.Damage.otro'
+	Miel_PS=ParticleSystem'Betty_Particles.Betty.miel_espada'
 
 	bDoDamage=false;
 
