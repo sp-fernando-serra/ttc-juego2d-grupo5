@@ -43,6 +43,8 @@ var name rollAnimNames[2];
 
 /** ParticleSystem que aparece al equipar la espada */
 var ParticleSystem EquipSwordPS;
+/** ParticleSystem used in Heal hability */
+var ParticleSystem HealPS;
 
 //Sounds
 /** Sound for equipping the Sword */
@@ -217,6 +219,10 @@ simulated function prepareJump(){
 		fullBodySlot.PlayCustomAnim(preJumpAnimName,1.5f,0.0f,0.0f,false,true);
 	}
 
+}
+
+simulated function healUsed(){
+	WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(HealPS,Mesh,'Bip01',false,vect(0.0f,0.0f,50.0f));
 }
 
 simulated function calcHitLocation()
@@ -530,6 +536,7 @@ DefaultProperties
 	CylinderComponent=CollisionCylinder
 
 	EquipSwordPS = ParticleSystem'Betty_Player.Particles.EquipSword_PS'
+	HealPS = ParticleSystem'Betty_Player.Particles.Heal_PS'
 
 	GroundSpeed=400
 	//Default is 420
