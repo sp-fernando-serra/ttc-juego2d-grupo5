@@ -82,8 +82,8 @@ DefaultProperties
 	Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment
 		ModShadowFadeoutTime=0.25
 		MinTimeBetweenFullUpdates=0.2
-		LightShadowMode=LightShadow_ModulateBetter
-		ShadowFilterQuality=SFQ_High
+		LightShadowMode=LightShadow_Modulate
+		ShadowFilterQuality=SFQ_Low
 		bSynthesizeSHLight=TRUE
 	End Object
 	Components.Add(MyLightEnvironment)

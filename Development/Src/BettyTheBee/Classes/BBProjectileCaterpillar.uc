@@ -155,7 +155,6 @@ DefaultProperties
 		SkeletalMesh=SkeletalMesh'Betty_caterpillar.SkModels.SpittleSk'
 		MorphSets(0)=MorphTargetSet'Betty_caterpillar.SkModels.Spittle_MorphSet'
 		AnimTreeTemplate=AnimTree'Betty_caterpillar.SkModels.Spittle_AnimTree'
-		//PhysicsAsset=PhysicsAsset'Betty_caterpillar.SkModels.Spittle_Physics'
 		Scale=1
 		LightEnvironment=MyLightEnvironment
     end object

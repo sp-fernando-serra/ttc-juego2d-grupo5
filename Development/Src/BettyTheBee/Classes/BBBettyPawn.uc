@@ -349,6 +349,11 @@ function AnimNodeSequence getAttackAnimNode()
 	return currentPlay;
 }
 
+event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
+	super.TakeDamage(Damage, InstigatedBy, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
+	Worldinfo.Game.Broadcast(self,Name$": "$Damage$ " done by "$DamageCauser.Name $ " Life: "$Health);
+}
+
 simulated function GetUnequipped()
 {
 	local BBWeaponNone Inv;
