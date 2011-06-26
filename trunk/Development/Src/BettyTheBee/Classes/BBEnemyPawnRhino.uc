@@ -43,8 +43,7 @@ state Attacking{
 		if(HitActor != none){
 			//Worldinfo.Game.Broadcast(self, Name $ ": Hit actor "$HitActor.Name);
 			if(HitActor.Class == class'BBBettyPawn'){
-				BBBettyPawn(HitActor).TakeDamage(AttackDamage,Controller,HitLocation,vect(0,0,0),MyDamageType);
-				//Worldinfo.Game.Broadcast(self,BBBettyPawn(HitActor).name $ " Actual Life: "$BBBettyPawn(HitActor).Health);
+				BBBettyPawn(HitActor).TakeDamage(AttackDamage,Controller,HitLocation,vect(0,0,0),MyDamageType,,self);
 			}
 		}
 	}
