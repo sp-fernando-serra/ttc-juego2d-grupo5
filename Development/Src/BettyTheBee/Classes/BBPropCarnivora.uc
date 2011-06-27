@@ -130,7 +130,6 @@ DefaultProperties
 		CollideActors=true
 	End object
 	CollisionComponent = CollisionCylinder
-	CylinderComponent = CollisionCylinder
 	Components.Add(CollisionCylinder)
 
 	Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment
