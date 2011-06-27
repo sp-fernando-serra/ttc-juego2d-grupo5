@@ -2,6 +2,9 @@ class BBMielPickupItem extends PickupFactory placeable;
 
 var		SoundCue			PickupSound;
 
+/** Degrees to rotate every second */
+var float rotationPerSec;
+
 function SpawnCopyFor( Pawn Recipient )
 {
 	// Give health to recipient
@@ -14,10 +17,16 @@ function SpawnCopyFor( Pawn Recipient )
 	}*/
 }
 
-//function Tick( float DeltaTime ){
-//	Rotation.Yaw=Rotation.Yaw+1;
-//	if(Rotation.Yaw==360) Rotation.Yaw=0;
-//}
+function Tick( float DeltaTime ){
+	local Rotator newRot;
+	
+	
+	newRot = Rotation;
+	newRot.Yaw = newRot.Yaw + DeltaTime * rotationPerSec / UnrRotToDeg;
+	if(newRot.Yaw > 65535)
+		newRot.Yaw = 0;
+	SetRotation(newRot);
+}
 
 
 DefaultProperties
@@ -38,6 +47,8 @@ DefaultProperties
 	PickupMesh=ItemEsfera
 	Components.Add(ItemEsfera)
 
+	bMovable = true;
+	bStatic = false;
 	/*Begin Object class=CylinderComponent Name=BettyCollision
 		CollisionRadius=+5
 	End Object
@@ -46,6 +57,8 @@ DefaultProperties
 	InventoryType=class'BettyTheBee.BBInventory'
 
 	PickupSound=SoundCue'A_Pickups.Health.Cue.A_Pickups_Health_Small_Cue_Modulated'
+
+	rotationPerSec = 90.0f
 }
 
 
