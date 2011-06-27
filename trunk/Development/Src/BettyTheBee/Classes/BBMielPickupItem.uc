@@ -1,4 +1,4 @@
-class BBMielPickupItem extends PickupFactory; 
+class BBMielPickupItem extends PickupFactory placeable; 
 
 var		SoundCue			PickupSound;
 
@@ -14,6 +14,11 @@ function SpawnCopyFor( Pawn Recipient )
 	}*/
 }
 
+//function Tick( float DeltaTime ){
+//	Rotation.Yaw=Rotation.Yaw+1;
+//	if(Rotation.Yaw==360) Rotation.Yaw=0;
+//}
+
 
 DefaultProperties
 {
@@ -26,8 +31,9 @@ DefaultProperties
 		bAcceptsLights=true
 		CollideActors=false
 		BlockActors=false
-        StaticMesh=StaticMesh'EngineMeshes.Sphere'
+        StaticMesh=StaticMesh'Betty_item.Models.Item'
         bNotifyRigidBodyCollision=true
+		LightEnvironment=theLightEnvironment
 	End Object
 	PickupMesh=ItemEsfera
 	Components.Add(ItemEsfera)
