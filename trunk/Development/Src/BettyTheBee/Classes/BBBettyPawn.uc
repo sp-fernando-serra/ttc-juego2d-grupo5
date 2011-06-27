@@ -312,7 +312,7 @@ function bool canStartCombo()
 	return false;
 }
 
-function ForceJump(BBSequenceActionJump MyAction)
+function ForceJump()
 {
  	PrepareJump();
 	bMushroomJump = true;
