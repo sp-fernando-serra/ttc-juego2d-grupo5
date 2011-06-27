@@ -11,6 +11,9 @@ var () float randomTimeBetweenShots;
 /** Vector  for randomness in prejectile shooting, each component indicates the randomness in each direction*/
 var () Vector randomness;
 
+var name attackBeginAnime;
+var name attackEndAnime;
+
 simulated function PostBeginPlay()
 {
 	super.PostBeginPlay();
@@ -29,8 +32,10 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 	if (SkelComp == Mesh)
 	{
 		//Name of diferent animations for playing in custom node (esta aqui porque en defaultProperties no funciona)
-		attackAnimName = 'Attack_1';
-		dyingAnimName = '';
+		attackAnimName = 'Throw';
+		attackBeginAnime = 'Stand_Up';
+        attackEndAnime = 'Go_Down';
+		dyingAnimName = 'Die';		
 	}
 }
 
@@ -62,11 +67,13 @@ state Attacking{
 	
 	simulated event BeginState(name NextStateName){
 		super.BeginState(NextStateName);
+		customAnimSlot.PlayCustomAnim(attackBeginAnime,1.0f,0.25f,0.25f,true);
 		customAnimSlot.PlayCustomAnim(attackAnimName,1.0f,0.25f,0.25f,true);
 	}
 
 	simulated event EndState(name NextStateName){
 		super.EndState(NextStateName);
+		customAnimSlot.PlayCustomAnim(attackBeginAnime,1.0f,0.25f,0.25f,true);
 		customAnimSlot.StopCustomAnim(0.25f);
 	}
 Begin:
