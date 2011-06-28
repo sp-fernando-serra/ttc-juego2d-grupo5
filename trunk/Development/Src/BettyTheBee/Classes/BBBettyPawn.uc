@@ -261,7 +261,7 @@ simulated function basicSwordAttack()
 {
 	BBWeaponSword(Weapon).ResetUnequipTimer();
 	BBWeapon(Weapon).animAttackStart();
-	upperBodySlot.PlayCustomAnim(attackAnimNames[0],1.0f,0.15f,0.15f);
+	upperBodySlot.PlayCustomAnim(attackAnimNames[0],1.5f,0.15f,0.15f);
 	upperBodySlot.SetActorAnimEndNotification(true);
 	nextAttackIndex = 1;
 	
@@ -274,7 +274,7 @@ simulated function comboSwordAttack()
 	BBWeapon(Weapon).animAttackEnd();//end de l'animacio de l'atac basic. Per posar eliminar els enemics de la taula 'lista_enemigos'
 	BBWeapon(Weapon).animAttackStart();
 	if(nextAttackIndex < 2){
-		upperBodySlot.PlayCustomAnim(attackAnimNames[nextAttackIndex],1.0f,0.15f,0.15f);
+		upperBodySlot.PlayCustomAnim(attackAnimNames[nextAttackIndex],1.5f,0.15f,0.15f);
 		upperBodySlot.SetActorAnimEndNotification(true);
 		nextAttackIndex++;
 	}else{
@@ -551,7 +551,7 @@ DefaultProperties
 
 
 	Health = 100;
-	itemsMiel = 10000;
+	itemsMiel = 0;
 	bCanPickupInventory = true;
 	InventoryManagerClass = class'BettyTheBee.BBInventoryManager';
 

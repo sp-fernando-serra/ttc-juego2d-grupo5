@@ -67,17 +67,17 @@ state Attacking{
 	
 	simulated event BeginState(name NextStateName){
 		super.BeginState(NextStateName);
-		customAnimSlot.PlayCustomAnim(attackBeginAnime,1.0f,0.25f,0.25f,true);
-		customAnimSlot.PlayCustomAnim(attackAnimName,1.0f,0.25f,0.25f,true);
+		customAnimSlot.PlayCustomAnim(attackBeginAnime,1.0f,0.25f,0.0f,false);
 	}
 
 	simulated event EndState(name NextStateName){
 		super.EndState(NextStateName);
-		customAnimSlot.PlayCustomAnim(attackBeginAnime,1.0f,0.25f,0.25f,true);
-		customAnimSlot.StopCustomAnim(0.25f);
+		customAnimSlot.PlayCustomAnim(attackEndAnime,1.0f,0.0f,0.25f,false,true);
 	}
 Begin:
-	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());
+	customAnimSlot.PlayCustomAnim(attackAnimName,1.0f,0.0f,0.0f,false,true);
+	Sleep(customAnimSlot.GetCustomAnimNodeSeq().GetTimeLeft() - 0.05f);
+	customAnimSlot.StopAnim();	
 	Sleep(timeBetweenShots + randomTimeBetweenShots * FRand());
 	goto 'Begin';
 }
