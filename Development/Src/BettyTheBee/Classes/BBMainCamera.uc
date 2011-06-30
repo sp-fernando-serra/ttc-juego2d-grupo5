@@ -4,6 +4,7 @@ var float Dist;
 
 function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 {
+
 	//Declaring local variables
 	local vector			Loc, Pos, HitLocation, HitNormal;
 	local rotator			Rot;
@@ -14,6 +15,10 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 
 	// store previous POV, in case we need it later
 	OrigPOV = OutVT.POV;
+	
+	
+	//`log('OrigPOV'@OrigPOV);
+	//`log('DefaultFOV'@DefaultFOV);
 
 	// Default FOV on viewtarget
 	OutVT.POV.FOV = DefaultFOV;
@@ -49,9 +54,12 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 				case 'ThirdPerson' : //Enters here as long as CameraStyle is still set to ThirdPerson
 			
 				case 'FreeCam' :
+
+					//`log("utp-"@PCOwner.Location);
+					
 					Loc = OutVT.Target.Location; // Setting the camera location and rotation to the viewtarget's
 					Rot = OutVT.Target.Rotation;
-					//`log('loc'@Loc);
+					//`log('Loc-'@Loc);
 					//`log('Rot'@Rot.Pitch);
 
 					if (CameraStyle == 'ThirdPerson')
@@ -91,13 +99,14 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 					//OutVT.POV.Location = (HitActor == None) ? Pos : PCOwner.Location;
 					//`log("Pos-"@Pos);
 					//`log("instigator-"@BBBettyPawn.Location);
-
 					//OutVT.POV.Location =Pos;
+
 					OutVT.POV.Rotation = Rot;
 
 				break; //This is where our code leaves the switch-case statement, preventing it from executing the commands intended for the FirstPerson case.
 
 				case 'FirstPerson' : // Simple first person, view through viewtarget's 'eyes'
+					
 				default : OutVT.Target.GetActorEyesViewPoint(OutVT.POV.Location, OutVT.POV.Rotation);
 				break;
 			}

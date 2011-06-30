@@ -29,6 +29,8 @@ var float amountHealed;
 var class<DamageType> HealDamageType;
 var int costGrenade;
 
+
+var		SoundCue			HealSound;
 enum EHabilityNames
 {
 	HN_Heal,
@@ -298,6 +300,9 @@ exec function GetVida(){
 			BBBettyPawn(Pawn).itemsMiel -= costHeal;
 			BBBettyPawn(Pawn).healUsed();
 			reactivateTime[HN_Heal] = coldDowns[HN_Heal];
+			PlaySound( HealSound );
+			
+			
 		}
 	}
 }
@@ -314,6 +319,7 @@ function UpdateRotation2( float DeltaTime, bool updatePawnRot)
 	{
 		local Rotator	DeltaRot, newRotation, ViewRotation;
 	
+		
 		ViewRotation = Rotation;
 
 		if (Pawn!=none && updatePawnRot)
@@ -367,93 +373,8 @@ function UpdateRotationSword( float DeltaTime)
 		//	Pawn.FaceRotation(NewRotation, deltatime);
 	}
 
-//--------------------------------FUNCIONES ROTACION CAMARA Y PLAYER-----------------------------
-//-----------------------------------------------------------------------------------------------
 
-
-function startAttack(optional byte FireModeNum )
-{
-	if(BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponSword'){	
-		if(FireModeNum==0 && canAttack())PushState('Sword_Attack');
-		if(FireModeNum==1 && canThrowGrenade())PushState('Grenade_Attack');
-	}
-	else{
-		//Pasamos al estado de equipar la espada si no tenemos arma equipada
-		
-		if(FireModeNum==0 && canAttack())PushState('Equipping_Sword');
-		if(FireModeNum==1 && canThrowGrenade())PushState('Grenade_Attack');
-	}
-}
-
-
-function AnimNodeSequence getActiveAnimNode()
-{
-	local AnimNodeSequence animSeq;	
-	if(IsInState('Sword_Attack') || IsInState('Grenade_Attack')) animSeq = BBBettyPawn(Pawn).getAttackAnimNode();	
-	if(animSeq==None)
-	{
-		return None;
-	}
-	return animSeq;
-}
-
-function bool canAttack(){
-
-	if(Pawn.Physics != PHYS_Falling && !IsInState('Grenade_Attack')) return true;	
-	return false;
-}
-
-function bool canCombo()
-{
-	local BBBettyPawn tempPawn;
-	
-	tempPawn = BBBettyPawn(Pawn);
-	if(tempPawn!=None)
-	{
-		if(tempPawn.canStartCombo() && IsInState('Sword_Attack') && Pawn.Physics != PHYS_Falling) return true;
-	}
-	return false;
-}
-
-simulated function bool canThrowGrenade(){
-	
-	if(reactivateTime[HN_Grenade] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costGrenade) return true;
-	else return false;
-}
-
-simulated function bool canUseHeal(){
-	if(reactivateTime[HN_Heal] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costHeal) return true;
-	else return false;
-}
-
-simulated function bool canUseRoll(){
-	if(broll && reactivateTime[HN_Roll] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && Pawn.Physics != PHYS_Falling) return true;
-	else return false;
-}
-
-function CheckJumpOrDuck()
-{
-	if ( bPressedJump && (Pawn != None) )
-	{
-		BBBettyPawn(Pawn).prepareJump();
-	}
-}
-
-event PlayerTick(float DeltaTime){
-	local int i;
-	super.PlayerTick(DeltaTime);
-
-	//Uptade all remaining times
-	for( i = 0; i < ArrayCount(reactivateTime); i++){
-		if(reactivateTime[i] > 0)
-			reactivateTime[i] -= DeltaTime;
-		else if(reactivateTime[i] < 0)
-			reactivateTime[i] = 0;
-	}
-	
-}
-
-function PlayerMove( float DeltaTime ){
+	function PlayerMove( float DeltaTime ){
 
 	local vector	 X,Y,Z, NewAccel;
 	local eDoubleClickDir	DoubleClickMove;
@@ -601,6 +522,94 @@ function PlayerMove( float DeltaTime ){
 	}
 	
 }
+
+//--------------------------------FUNCIONES ROTACION CAMARA Y PLAYER-----------------------------
+//-----------------------------------------------------------------------------------------------
+
+
+function startAttack(optional byte FireModeNum )
+{
+	if(BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponSword'){	
+		if(FireModeNum==0 && canAttack())PushState('Sword_Attack');
+		if(FireModeNum==1 && canThrowGrenade())PushState('Grenade_Attack');
+	}
+	else{
+		//Pasamos al estado de equipar la espada si no tenemos arma equipada
+		
+		if(FireModeNum==0 && canAttack())PushState('Equipping_Sword');
+		if(FireModeNum==1 && canThrowGrenade())PushState('Grenade_Attack');
+	}
+}
+
+
+function AnimNodeSequence getActiveAnimNode()
+{
+	local AnimNodeSequence animSeq;	
+	if(IsInState('Sword_Attack') || IsInState('Grenade_Attack')) animSeq = BBBettyPawn(Pawn).getAttackAnimNode();	
+	if(animSeq==None)
+	{
+		return None;
+	}
+	return animSeq;
+}
+
+function bool canAttack(){
+
+	if(Pawn.Physics != PHYS_Falling && !IsInState('Grenade_Attack')) return true;	
+	return false;
+}
+
+function bool canCombo()
+{
+	local BBBettyPawn tempPawn;
+	
+	tempPawn = BBBettyPawn(Pawn);
+	if(tempPawn!=None)
+	{
+		if(tempPawn.canStartCombo() && IsInState('Sword_Attack') && Pawn.Physics != PHYS_Falling) return true;
+	}
+	return false;
+}
+
+simulated function bool canThrowGrenade(){
+	
+	if(reactivateTime[HN_Grenade] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costGrenade) return true;
+	else return false;
+}
+
+simulated function bool canUseHeal(){
+	if(reactivateTime[HN_Heal] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costHeal) return true;
+	else return false;
+}
+
+simulated function bool canUseRoll(){
+	if(broll && reactivateTime[HN_Roll] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && Pawn.Physics != PHYS_Falling) return true;
+	else return false;
+}
+
+function CheckJumpOrDuck()
+{
+	if ( bPressedJump && (Pawn != None) )
+	{
+		BBBettyPawn(Pawn).prepareJump();
+	}
+}
+
+event PlayerTick(float DeltaTime){
+	local int i;
+	super.PlayerTick(DeltaTime);
+
+	//Uptade all remaining times
+	for( i = 0; i < ArrayCount(reactivateTime); i++){
+		if(reactivateTime[i] > 0)
+			reactivateTime[i] -= DeltaTime;
+		else if(reactivateTime[i] < 0)
+			reactivateTime[i] = 0;
+	}
+	
+}
+
+
 
 
 
@@ -1052,5 +1061,8 @@ DefaultProperties
 	coldDowns[HN_Frenesi] = 20.0f;
 	coldDowns[HN_Roll] = 3.0f;
 	coldDowns[HN_Grenade] = 5.0f;
+
+
+	HealSound=SoundCue'Betty_Sounds.vida_cue'
 
 }

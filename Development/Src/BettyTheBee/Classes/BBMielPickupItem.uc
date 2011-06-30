@@ -5,12 +5,18 @@ var		SoundCue			PickupSound;
 /** Degrees to rotate every second */
 var float rotationPerSec;
 
+var ParticleSystem destellos_PS;
+var ParticleSystemComponent destellos_PSC;
+
 function SpawnCopyFor( Pawn Recipient )
 {
 	// Give health to recipient
 	BBBettyPawn(Recipient).itemsMiel += 10;
 	PlaySound( PickupSound );
+	//destellos_PSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(destellos_PS,SkeletalMeshComponent(Mesh),'sword_final',true);
+	destellos_PSC = WorldInfo.MyEmitterPool.SpawnEmitter(destellos_PS,Location);
 	
+	//`log(BBMielPickupItem(Instigator).Location);
 	/*if ( PlayerController(Recipient.Controller) != None )
 	{
 		PlayerController(Recipient.Controller).ReceiveLocalizedMessage(MessageClass,,,,class);
@@ -56,7 +62,9 @@ DefaultProperties
 
 	InventoryType=class'BettyTheBee.BBInventory'
 
-	PickupSound=SoundCue'A_Pickups.Health.Cue.A_Pickups_Health_Small_Cue_Modulated'
+	PickupSound=SoundCue'Betty_Sounds.Pickup_cue'
+
+	destellos_PS=ParticleSystem'Betty_item.PS.magicMissleImpact_vFX'
 
 	rotationPerSec = 90.0f
 }
