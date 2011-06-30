@@ -296,7 +296,9 @@ DefaultProperties
 	myDamageType = class'DamageType'
 
 	DamagePawn_PS=ParticleSystem'Betty_Particles.Damage.Rhino_Damage'
+	//DamagePawn_PS=ParticleSystem'Betty_Particles.Damage.ccc'
 	//DamagePawn_PS=ParticleSystem'Betty_Particles.Damage.otro'
+	//DamagePawn_PS=ParticleSystem'Betty_Particles.Damage.ataque'
 	Miel_PS=ParticleSystem'Betty_Particles.Betty.miel_espada'
 
 	bDoDamage=false;

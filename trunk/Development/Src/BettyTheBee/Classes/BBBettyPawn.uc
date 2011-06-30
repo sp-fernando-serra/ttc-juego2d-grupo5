@@ -223,6 +223,7 @@ simulated function prepareJump(){
 
 simulated function healUsed(){
 	WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(HealPS,Mesh,'Bip01',false,vect(0.0f,0.0f,50.0f));
+	
 }
 
 simulated function calcHitLocation()
