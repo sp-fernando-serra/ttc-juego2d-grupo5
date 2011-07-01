@@ -27,6 +27,14 @@ var bool bDoDamage;
 
 var array<float> DelayFireTime; 
 
+simulated function PostBeginPlay()
+{
+
+	super.PostBeginPlay();	
+	SkeletalMeshComponent(Mesh).AttachComponentToSocket(Miel_PSC, 'miel');
+
+}
+
 simulated function TimeWeaponEquipping()
 {
 	AttachWeaponTo( Instigator.Mesh,'sword_socket' );
@@ -130,7 +138,8 @@ simulated state Active{
 	
 	simulated event BeginState(name PreviousStateName){
 		SetTimer(unequipTime);
-		Miel_PSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(Miel_PS,SkeletalMeshComponent(Mesh),'miel',true);
+		//Miel_PSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(Miel_PS,SkeletalMeshComponent(Mesh),'miel',true);
+		Miel_PSC.SetActive(true);
 		super.BeginState(PreviousStateName);
 	}
 }
@@ -139,8 +148,8 @@ auto state Inactive{
 	simulated event BeginState( Name PreviousStateName )
 		{
 			ClearTimer();
-			
-			WorldInfo.MyEmitterPool.OnParticleSystemFinished(Miel_PSC);
+			Miel_PSC.SetActive(false);
+			//WorldInfo.MyEmitterPool.OnParticleSystemFinished(Miel_PSC);
 		}
 }
 
@@ -299,10 +308,16 @@ DefaultProperties
 	//DamagePawn_PS=ParticleSystem'Betty_Particles.Damage.ccc'
 	//DamagePawn_PS=ParticleSystem'Betty_Particles.Damage.otro'
 	//DamagePawn_PS=ParticleSystem'Betty_Particles.Damage.ataque'
-	Miel_PS=ParticleSystem'Betty_Particles.Betty.miel_espada'
+	
+	
+	Begin Object Class=ParticleSystemComponent Name=ParticlesComponent
+		Template=ParticleSystem'Betty_Particles.Betty.miel_espada'
+		bAutoActivate=true
+		//SecondsBeforeInactive=1.0f
+	End Object
+	Miel_PSC=ParticlesComponent
 
 	bDoDamage=false;
-
 
 	FiringStatesArray(1)=WeaponFiring
     WeaponFireTypes(1)=EWFT_Projectile
