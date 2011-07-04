@@ -16,7 +16,7 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 
 event bump(Actor Other, PrimitiveComponent OtherComp, Vector HitNormal){
 	if(HitNormal.Z > HitNormal.X && HitNormal.Z > HitNormal.Y && BBBettyPawn(Other) != none){
-		Mesh.PlayAnim(boingAnimName);
+		Mesh.PlayAnim(boingAnimName,0.5);
 		tempPawn = BBBettyPawn(Other);
 	}
 }
