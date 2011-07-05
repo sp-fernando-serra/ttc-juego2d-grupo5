@@ -1,6 +1,10 @@
+
+
 class BBMainCamera extends Camera;
 //Initializing static variables
 var float Dist;
+
+var float z_anterior;
 
 function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 {
@@ -12,6 +16,9 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 	local CameraActor		CamActor;
 	local bool			bDoNotApplyModifiers;
 	local TPOV			OrigPOV;
+
+		//`log("OutVT.POV.Location"@OutVT.POV.Location);
+		//`log("---------------");
 
 	// store previous POV, in case we need it later
 	OrigPOV = OutVT.POV;
@@ -71,6 +78,11 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 
 					OutVT.Target.GetActorEyesViewPoint(Loc, Rot);
 
+					//if(OutVT.Target.Physics != PHYS_Falling){
+						OutVT.Target.GetActorEyesViewPoint(Loc, Rot);		
+						//z_anterior=Loc.z;
+					//}
+
 					if (CameraStyle == 'FreeCam')
 					{
 						//ViewTarget.Target = none;
@@ -84,8 +96,11 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 						Dist = Lerp(Dist,FreeCamDistance,0.15); //Increment Dist towards FreeCamDistance, which is where you want your camera to be. Increments a percentage of the distance between them according to the third term, in this case, 0.15 or 15%
 					}
 
+					//Loc.Z=z_anterior;
+				
 					Pos = Loc - Vector(Rot) * Dist; /*Instead of using FreeCamDistance here, which would cause the camera to jump by the entire increment, we use Dist, which increments in small steps to the desired value of FreeCamDistance using the Lerp function above*/
-					
+
+
 					// @fixme, respect BlockingVolume.bBlockCamera=false
 					
 					
@@ -93,13 +108,7 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 					HitActor = Trace(HitLocation, HitNormal, Pos, Loc, FALSE, vect(12,12,12));
 					//This is where the location and rotation of the camera are actually set
 					
-
-					
 					OutVT.POV.Location = (HitActor == None) ? Pos : HitLocation;
-					//OutVT.POV.Location = (HitActor == None) ? Pos : PCOwner.Location;
-					//`log("Pos-"@Pos);
-					//`log("instigator-"@BBBettyPawn.Location);
-					//OutVT.POV.Location =Pos;
 
 					OutVT.POV.Rotation = Rot;
 
@@ -118,6 +127,13 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 		// Apply camera modifiers at the end (view shakes for example)
 		ApplyCameraModifiers(DeltaTime, OutVT.POV);
 	}
+	//`log("HitLocation"@HitLocation);
+	//`log("Pos"@Pos);
+	//`log("OutVT.POV.Location"@OutVT.POV.Location);
+	//`log("***************");
+	//`log("***************");
+
+
 	//`log( WorldInfo.TimeSeconds  @ GetFuncName() @ OutVT.Target @ OutVT.POV.Location @ OutVT.POV.Rotation @ OutVT.POV.FOV );
 }
 

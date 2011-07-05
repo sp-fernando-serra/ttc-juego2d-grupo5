@@ -22,7 +22,12 @@ event bump(Actor Other, PrimitiveComponent OtherComp, Vector HitNormal){
 }
 
 event doJump(){
-	tempPawn.ForceJump();
+	tempPawn.ForceJump();	
+	
+}
+
+simulated event endAnim(){
+	tempPawn.EndJump();
 	tempPawn = none;
 }
 

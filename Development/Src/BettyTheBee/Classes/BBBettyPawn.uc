@@ -111,12 +111,17 @@ simulated event lanzaGranada(){
 
 //-----------------------------------NOTIFYS-----------------------------------------------------
 //-----------------------------------------------------------------------------------------------
+//simulated function bool CalcCamera( float fDeltaTime, out vector out_CamLoc, out rotator out_CamRot, out float out_FOV )
+//{
+//super.CalcCamera(fDeltaTime, out_CamLoc, out_CamRot, out_FOV );
 
+//}
 
 
 simulated function name GetDefaultCameraMode(PlayerController RequestedBy)
 {
 	return 'ThirdPerson';
+	//return 'third';
 }
 
 //event Tick(float DeltaTime){
@@ -317,17 +322,27 @@ function ForceJump()
 {
  	PrepareJump();
 	bMushroomJump = true;
-	JumpZ *= mushroomJumpZModifier;
+	//JumpZ *= mushroomJumpZModifier;
+	JumpZ = mushroomJumpZModifier;
+	
 }
 
+
+function EndJump(){
+	if(bMushroomJump){
+		bMushroomJump = false;
+		//JumpZ /= mushroomJumpZModifier;
+		JumpZ=550;
+	}
+}
 
 simulated event StartJump(){
 	bPreparingJump = false;
 	DoJump(false);
-	if(bMushroomJump){
-		bMushroomJump = false;
-		JumpZ /= mushroomJumpZModifier;
-	}
+	//if(bMushroomJump){
+	//	bMushroomJump = false;
+	//	//JumpZ /= mushroomJumpZModifier;
+	//}
 }
 
 simulated event EndRoll(){
@@ -339,6 +354,7 @@ simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float Exce
 {
 	//Only attack anims have OnAnimEnd event
 	BBWeapon(Weapon).animAttackEnd();	
+	
 }
 
 
@@ -560,8 +576,8 @@ DefaultProperties
 	bIsRolling = false;
 	RollingSpeedModifier = 2.5f;
 
-	mushroomJumpZModifier = 1.5f;
-
+	//mushroomJumpZModifier = 1.5f;
+	mushroomJumpZModifier=825f;
 
 	// FOV / Sight
 	ViewPitchMin=-6000
