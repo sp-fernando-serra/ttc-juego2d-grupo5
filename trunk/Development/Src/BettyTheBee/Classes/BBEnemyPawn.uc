@@ -61,7 +61,7 @@ function playPariclesFijado()
 	 local string tipo_enemigo;
 	//ParticlesComponent_enemigoFijado.SetActive(true);
 	TargetedPawn_PSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(TargetedPawn_PS,Mesh,'centro',true);
-	//`log(Mesh);
+	
 	tipo_enemigo=string(Instigator.Class);
 
 	switch(tipo_enemigo)
