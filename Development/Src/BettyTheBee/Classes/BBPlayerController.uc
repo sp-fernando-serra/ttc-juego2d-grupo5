@@ -331,7 +331,7 @@ function UpdateRotationCustom( float DeltaTime, bool updatePawnRot)
 
 		ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
 		ViewShake( deltaTime );
-
+//`log(TargetedPawn);
 		switch(GetStateName())
 			{
 				case 'PlayerWalking' : 
@@ -594,8 +594,11 @@ event PlayerTick(float DeltaTime){
 		if(reactivateTime[i] > 0)
 			reactivateTime[i] -= DeltaTime;
 		else if(reactivateTime[i] < 0)
-			reactivateTime[i] = 0;
+		reactivateTime[i] = 0;
 	}
+
+
+	
 	
 }
 
