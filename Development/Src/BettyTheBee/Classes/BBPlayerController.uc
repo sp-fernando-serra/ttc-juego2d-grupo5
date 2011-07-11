@@ -294,7 +294,10 @@ exec function EButtonDown(){
 }
 
 exec function GetVida(){
+	
 	if(canUseHeal()){
+		//SOLO PARA PODER USAR HEAL SIEMPRE. QUITAR AL TERMINAR DE DEBUGAR
+		Pawn.TakeDamage(5,self,vect(0,0,0),vect(0,0,0),HealDamageType);
 		//Returns true only if healing has been sucessfull
 		if(Pawn.HealDamage(amountHealed,self,HealDamageType)){
 			BBBettyPawn(Pawn).itemsMiel -= costHeal;
@@ -894,7 +897,7 @@ DefaultProperties
 	costGrenade = 5;
 	
 	//Heal, Frenesi, Roll, Grenade
-	coldDowns[HN_Heal] = 10.0f;
+	coldDowns[HN_Heal] = 1.0f;
 	coldDowns[HN_Frenesi] = 20.0f;
 	coldDowns[HN_Roll] = 3.0f;
 	coldDowns[HN_Grenade] = 5.0f;
