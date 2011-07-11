@@ -297,7 +297,7 @@ exec function GetVida(){
 	
 	if(canUseHeal()){
 		//SOLO PARA PODER USAR HEAL SIEMPRE. QUITAR AL TERMINAR DE DEBUGAR
-		Pawn.TakeDamage(5,self,vect(0,0,0),vect(0,0,0),HealDamageType);
+		Pawn.TakeDamage(1,self,vect(0,0,0),vect(0,0,0),HealDamageType);
 		//Returns true only if healing has been sucessfull
 		if(Pawn.HealDamage(amountHealed,self,HealDamageType)){
 			BBBettyPawn(Pawn).itemsMiel -= costHeal;
