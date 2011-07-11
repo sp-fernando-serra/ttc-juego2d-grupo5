@@ -9,6 +9,7 @@ var GFxObject mc_transp_furia,mc_transp_vida,mc_transp_granada;
 
 var GFxObject txt_mum_items;
 var GFxObject txt1,txt2,txt3;
+var GFxAction_GetVariable pausa;
 
 //var BettyGamePlayerController PlayerOwner;
 
@@ -60,6 +61,7 @@ function Init2()
 	mc_transp_granada =  GetVariableObject("_root.mc_hud_derecha.mc_transp_granada");
 	txt_mum_items =  GetVariableObject("_root.mc_hud_derecha.txt_mum_items");
 	txt1 =  GetVariableObject("_root.mc_hud_derecha.txt1");
+
 	//txt_2 =  GetVariableObject("_root.txt_2");
 	//txt_3 =  GetVariableObject("_root.txt_3");
 	
@@ -101,7 +103,6 @@ function TickHUD()
 	else mc_transp_granada.SetBool("_visible",false);
 
 	if(BBPlayerController(PC).reactivateTime[HN_Frenesi]!=0) {
-		//mc_mask_furia.SetFloat("_yscale", (100-(BBPlayerController(PC).reactivateTime[HN_Frenesi]*BBPlayerController(PC).coldDowns[HN_Frenesi])));
 		mc_mask_furia.SetFloat("_yscale", (100*(1-BBPlayerController(PC).reactivateTime[HN_Frenesi]/BBPlayerController(PC).coldDowns[HN_Frenesi])));
 		mc_transp_furia.SetBool("_visible",true);
 	}
@@ -110,12 +111,11 @@ function TickHUD()
 
 	txt_mum_items.SetString("text", string(UTP.itemsMiel));
 
-	//txt_2.SetString("text",  string(UTP.Weapon));
-	
 	//ASvariables(UTP.InvManager.PendingWeapon.getNom(),string(UTP.InvManager.InventoryChain),"cc");
 
 	if(LastHealthpc!=UTP.Health)
 			ASvida( String(UTP.Health));
+
 	LastHealthpc=UTP.Health;
 
 
@@ -145,6 +145,11 @@ function ASvida(String texto1)
      ActionScriptVoid("vida");
 }
 
+
+function PlayGame()
+{
+   GetPC().SetPause(false);
+}
 
 DefaultProperties
 {
