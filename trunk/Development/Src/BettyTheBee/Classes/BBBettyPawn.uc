@@ -45,6 +45,8 @@ var name rollAnimNames[2];
 var ParticleSystem EquipSwordPS;
 /** ParticleSystem used in Heal hability */
 var ParticleSystem HealPS;
+/** ParticleSystem used in Frenesi hability */
+var ParticleSystem FrenesiPS;
 
 //Sounds
 /** Sound for equipping the Sword */
@@ -234,6 +236,10 @@ simulated function healUsed(){
 	SpawnLocation.Z -= GetCollisionHeight() + 2.0f;
 	WorldInfo.MyEmitterPool.SpawnEmitter(HealPS,SpawnLocation,,self);
 	
+}
+
+simulated function ParticleSystemComponent frenesiUsed(){
+	return WorldInfo.MyEmitterPool.SpawnEmitter(FrenesiPS,location,Rotation,self);
 }
 
 simulated function calcHitLocation()
@@ -564,10 +570,15 @@ DefaultProperties
 
 	EquipSwordPS = ParticleSystem'Betty_Player.Particles.EquipSword_PS'
 	HealPS = ParticleSystem'Betty_Player.Particles.Heal_PS'
+	FrenesiPS = ParticleSystem'Betty_Player.Particles.Frenesi_PS'
 
-	GroundSpeed=400
+	GroundSpeed = 400.0f;
+
+	AirSpeed = 600.0f;
+
 	//Default is 420
 	JumpZ=550
+
 	//Default is 0.05
 	AirControl=0.5
 

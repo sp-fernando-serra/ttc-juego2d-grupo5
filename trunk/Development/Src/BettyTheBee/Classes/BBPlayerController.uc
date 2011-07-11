@@ -9,6 +9,7 @@ var rotator myRotation,myDesiredRotation;
 var bool bLastStrafe, bLastForward,bLastBackward;
 var bool bUpdateRot;
 
+/** Indicates if Pawn is Rolling */
 var bool broll;
 
 //var bool bPlay_humo_correr;
@@ -24,13 +25,31 @@ var float RotationSpeed;
 
 var bool block;
 
+/** Honey cost of Heal */
 var int costHeal;
-var float amountHealed;
+/** Amount of hearts Healed*/
+var int amountHealed;
+/** DamageType of Heal Hability. NOT USED*/
 var class<DamageType> HealDamageType;
+/** Honey cost of Frenesi */
+var int costFrenesi;
+/** Duration in seconds of Frenesi */
+var float frenesiMaxDuration;
+/** Time left in seconds of Frenesi */
+var float frenesiDuration;
+/** Multiplying factor for Speed in Frenesi Mode */
+var float frenesiSpeedFactor;
+/** Slow Motion factor in Frenesi Mode */
+var float frenesiSlomoFactor;
+/** Honey cost of Grenade */
 var int costGrenade;
 
+/** Used for deactivate emitter when frenesi finishes */
+var ParticleSystemComponent frenesiPSC;
 
-var		SoundCue			HealSound;
+
+var	SoundCue HealSound;
+var SoundCue FrenesiSound;
 enum EHabilityNames
 {
 	HN_Heal,
@@ -38,7 +57,9 @@ enum EHabilityNames
 	HN_Roll,
 	HN_Grenade
 };
+/** Coldowns in seconds for each hability */
 var float coldDowns[EHabilityNames];
+/** Time until coldown refresh */
 var float reactivateTime[EHabilityNames];
 
 simulated event PostBeginPlay() //This event is triggered when play begins
@@ -310,6 +331,17 @@ exec function GetVida(){
 	}
 }
 
+exec function UseFrenesi(){
+
+	if(canUseFrenesi()){
+		frenesiDuration = frenesiMaxDuration;
+		Pawn.MovementSpeedModifier = frenesiSpeedFactor;
+		WorldInfo.Game.SetGameSpeed(frenesiSlomoFactor);
+		BBBettyPawn(Pawn).itemsMiel -= costFrenesi;
+		frenesiPSC = BBBettyPawn(Pawn).frenesiUsed();
+		reactivateTime[HN_Frenesi] = coldDowns[HN_Frenesi];
+	}
+}
 
 //--------------------------------FUNCIONES EXEC-------------------------------------------------
 //-----------------------------------------------------------------------------------------------
@@ -576,6 +608,11 @@ simulated function bool canUseHeal(){
 	else return false;
 }
 
+simulated function bool canUseFrenesi(){
+	if(reactivateTime[HN_Frenesi] == 0 && frenesiDuration == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costFrenesi) return true;
+	else return false;
+}
+
 simulated function bool canUseRoll(){
 	if(broll && reactivateTime[HN_Roll] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && Pawn.Physics != PHYS_Falling) return true;
 	else return false;
@@ -601,9 +638,17 @@ event PlayerTick(float DeltaTime){
 		reactivateTime[i] = 0;
 	}
 
-
-	//`log(Pawn.Health);
-	
+	if(frenesiDuration > 0)
+		frenesiDuration -= DeltaTime;
+	else if(frenesiDuration < 0){
+		frenesiDuration = 0;
+		if(frenesiPSC.bIsActive){
+			frenesiPSC.SetActive(false);
+			frenesiPSC = none;
+		}
+		Pawn.MovementSpeedModifier = 1.0f;
+		WorldInfo.Game.SetGameSpeed(1.0f);
+	}	
 }
 
 
@@ -895,13 +940,17 @@ DefaultProperties
 	RotationSpeed=150000;
 
 	costHeal = 20;
-	amountHealed = 50;
+	amountHealed = 3;
 	HealDamageType = class'DamageType';
+	costFrenesi = 30;
+	frenesiMaxDuration = 10.0;
+	frenesiSpeedFactor = 1.5f;
+	frenesiSlomoFactor = 1.0f;
 	costGrenade = 5;
 	
 	//Heal, Frenesi, Roll, Grenade
 	coldDowns[HN_Heal] = 1.0f;
-	coldDowns[HN_Frenesi] = 20.0f;
+	coldDowns[HN_Frenesi] = 1.0f;
 	coldDowns[HN_Roll] = 3.0f;
 	coldDowns[HN_Grenade] = 5.0f;
 
