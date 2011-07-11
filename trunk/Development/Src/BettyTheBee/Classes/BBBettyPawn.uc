@@ -227,7 +227,12 @@ simulated function prepareJump(){
 }
 
 simulated function healUsed(){
-	WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(HealPS,Mesh,'Bip01',false,vect(0.0f,0.0f,50.0f));
+	//WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(HealPS,Mesh,'Bip01',false,vect(0.0f,0.0f,50.0f));
+	local Vector SpawnLocation;
+
+	SpawnLocation = Location;
+	SpawnLocation.Z -= GetCollisionHeight() + 2.0f;
+	WorldInfo.MyEmitterPool.SpawnEmitter(HealPS,SpawnLocation,,self);
 	
 }
 
@@ -568,7 +573,7 @@ DefaultProperties
 
 
 	Health = 100;
-	itemsMiel = 0;
+	itemsMiel = 1000;
 	bCanPickupInventory = true;
 	InventoryManagerClass = class'BettyTheBee.BBInventoryManager';
 
