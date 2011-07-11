@@ -86,19 +86,23 @@ function TickHUD()
 
 
 	if(BBPlayerController(PC).reactivateTime[HN_Heal]!=0){
-		mc_mask_vida.SetFloat("_yscale", (100-(BBPlayerController(PC).reactivateTime[HN_Heal]*10)));
+		//mc_mask_vida.SetFloat("_yscale", (100-(BBPlayerController(PC).reactivateTime[HN_Heal]*BBPlayerController(PC).coldDowns[HN_Heal])));
+		mc_mask_vida.SetFloat("_yscale", (100*(1-BBPlayerController(PC).reactivateTime[HN_Heal]/BBPlayerController(PC).coldDowns[HN_Heal])));
+		
 		mc_transp_vida.SetBool("_visible",true);
 	}
 	else mc_transp_vida.SetBool("_visible",false);
 
 	if(BBPlayerController(PC).reactivateTime[HN_Grenade]!=0) {
-		mc_mask_granada.SetFloat("_yscale", (100-(BBPlayerController(PC).reactivateTime[HN_Grenade]*2*10)));
+		//mc_mask_granada.SetFloat("_yscale", (100-(BBPlayerController(PC).reactivateTime[HN_Grenade]*BBPlayerController(PC).coldDowns[HN_Grenade])));
+		mc_mask_granada.SetFloat("_yscale", (100*(1-BBPlayerController(PC).reactivateTime[HN_Grenade]/BBPlayerController(PC).coldDowns[HN_Grenade])));
 		mc_transp_granada.SetBool("_visible",true);
 	}
 	else mc_transp_granada.SetBool("_visible",false);
 
 	if(BBPlayerController(PC).reactivateTime[HN_Frenesi]!=0) {
-		mc_mask_furia.SetFloat("_yscale", (100-(BBPlayerController(PC).reactivateTime[HN_Grenade]*5)));
+		//mc_mask_furia.SetFloat("_yscale", (100-(BBPlayerController(PC).reactivateTime[HN_Frenesi]*BBPlayerController(PC).coldDowns[HN_Frenesi])));
+		mc_mask_furia.SetFloat("_yscale", (100*(1-BBPlayerController(PC).reactivateTime[HN_Frenesi]/BBPlayerController(PC).coldDowns[HN_Frenesi])));
 		mc_transp_furia.SetBool("_visible",true);
 	}
 	else mc_transp_furia.SetBool("_visible",false);
