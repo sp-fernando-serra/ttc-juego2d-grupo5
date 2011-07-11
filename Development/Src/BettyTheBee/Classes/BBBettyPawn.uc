@@ -572,7 +572,7 @@ DefaultProperties
 	AirControl=0.5
 
 
-	Health = 100;
+	Health = 5;
 	itemsMiel = 1000;
 	bCanPickupInventory = true;
 	InventoryManagerClass = class'BettyTheBee.BBInventoryManager';

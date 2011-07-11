@@ -135,7 +135,7 @@ DefaultProperties
 
 	PerceptionDistance = 4500;
 	AttackDistance = 400;
-	AttackDamage = 10;
+	AttackDamage = 2;
 
 	timeBetweenShots = 2;
 	randomTimeBetweenShots = 1;

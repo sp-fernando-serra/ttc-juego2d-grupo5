@@ -124,7 +124,7 @@ DefaultProperties
 	PerceptionDistance = 1000;
 	AttackDistance = 75;
 	//AttackDistanceNear = 70;
-	AttackDamage = 25;
+	AttackDamage = 3;
 	ChargeDamage = 50;
 
 }

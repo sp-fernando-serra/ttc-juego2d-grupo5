@@ -601,7 +601,7 @@ event PlayerTick(float DeltaTime){
 	}
 
 
-	
+	//`log(Pawn.Health);
 	
 }
 
@@ -781,6 +781,8 @@ ignores SeePlayer, HearNoise, Bump;
 		}else{
 			GotoState('PlayerWalking');
 		}
+
+
 	}
 
 Begin:
