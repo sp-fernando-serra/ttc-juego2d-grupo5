@@ -4,9 +4,11 @@ class BBGFxHUD extends GFxMoviePlayer;
 var float LastHealthpc;
 
 //Create variables to hold references to the Flash MovieClips and Text Fields that will be modified
-var GFxObject mc_vida_mask;
-var GFxObject txt_vida,txt_mum_items;
-var GFxObject txt_1,txt_2,txt_3;
+var GFxObject mc_mask_vida,mc_mask_granada,mc_mask_furia;
+var GFxObject mc_transp_furia,mc_transp_vida,mc_transp_granada;
+
+var GFxObject txt_mum_items;
+var GFxObject txt1,txt2,txt3;
 
 //var BettyGamePlayerController PlayerOwner;
 
@@ -49,10 +51,16 @@ function Init2()
 	LastHealthpc = -1;
 
 	//txt_vida =  GetVariableObject("_root.txt_vida");
-	mc_vida_mask =  GetVariableObject("_root.mc_hud_izquierda.mc_vida_mask");
+	mc_mask_vida =  GetVariableObject("_root.mc_hud_derecha.mc_mask_vida");
+	mc_mask_granada =  GetVariableObject("_root.mc_hud_derecha.mc_mask_granada");
+	mc_mask_furia =  GetVariableObject("_root.mc_hud_derecha.mc_mask_furia");
+
+	mc_transp_furia =  GetVariableObject("_root.mc_hud_derecha.mc_transp_furia");
+	mc_transp_vida =  GetVariableObject("_root.mc_hud_derecha.mc_transp_vida");
+	mc_transp_granada =  GetVariableObject("_root.mc_hud_derecha.mc_transp_granada");
 	txt_mum_items =  GetVariableObject("_root.mc_hud_derecha.txt_mum_items");
-	txt_1 =  GetVariableObject("_root.txt_1");
-	txt_2 =  GetVariableObject("_root.txt_2");
+	txt1 =  GetVariableObject("_root.mc_hud_derecha.txt1");
+	//txt_2 =  GetVariableObject("_root.txt_2");
 	//txt_3 =  GetVariableObject("_root.txt_3");
 	
 
@@ -75,25 +83,44 @@ function TickHUD()
 	
 	UTP = BBBettyPawn(PC.Pawn);
 	
+
+
+	if(BBPlayerController(PC).reactivateTime[HN_Heal]!=0){
+		mc_mask_vida.SetFloat("_yscale", (100-(BBPlayerController(PC).reactivateTime[HN_Heal]*10)));
+		mc_transp_vida.SetBool("_visible",true);
+	}
+	else mc_transp_vida.SetBool("_visible",false);
+
+	if(BBPlayerController(PC).reactivateTime[HN_Grenade]!=0) {
+		mc_mask_granada.SetFloat("_yscale", (100-(BBPlayerController(PC).reactivateTime[HN_Grenade]*2*10)));
+		mc_transp_granada.SetBool("_visible",true);
+	}
+	else mc_transp_granada.SetBool("_visible",false);
+
+	if(BBPlayerController(PC).reactivateTime[HN_Frenesi]!=0) {
+		mc_mask_furia.SetFloat("_yscale", (100-(BBPlayerController(PC).reactivateTime[HN_Grenade]*5)));
+		mc_transp_furia.SetBool("_visible",true);
+	}
+	else mc_transp_furia.SetBool("_visible",false);
+
+
+	txt_mum_items.SetString("text", string(UTP.itemsMiel));
+
+	//txt_2.SetString("text",  string(UTP.Weapon));
+	
+	//ASvariables(UTP.InvManager.PendingWeapon.getNom(),string(UTP.InvManager.InventoryChain),"cc");
+
+	if(LastHealthpc!=UTP.Health)
+			ASvida( String(UTP.Health));
+	LastHealthpc=UTP.Health;
+
+
+
 	if (UTP == None)
 	{
 		return;
 	}
-
-	//txt_vida.SetString("text", string(UTP.Health));
-	txt_mum_items.SetString("text", string(UTP.itemsMiel));
-	//mc_vida_mask.SetFloat("_xscale", 20.0f);
-	mc_vida_mask.SetFloat("_xscale", UTP.Health);
-
-	
-	//txt_1.SetString("text", string(UTP.Weapon.Class));
-	
-	//txt_2.SetString("text",  string(UTP.InvManager.PendingWeapon));
-	//txt_2.SetString("text",  string(UTP.Weapon));
-	
-	//ASvariables(UTP.InvManager.PendingWeapon.getNom(),string(UTP.InvManager.InventoryChain),"cc");
-	ASvariables( string(UTP.Weapon.Class),"","");
-	
+	//`log(String(UTP.Health));
 	/*//If the cached value for Health percentage isn't equal to the current...
 	if (LastHealthpc != getpc2(UTP.Health, UTP.HealthMax))
 	{
@@ -107,11 +134,11 @@ function TickHUD()
 */
 }
 
-function ASvariables(String texto1, String texto2, String texto3)
+function ASvida(String texto1)
 //function ASvariables(String texto1)
 {
      //`log("sendind information to flash with the slots availables");
-     ActionScriptVoid("variables");
+     ActionScriptVoid("vida");
 }
 
 

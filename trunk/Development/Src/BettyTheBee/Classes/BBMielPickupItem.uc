@@ -11,7 +11,9 @@ var ParticleSystemComponent destellos_PSC;
 function SpawnCopyFor( Pawn Recipient )
 {
 	// Give health to recipient
-	BBBettyPawn(Recipient).itemsMiel += 10;
+	if((BBBettyPawn(Recipient).itemsMiel + 10)>999) BBBettyPawn(Recipient).itemsMiel=999;
+	else BBBettyPawn(Recipient).itemsMiel += 10;
+	
 	PlaySound( PickupSound );
 	//destellos_PSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(destellos_PS,SkeletalMeshComponent(Mesh),'sword_final',true);
 	destellos_PSC = WorldInfo.MyEmitterPool.SpawnEmitter(destellos_PS,Location);
