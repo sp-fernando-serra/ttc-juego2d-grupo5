@@ -1952,12 +1952,12 @@ native final function ResetTimerTimeDilation( const name TimerName, optional Obj
 //=============================================================================
 // Sound functions.
 
-/* Create an audio component.
+/** Create an audio component.
  * may fail and return None if sound is disabled, there are too many sounds playing, or if the Location is out of range of all listeners
  */
 native final function AudioComponent CreateAudioComponent(SoundCue InSoundCue, optional bool bPlay, optional bool bStopWhenOwnerDestroyed, optional bool bUseLocation, optional vector SourceLocation, optional bool bAttachToSelf = true);
 
-/*
+/**
  * Play a sound.  Creates an AudioComponent only if the sound is determined to be audible, and replicates the sound to clients based on optional flags
  * @param InSoundCue - the sound to play
  * @param bNotReplicated (opt) - sound is considered only for players on this machine (supercedes other flags)
@@ -1977,18 +1977,18 @@ native noexport final function PlaySound(SoundCue InSoundCue, optional bool bNot
 */
 native(512) final function MakeNoise( float Loudness, optional Name NoiseType );
 
-/* PlayerCanSeeMe returns true if any player (server) or the local player (standalone
+/** PlayerCanSeeMe returns true if any player (server) or the local player (standalone
  * or client) has a line of sight to actor's location.
  * @param bForceLOSCheck (opt) - If set, force a line of sight check instead of relying on the occlusion checks
  */
 native(532) final function bool PlayerCanSeeMe(optional bool bForceLOSCheck);
 
-/* epic ===============================================
+/** epic ===============================================
 * ::SuggestTossVelocity()
 *
 * returns a recommended Toss velocity vector, given a destination and a Toss speed magnitude
 * @param TossVelocity - out param stuffed with the computed velocity to use
-* @param End - desired end point of arc
+* @param Destination - desired end point of arc
 * @param Start - desired start point of arc
 * @param TossSpeed - in the magnitude of the toss - assumed to only change due to gravity for the entire lifetime of the projectile
 * @param BaseTossZ - is an additional Z direction force added to the toss (which will not be included in the returned TossVelocity) - (defaults to 0)

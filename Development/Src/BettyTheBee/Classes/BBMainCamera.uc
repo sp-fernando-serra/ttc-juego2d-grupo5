@@ -6,7 +6,6 @@ var float z_anterior;
 var vector loc_anterior,loc_actual;
 
 
-
 function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 {
 
