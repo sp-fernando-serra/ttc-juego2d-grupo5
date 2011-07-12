@@ -318,16 +318,17 @@ exec function GetVida(){
 	
 	if(canUseHeal()){
 		//SOLO PARA PODER USAR HEAL SIEMPRE. QUITAR AL TERMINAR DE DEBUGAR
-		Pawn.TakeDamage(1,self,vect(0,0,0),vect(0,0,0),HealDamageType);
+		if(Pawn.Health == Pawn.HealthMax){
+			Pawn.TakeDamage(1,self,vect(0,0,0),vect(0,0,0),HealDamageType,,Pawn);
+		}
 		//Returns true only if healing has been sucessfull
 		if(Pawn.HealDamage(amountHealed,self,HealDamageType)){
 			BBBettyPawn(Pawn).itemsMiel -= costHeal;
 			BBBettyPawn(Pawn).healUsed();
 			reactivateTime[HN_Heal] = coldDowns[HN_Heal];
-			PlaySound( HealSound );
-			
-			
+			PlaySound( HealSound );			
 		}
+		
 	}
 }
 

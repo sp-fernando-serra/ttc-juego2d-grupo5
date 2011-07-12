@@ -193,8 +193,8 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 		attackAnimNames[2] = 'Betty_attack_3_seq';
 		grenadeAnimName = 'Betty_grenade_seq';
 
-		rollAnimNames[ROLL_LEFT] = 'Betty_roll Left_seq';
-		rollAnimNames[ROLL_RIGHT] = 'Betty_roll Right_seq';
+		rollAnimNames[ROLL_LEFT] = 'Betty_roll Left_2';
+		rollAnimNames[ROLL_RIGHT] = 'Betty_roll Right_2';
 	}
 }
 
@@ -204,15 +204,43 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 function  animRollLeft(){
 	
 	bIsRolling=true;
-	MovementSpeedModifier = RollingSpeedModifier;
-	fullBodySlot.PlayCustomAnim(rollAnimNames[ROLL_LEFT],1.0f,0.0f,0.0f);	
+	//MovementSpeedModifier = RollingSpeedModifier;
+	fullBodySlot.PlayCustomAnim(rollAnimNames[ROLL_LEFT],1.0f,0.0f,0.0f);
+	fullBodySlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Translate,RBA_Translate,RBA_Default);
+	Mesh.RootMotionMode = RMM_Accel;
+	Mesh.RootMotionAccelScale = vect(1.0f,1.0f,1.0f);
+
+	// Tell mesh to notify us when root motion will be applied,
+	// so we can seamlessly transition from physics movement to animation movement
+	//ONLY used with RMM_Translate
+	//Mesh.bRootMotionModeChangeNotify = true;
 }
 function  animRollRight(){
 	
 	bIsRolling=true;
-	MovementSpeedModifier = RollingSpeedModifier;
+	//MovementSpeedModifier = RollingSpeedModifier;
 	fullBodySlot.PlayCustomAnim(rollAnimNames[ROLL_RIGHT],1.0f,0.0f,0.0f);
+	fullBodySlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Translate,RBA_Translate,RBA_Default);
+	Mesh.RootMotionMode = RMM_Accel;
+	Mesh.RootMotionAccelScale = vect(1.0f,1.0f,1.0f);
 }
+
+//Only used with RMM_Translate
+//simulated event RootMotionModeChanged(SkeletalMeshComponent SkelComp)
+//{
+//   /**
+//    * Root motion will kick-in on next frame.
+//    * So we can kill Pawn movement, and let root motion take over.
+//    */
+//   if( SkelComp.RootMotionMode == RMM_Translate )
+//   {
+//      Velocity = Vect(0,0,0);
+//      Acceleration = Vect(0,0,0);
+//   }
+
+//   // disable notification
+//   Mesh.bRootMotionModeChangeNotify = FALSE;
+//}
 
 
 function bool isRolling(){
@@ -366,6 +394,13 @@ simulated event StartJump(){
 simulated event EndRoll(){
 	MovementSpeedModifier = 1;
 	bIsRolling = false;
+
+	// Discard root motion. So mesh stays locked in place.
+	// We need this to properly blend out to another animation
+	fullBodySlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Discard,RBA_Discard,RBA_Discard);
+
+	// Tell mesh to stop using root motion
+	Mesh.RootMotionMode = RMM_Ignore;
 }
 
 simulated event OnAnimEnd(AnimNodeSequence SeqNode, float PlayedTime, float ExcessTime)

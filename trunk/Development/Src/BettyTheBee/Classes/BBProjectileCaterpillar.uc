@@ -15,9 +15,9 @@ var MorphNodeWeight morph2Weight;
 
 
 function CalcAngle(Vector startPoint, Vector endPoint, Vector Randomness){
-	local float /*IncrZ,*/ Dist;
-	local Vector tempVect;
-
+	//local float /*IncrZ*/, Dist;
+	//local Vector tempVect;
+/*
 	//IncrZ = endPoint.Z - startPoint.Z;
 	tempVect = endPoint - startPoint;
 	tempVect.Z = 0;
@@ -34,6 +34,10 @@ function CalcAngle(Vector startPoint, Vector endPoint, Vector Randomness){
 	//`Log("Gravity = "@ GetGravityZ());
 	//`Log("Square(Dist/Speed) = "@ Square(Dist/Speed));
 	Init(Normal(tempVect));
+	randomize(Randomness);
+*/
+	//SuggestTossVelocity(tempVect,endPoint,startPoint,2000.0,,,);
+	CalculateMinSpeedTrajectory(Velocity,endPoint,startPoint, 2000.0f, 1000.0f);
 	randomize(Randomness);
 }
 
