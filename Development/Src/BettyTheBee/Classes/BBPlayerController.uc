@@ -45,7 +45,7 @@ var float frenesiSlomoFactor;
 var int costGrenade;
 
 /** Used for deactivate emitter when frenesi finishes */
-var ParticleSystemComponent frenesiPSC;
+var array<ParticleSystemComponent> frenesiPSCS;
 
 
 var	SoundCue HealSound;
@@ -337,10 +337,38 @@ exec function UseFrenesi(){
 		frenesiDuration = frenesiMaxDuration;
 		Pawn.MovementSpeedModifier = frenesiSpeedFactor;
 		WorldInfo.Game.SetGameSpeed(frenesiSlomoFactor);
+		ChangePPSettings(Pawn);
 		BBBettyPawn(Pawn).itemsMiel -= costFrenesi;
-		frenesiPSC = BBBettyPawn(Pawn).frenesiUsed();
+		frenesiPSCS = BBBettyPawn(Pawn).frenesiUsed();
 		reactivateTime[HN_Frenesi] = coldDowns[HN_Frenesi];
 	}
+}
+
+function ChangePPSettings(Pawn inPawn){
+
+	local LocalPlayer LocalPlayer;
+	local PostProcessSettings DarkSettings;
+
+	LocalPlayer = LocalPlayer( PlayerController(inPawn.Controller).Player );
+
+	//LocalPlayer.bOverridePostProcessSettings = true;
+	DarkSettings = LocalPlayer.CurrentPPInfo.LastSettings;
+
+	DarkSettings.bEnableMotionBlur = true;
+	DarkSettings.bOverride_MotionBlur_Amount = true;
+	DarkSettings.MotionBlur_Amount = 2.0f;
+	DarkSettings.bOverride_MotionBlur_MaxVelocity = true;
+	DarkSettings.MotionBlur_MaxVelocity = 3.5f;	
+	DarkSettings.bAllowAmbientOcclusion = true;
+
+	LocalPlayer.OverridePostProcessSettings(DarkSettings, 0.5f);
+}
+
+function ResetPPSettings(Pawn inPawn){
+	local LocalPlayer LocalPlayer;
+
+	LocalPlayer = LocalPlayer( PlayerController(inPawn.Controller).Player );
+	LocalPlayer.ClearPostProcessSettingsOverride(0.5f);
 }
 
 //--------------------------------FUNCIONES EXEC-------------------------------------------------
@@ -642,10 +670,13 @@ event PlayerTick(float DeltaTime){
 		frenesiDuration -= DeltaTime;
 	else if(frenesiDuration < 0){
 		frenesiDuration = 0;
-		if(frenesiPSC.bIsActive){
-			frenesiPSC.SetActive(false);
-			frenesiPSC = none;
+		for(i = 0; i < 4; i++){
+			if(frenesiPSCS[i].bIsActive){
+				frenesiPSCS[i].SetActive(false);
+				frenesiPSCS[i] = none;
+			}
 		}
+		ResetPPSettings(Pawn);
 		Pawn.MovementSpeedModifier = 1.0f;
 		WorldInfo.Game.SetGameSpeed(1.0f);
 	}	

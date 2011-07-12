@@ -238,8 +238,15 @@ simulated function healUsed(){
 	
 }
 
-simulated function ParticleSystemComponent frenesiUsed(){
-	return WorldInfo.MyEmitterPool.SpawnEmitter(FrenesiPS,location,Rotation,self);
+simulated function array<ParticleSystemComponent> frenesiUsed(){
+	local array<ParticleSystemComponent> PSCArray;
+	PSCArray.AddItem(WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(FrenesiPS, Mesh, 'Frenesi_UpperSocket', true));
+	PSCArray.AddItem(WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(FrenesiPS, Mesh, 'Frenesi_LeftSocket', true));
+	PSCArray.AddItem(WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(FrenesiPS, Mesh, 'Frenesi_RightSocket', true));
+	PSCArray.AddItem(WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(FrenesiPS, Mesh, 'Frenesi_BotomSocket', true));
+	return PSCArray;
+
+	//return WorldInfo.MyEmitterPool.SpawnEmitter(FrenesiPS,location,Rotation,self);
 }
 
 simulated function calcHitLocation()
