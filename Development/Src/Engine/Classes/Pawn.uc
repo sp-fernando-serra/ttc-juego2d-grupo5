@@ -1919,6 +1919,7 @@ function HandleMomentum( vector Momentum, Vector HitLocation, class<DamageType> 
 
 function AddVelocity( vector NewVelocity, vector HitLocation, class<DamageType> damageType, optional TraceHitInfo HitInfo )
 {
+	`log('3');
 	if ( bIgnoreForces || (NewVelocity == vect(0,0,0)) )
 		return;
 	if ( (Physics == PHYS_Walking)

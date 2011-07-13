@@ -128,9 +128,10 @@ simulated function name GetDefaultCameraMode(PlayerController RequestedBy)
 	//return 'third';
 }
 
-//event Tick(float DeltaTime){
-//	super.Tick(DeltaTime);
-//}
+
+event Tick(float DeltaTime){
+	//if(bIsRolling) SetPhysics(PHYS_Walking);
+}
 
 //event PostBeginPlay()
 //{
@@ -259,6 +260,31 @@ simulated function prepareJump(){
 	}
 
 }
+
+
+
+//function bool DoJump( bool bUpdating )
+//{
+//	if (bJumpCapable && !bIsCrouched && !bWantsToCrouch && (Physics == PHYS_Walking || Physics == PHYS_Ladder || Physics == PHYS_Spider))
+//	{
+//		if ( Physics == PHYS_Spider )
+//			Velocity = JumpZ * Floor;
+//		else if ( Physics == PHYS_Ladder )
+//			Velocity.Z = 0;
+//		else if ( bIsWalking )
+//			Velocity.Z = Default.JumpZ;
+//		else
+//			Velocity.Z = JumpZ;
+//		if (Base != None && !Base.bWorldGeometry && Base.Velocity.Z > 0.f)
+//		{
+//			Velocity.Z += Base.Velocity.Z;
+//		}
+		
+//		SetPhysics(PHYS_Falling);
+//		return true;
+//	}
+//	return false;
+//}
 
 simulated function healUsed(){
 	//WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(HealPS,Mesh,'Bip01',false,vect(0.0f,0.0f,50.0f));

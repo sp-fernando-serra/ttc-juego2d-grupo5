@@ -3153,6 +3153,8 @@ unreliable client function LongClientAdjustPosition
 
 	OldLoc = (Pawn != None) ? Pawn.Location : Location;
 `endif
+
+
 	UpdatePing(TimeStamp);
 	if( Pawn != None )
 	{
