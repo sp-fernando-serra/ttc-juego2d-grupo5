@@ -671,7 +671,7 @@ event PlayerTick(float DeltaTime){
 		frenesiDuration -= DeltaTime;
 	else if(frenesiDuration < 0){
 		frenesiDuration = 0;
-		for(i = 0; i < 4; i++){
+		for(i = 0; i < frenesiPSCS.Length; i++){
 			if(frenesiPSCS[i].bIsActive){
 				frenesiPSCS[i].SetActive(false);
 				frenesiPSCS[i] = none;
