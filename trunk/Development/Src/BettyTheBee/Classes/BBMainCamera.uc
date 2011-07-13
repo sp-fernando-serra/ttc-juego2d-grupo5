@@ -63,7 +63,7 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 
 					OutVT.Target.GetActorEyesViewPoint(Loc, Rot);
 					loc_actual=Loc;
-					
+					//`log("camera"@Loc);
 					Loc = VLerp(loc_anterior,Loc,0.1);
 					Loc.X=loc_actual.X;
 					Loc.Y=loc_actual.Y;
@@ -95,7 +95,7 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 					OutVT.POV.Location = (HitActor == None) ? Pos : HitLocation;
 
 					OutVT.POV.Rotation = Rot;
-
+					
 
 				break; //This is where our code leaves the switch-case statement, preventing it from executing the commands intended for the FirstPerson case.
 

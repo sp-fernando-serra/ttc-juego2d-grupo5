@@ -75,11 +75,8 @@ function TickHUD()
 {
 
 
-
 	local PlayerController PC;
-	//local BettyGamePawn UTP;
 	local BBBettyPawn UTP;
-	
 
 	PC = GetPC();
 	
@@ -88,15 +85,12 @@ function TickHUD()
 
 
 	if(BBPlayerController(PC).reactivateTime[HN_Heal]!=0){
-		//mc_mask_vida.SetFloat("_yscale", (100-(BBPlayerController(PC).reactivateTime[HN_Heal]*BBPlayerController(PC).coldDowns[HN_Heal])));
-		mc_mask_vida.SetFloat("_yscale", (100*(1-BBPlayerController(PC).reactivateTime[HN_Heal]/BBPlayerController(PC).coldDowns[HN_Heal])));
-		
+		mc_mask_vida.SetFloat("_yscale", (100*(1-BBPlayerController(PC).reactivateTime[HN_Heal]/BBPlayerController(PC).coldDowns[HN_Heal])));		
 		mc_transp_vida.SetBool("_visible",true);
 	}
 	else mc_transp_vida.SetBool("_visible",false);
 
 	if(BBPlayerController(PC).reactivateTime[HN_Grenade]!=0) {
-		//mc_mask_granada.SetFloat("_yscale", (100-(BBPlayerController(PC).reactivateTime[HN_Grenade]*BBPlayerController(PC).coldDowns[HN_Grenade])));
 		mc_mask_granada.SetFloat("_yscale", (100*(1-BBPlayerController(PC).reactivateTime[HN_Grenade]/BBPlayerController(PC).coldDowns[HN_Grenade])));
 		mc_transp_granada.SetBool("_visible",true);
 	}
@@ -149,6 +143,18 @@ function ASvida(String texto1)
 function PlayGame()
 {
    GetPC().SetPause(false);
+}
+
+function ExitGame(String mapa)
+{
+	ConsoleCommand(mapa);
+   //GetPC().SetPause(false);
+}
+
+function animacioItem(){	
+
+	ActionScriptVoid("item");
+
 }
 
 DefaultProperties

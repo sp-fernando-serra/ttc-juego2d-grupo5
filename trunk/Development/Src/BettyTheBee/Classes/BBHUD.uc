@@ -1,4 +1,5 @@
-class BBHUD extends UDKHUD;
+//class BBHUD extends UDKHUD;
+class BBHUD extends HUD;
 
 //Reference the actual SWF container (STGFxHUD created later)
 var BBGFxHUD HudMovie;
@@ -28,6 +29,11 @@ simulated function PostBeginPlay()
 	//Call HudMovie's Initialise function
 	HudMovie.Init2();
 }
+function startAnimacioItem(){
+//	Canvas.Project(PlayerOwner.Pawn.Location)
+	
+	HudMovie.animacioItem();
+}
 
 //Called every tick the HUD should be updated
 event PostRender()
@@ -35,9 +41,6 @@ event PostRender()
 	HudMovie.TickHUD();
 }
 
-exec function Pause(){
-PlayerOwner.SetPause(true);
-}
 
 DefaultProperties
 {

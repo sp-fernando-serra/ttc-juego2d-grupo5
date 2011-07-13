@@ -359,7 +359,7 @@ function ChangePPSettings(Pawn inPawn){
 	DarkSettings.bOverride_MotionBlur_Amount = true;
 	DarkSettings.MotionBlur_Amount = 2.0f;
 	DarkSettings.bOverride_MotionBlur_MaxVelocity = true;
-	DarkSettings.MotionBlur_MaxVelocity = 3.5f;	
+	DarkSettings.MotionBlur_MaxVelocity = 1.0f;	
 	DarkSettings.bAllowAmbientOcclusion = true;
 
 	LocalPlayer.OverridePostProcessSettings(DarkSettings, 0.5f);
@@ -647,13 +647,13 @@ simulated function bool canUseRoll(){
 	else return false;
 }
 
-function CheckJumpOrDuck()
-{
-	if ( bPressedJump && (Pawn != None) )
-	{
-		BBBettyPawn(Pawn).prepareJump();
-	}
-}
+//function CheckJumpOrDuck()
+//{
+//	if ( bPressedJump && (Pawn != None) )
+//	{
+//		BBBettyPawn(Pawn).prepareJump();
+//	}
+//}
 
 event PlayerTick(float DeltaTime){
 	local int i;
@@ -950,7 +950,6 @@ Lanzar:
 Begin:	
 	prepararAttack();
 }
-
 
 
 
