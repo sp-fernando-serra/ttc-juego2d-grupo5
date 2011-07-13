@@ -47,6 +47,8 @@ var ParticleSystem EquipSwordPS;
 var ParticleSystem HealPS;
 /** ParticleSystem used in Frenesi hability */
 var ParticleSystem FrenesiPS;
+/** ParticleSystem used in Frenesi hability */
+var ParticleSystem Frenesi2PS;
 
 //Sounds
 /** Sound for equipping the Sword */
@@ -204,11 +206,12 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 function  animRollLeft(){
 	
 	bIsRolling=true;
-	//MovementSpeedModifier = RollingSpeedModifier;
 	fullBodySlot.PlayCustomAnim(rollAnimNames[ROLL_LEFT],1.0f,0.0f,0.0f);
 	fullBodySlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Translate,RBA_Translate,RBA_Default);
 	Mesh.RootMotionMode = RMM_Accel;
-	Mesh.RootMotionAccelScale = vect(1.0f,1.0f,1.0f);
+	Mesh.RootMotionAccelScale.X = RollingSpeedModifier;
+	Mesh.RootMotionAccelScale.Y = RollingSpeedModifier;
+	Mesh.RootMotionAccelScale.Z = RollingSpeedModifier;
 
 	// Tell mesh to notify us when root motion will be applied,
 	// so we can seamlessly transition from physics movement to animation movement
@@ -218,11 +221,12 @@ function  animRollLeft(){
 function  animRollRight(){
 	
 	bIsRolling=true;
-	//MovementSpeedModifier = RollingSpeedModifier;
 	fullBodySlot.PlayCustomAnim(rollAnimNames[ROLL_RIGHT],1.0f,0.0f,0.0f);
 	fullBodySlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Translate,RBA_Translate,RBA_Default);
 	Mesh.RootMotionMode = RMM_Accel;
-	Mesh.RootMotionAccelScale = vect(1.0f,1.0f,1.0f);
+	Mesh.RootMotionAccelScale.X = RollingSpeedModifier;
+	Mesh.RootMotionAccelScale.Y = RollingSpeedModifier;
+	Mesh.RootMotionAccelScale.Z = RollingSpeedModifier;
 }
 
 //Only used with RMM_Translate
@@ -272,6 +276,7 @@ simulated function array<ParticleSystemComponent> frenesiUsed(){
 	PSCArray.AddItem(WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(FrenesiPS, Mesh, 'Frenesi_LeftSocket', true));
 	PSCArray.AddItem(WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(FrenesiPS, Mesh, 'Frenesi_RightSocket', true));
 	PSCArray.AddItem(WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(FrenesiPS, Mesh, 'Frenesi_BotomSocket', true));
+	PSCArray.AddItem(WorldInfo.MyEmitterPool.SpawnEmitter(Frenesi2PS, Location, Rotation, self));
 	return PSCArray;
 
 	//return WorldInfo.MyEmitterPool.SpawnEmitter(FrenesiPS,location,Rotation,self);
@@ -392,7 +397,6 @@ simulated event StartJump(){
 }
 
 simulated event EndRoll(){
-	MovementSpeedModifier = 1;
 	bIsRolling = false;
 
 	// Discard root motion. So mesh stays locked in place.
@@ -613,6 +617,7 @@ DefaultProperties
 	EquipSwordPS = ParticleSystem'Betty_Player.Particles.EquipSword_PS'
 	HealPS = ParticleSystem'Betty_Player.Particles.Heal_PS'
 	FrenesiPS = ParticleSystem'Betty_Player.Particles.Frenesi_PS'
+	Frenesi2PS = ParticleSystem'Betty_Player.Particles.Frenesi2_PS'
 
 	GroundSpeed = 400.0f;
 
@@ -632,10 +637,10 @@ DefaultProperties
 
 
 	bIsRolling = false;
-	RollingSpeedModifier = 2.5f;
+	RollingSpeedModifier = 1.0f;
 
 	//mushroomJumpZModifier = 1.5f;
-	mushroomJumpZModifier=825f;
+	mushroomJumpZModifier=825.0f;
 
 	// FOV / Sight
 	ViewPitchMin=-6000
