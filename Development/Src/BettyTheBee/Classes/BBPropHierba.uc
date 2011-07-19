@@ -2,6 +2,7 @@ class BBPropHierba extends BBProp placeable classGroup(BBActor);
 
 var SkeletalMeshComponent Mesh;
 var BBBettyPawn tempPawn;
+var Vector PawnLocation;
 
 var name windAnimName;
 
@@ -13,28 +14,54 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 
 state movedByPlayer
 {
+	event UnTouch( Actor Other )
+	{
+		gotoState('idle');
+	}
+
 Begin:
+
 Mesh.PlayAnim(windAnimName,0.5,true); // se agita 1 segundo
 Sleep(1);
-gotoState('idle');
+Mesh.StopAnim();
+Mesh.PlayAnim(windAnimName,4,true);
+gotoState('playerInside');
+
+}
+
+state playerInside
+{
+
+
+	event UnTouch( Actor Other )
+	{
+		gotoState('idle');
+	}
+
+Begin:
+	
+	PawnLocation=tempPawn.Location;
+	Sleep(0.25);
+	if(tempPawn.Location!=PawnLocation){
+		gotoState('movedByPlayer');
+	}
+	goto 'Begin';
+
 }
 
 auto state idle
 {
 	event Touch( Actor Other, PrimitiveComponent OtherComp, vector HitLocation, vector HitNormal )
 	{
+		tempPawn = BBBettyPawn(Other);
 		gotoState('movedByPlayer');
 	}
 	
-	event UnTouch( Actor Other )
-	{
-		gotoState('idle');
-	}
 	
-	function MovedByWind ()
-	{
-		Mesh.PlayAnim(windAnimName,2,true);
-	}
+	//function MovedByWind ()
+	//{
+	//	Mesh.PlayAnim(windAnimName,2,true);
+	//}
 
 Begin:
 	Mesh.PlayAnim(windAnimName,4,true);
