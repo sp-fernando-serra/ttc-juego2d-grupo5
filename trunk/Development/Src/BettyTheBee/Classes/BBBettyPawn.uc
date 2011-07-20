@@ -54,9 +54,6 @@ var ParticleSystem Frenesi2PS;
 /** Sound for equipping the Sword */
 var SoundCue EquipSwordCue;
 
-
-
-
 //-----------------------------------------------------------------------------------------------
 //-----------------------------------NOTIFYS-----------------------------------------------------
 
@@ -677,6 +674,7 @@ DefaultProperties
 
 
 	EquipSwordCue=SoundCue'Betty_Sounds.SoundCues.EquippingSword01_Cue';
+
 
 	
 }
