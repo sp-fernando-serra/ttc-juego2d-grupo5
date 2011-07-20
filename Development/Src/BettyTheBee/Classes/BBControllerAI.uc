@@ -74,6 +74,7 @@ auto state Idle
 			if (distanceToPlayer < perceptionDistance)
 			{ 
         		`Log(MyEnemyTestPawn.name@": I can see you!!");
+				BBEnemyPawn(Instigator).playParticlesExclamacion();
 				GotoState('Chaseplayer');
 			}
 		}
@@ -233,6 +234,7 @@ state GoToLastPlayerLocation
 			if (distanceToPlayer < perceptionDistance)
 			{ 
         		`Log(MyEnemyTestPawn.name@": I can see you!! (gotolastlocation)");
+				BBEnemyPawn(Instigator).playParticlesExclamacion();
 				GotoState('Chaseplayer');
 			}
 		}

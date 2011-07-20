@@ -27,6 +27,8 @@ var bool bDoDamage;
 
 var array<float> DelayFireTime; 
 
+//var() editinline MeshComponent Mesh2;
+
 simulated function PostBeginPlay()
 {
 
@@ -37,6 +39,7 @@ simulated function PostBeginPlay()
 
 simulated function TimeWeaponEquipping()
 {
+	
 	AttachWeaponTo( Instigator.Mesh,'sword_socket' );
 	Holder = BBBettyPawn(Instigator);
 	super.TimeWeaponEquipping();
@@ -51,6 +54,7 @@ simulated event SetPosition(UDKPawn Holder2)
     compo = Holder2.Mesh;
     if (compo != none){
 		socket = compo.GetSocketByName('sword_socket');
+		
 		if (socket != none){
 			FinalLocation = compo.GetBoneLocation(socket.BoneName);
 			}
@@ -162,6 +166,8 @@ simulated event vector GetPhysicalFireStartLoc(optional vector AimDir)
     local SkeletalMeshComponent compo;
 	local Vector socket_loc;
 
+	
+
 	compo = Instigator.Mesh;
     if (compo != none)
     {
@@ -229,6 +235,7 @@ simulated state WeaponFiring
 
 	simulated event EndState( Name NextStateName )
 	{
+		
 		`LogInv("NextStateName:" @ NextStateName);
 		// Set weapon as not firing
 		ClearFlashCount();
@@ -281,6 +288,7 @@ simulated function PlayFireEffects( byte FireModeNum, optional vector HitLocatio
 	{
 		//No delay. Resume default implementation.
 		super.PlayFireEffects(FireModeNum, HitLocation);
+		
 	}
 
 }
@@ -293,10 +301,11 @@ simulated event ToggleAttack(){
 DefaultProperties
 {		
 	Begin Object class=SkeletalMeshComponent Name=Sword
-		SkeletalMesh=SkeletalMesh'Betty_Player.SkModels.BettyClub'		
+		SkeletalMesh=SkeletalMesh'Betty_Player.SkModels.BettyClub'	
     end object
+	SwordMesh=Sword
     Mesh=Sword
-    //Components.Add(Sword)
+   // Components.Add(Sword)
 
 	
 	unequipTime = 3;
@@ -305,6 +314,7 @@ DefaultProperties
 	myDamageType = class'DamageType'
 
 	DamagePawn_PS=ParticleSystem'Betty_Particles.Damage.Rhino_Damage'
+	//DamagePawn_PS=ParticleSystem'Betty_item.Particles.betty_hit'
 	//DamagePawn_PS=ParticleSystem'Betty_Particles.Damage.ccc'
 	//DamagePawn_PS=ParticleSystem'Betty_Particles.Damage.otro'
 	//DamagePawn_PS=ParticleSystem'Betty_Particles.Damage.ataque'

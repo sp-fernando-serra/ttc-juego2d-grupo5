@@ -29,8 +29,12 @@ var name dyingAnimName;
 var ParticleSystem TargetedPawn_PS;
 var ParticleSystemComponent TargetedPawn_PSC;
 
-var ParticleSystem DamagePawn_PS;
-var ParticleSystemComponent DamagePawn_PSC;
+//var ParticleSystem DamagePawn_PS;
+//var ParticleSystemComponent DamagePawn_PSC;
+
+var ParticleSystem Exclamacion_PS;
+var ParticleSystemComponent Exclamacion_PSC;
+
 
 simulated function PostBeginPlay()
 {
@@ -85,6 +89,10 @@ function stopPariclesFijado(){
 	if(TargetedPawn_PSC != none) TargetedPawn_PSC.SetActive(false);
 }
 
+function playParticlesExclamacion(){
+  Exclamacion_PSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(Exclamacion_PS,Mesh,'exclamacion',true);
+}
+
 state ChasePlayer{
 
 }
@@ -129,6 +137,8 @@ defaultproperties
 	PeripheralVision = 0.707106;
 
 	TargetedPawn_PS=ParticleSystem'Betty_Particles.enemigos.enemigo_fijado'
+
+	Exclamacion_PS=ParticleSystem'Betty_ant.PS.PS_exclamacion'
 
 	MyDamageType = class'DamageType'
 
