@@ -54,6 +54,8 @@ var ParticleSystem Frenesi2PS;
 /** Sound for equipping the Sword */
 var SoundCue EquipSwordCue;
 
+var() SkeletalMeshComponent grenadeMesh;
+
 //-----------------------------------------------------------------------------------------------
 //-----------------------------------NOTIFYS-----------------------------------------------------
 
@@ -363,10 +365,21 @@ simulated function comboSwordAttack()
 simulated function GrenadeAttack()
 {
 	if(BBWeapon(Weapon).getAnimacioFlag()==false){	
+
 		BBWeapon(Weapon).animAttackStart();
 		upperBodySlot.PlayCustomAnim(grenadeAnimName,1.0f,0.15f,0.15f);
 		upperBodySlot.SetActorAnimEndNotification(true);
 	}
+}
+
+
+simulated event attachMeshGrenade(){
+	Mesh.AttachComponentToSocket(grenadeMesh, 'grenade_socket');
+}
+
+simulated event removeMeshGrenade(){
+
+	Mesh.DetachComponent(grenadeMesh);
 }
 
 function bool canStartCombo()
@@ -672,6 +685,11 @@ DefaultProperties
 
 
 	EquipSwordCue=SoundCue'Betty_Sounds.SoundCues.EquippingSword01_Cue';
+	
+	Begin Object Class=SkeletalMeshComponent Name=grenade
+	SkeletalMesh=SkeletalMesh'Betty_Player.SkModels.GrenadeSk'
+	End Object
+	grenadeMesh=grenade
 
 
 	

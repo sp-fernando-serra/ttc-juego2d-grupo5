@@ -208,9 +208,10 @@ simulated state WeaponFiring
 				ClearTimer('DelayFire');
 				PlayFireEffects( CurrentFireMode );
 			}
-			else
+			else{
+				
 				FireAmmunition(); //Else, follow the default implementation
-
+			}
 			return;
 		}
 
@@ -225,17 +226,19 @@ simulated state WeaponFiring
 		//If we don't have delays, resume with default implementation
 		if (DelayFireTime[CurrentFireMode] <= 0) 
 		{
+			
 			FireAmmunition();
 			TimeWeaponFiring( CurrentFireMode );
 		}
-		else
+		else{
 			PlayFireEffects( CurrentFireMode ); //Otherwise, use ours
-
+			
+		}
 	}
 
 	simulated event EndState( Name NextStateName )
 	{
-		
+	
 		`LogInv("NextStateName:" @ NextStateName);
 		// Set weapon as not firing
 		ClearFlashCount();
@@ -243,6 +246,7 @@ simulated state WeaponFiring
 		ClearTimer('RefireCheckTimer');
 
 		NotifyWeaponFinishedFiring( CurrentFireMode );
+		BBBettyPawn(Instigator).removeMeshGrenade();
 	}
 }
 
