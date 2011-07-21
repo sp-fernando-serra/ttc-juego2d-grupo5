@@ -337,7 +337,7 @@ exec function UseFrenesi(){
 	if(canUseFrenesi()){
 		frenesiDuration = frenesiMaxDuration;
 		Pawn.MovementSpeedModifier = frenesiSpeedFactor;
-		WorldInfo.Game.SetGameSpeed(frenesiSlomoFactor);
+		//WorldInfo.Game.SetGameSpeed(frenesiSlomoFactor);
 		ChangePPSettings(Pawn);
 		BBBettyPawn(Pawn).itemsMiel -= costFrenesi;
 		frenesiPSCS = BBBettyPawn(Pawn).frenesiUsed();
@@ -647,13 +647,13 @@ simulated function bool canUseRoll(){
 	else return false;
 }
 
-//function CheckJumpOrDuck()
-//{
-//	if ( bPressedJump && (Pawn != None) )
-//	{
-//		BBBettyPawn(Pawn).prepareJump();
-//	}
-//}
+function CheckJumpOrDuck()
+{
+	if ( bPressedJump && (Pawn != None) )
+	{
+		BBBettyPawn(Pawn).prepareJump();
+	}
+}
 
 event PlayerTick(float DeltaTime){
 	local int i;
@@ -679,7 +679,7 @@ event PlayerTick(float DeltaTime){
 		}
 		ResetPPSettings(Pawn);
 		Pawn.MovementSpeedModifier = 1.0f;
-		WorldInfo.Game.SetGameSpeed(1.0f);
+		//WorldInfo.Game.SetGameSpeed(1.0f);
 	}	
 }
 
@@ -787,27 +787,6 @@ exec function gotoWalk()
 {
 	GotoState('PlayerWalking');
 }
-
-//state Furia
-//{
-
-
-//event BeginState(Name PreviousStateName)
-//{
-//speed = 650;
-//sideSpeed = 550;
-//backSpeed = 500;
-//}
-
-//event EndState(Name NextStateName)
-//{
-//speed = 400;
-//sideSpeed = 300;
-//backSpeed = 250;
-//}
-//Begin:
-//}
-
 
 state CombatStance
 {

@@ -59,6 +59,16 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 	}
 }
 
+event Tick(float DeltaTime){
+	local Color col;
+	col.B=0.0f;
+	col.G=0.0f;
+	col.R=255.0f;
+	col.A=255.0f;
+	super.Tick(DeltaTime);
+
+	DrawDebugCone(Location,Vector(Rotation),SightRadius,0.785398,0.15,32,col,false);
+}
 
 function playPariclesFijado()
 {
