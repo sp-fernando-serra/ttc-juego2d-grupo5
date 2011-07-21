@@ -100,7 +100,6 @@ simulated state WeaponFiring
 		ClearTimer('RefireCheckTimer');
 
 		NotifyWeaponFinishedFiring( CurrentFireMode );
-		BBBettyPawn(Instigator).removeMeshGrenade();
 	}
 }
 
