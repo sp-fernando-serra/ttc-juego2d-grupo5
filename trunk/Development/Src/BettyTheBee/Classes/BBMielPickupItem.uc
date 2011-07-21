@@ -54,9 +54,16 @@ DefaultProperties
         StaticMesh=StaticMesh'Betty_item.Models.Item'
         bNotifyRigidBodyCollision=true
 		LightEnvironment=theLightEnvironment
+		Scale3D=(X=1.0f,Y=0.4f,Z=1.0f)
 	End Object
 	PickupMesh=ItemEsfera
 	Components.Add(ItemEsfera)
+
+	Begin Object Name=CollisionCylinder
+		CollisionRadius=+0040.000000
+		CollisionHeight=+0040.000000
+	End Object
+	CylinderComponent=CollisionCylinder
 
 	bMovable = true;
 	bStatic = false;

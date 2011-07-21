@@ -10,7 +10,7 @@ var name boingAnimName;
 simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 {
 	super.PostInitAnimTree(SkelComp);
-	boingAnimName = 'Boing';	
+	boingAnimName = 'Boing';
 }
 
 event bump(Actor Other, PrimitiveComponent OtherComp, Vector HitNormal){

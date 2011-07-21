@@ -107,7 +107,6 @@ simulated event lanzaGranada(){
 //			//SpawnedProjectile.Init( Vector(GetAdjustedAim( grenade_socket )) );
 //			SpawnedProjectile.Init(  Normal(grenade_socket)  );
 //		}
-
 }
 
 //-----------------------------------NOTIFYS-----------------------------------------------------
@@ -187,7 +186,7 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 		fullBodySlot = AnimNodeSlot(SkelComp.FindAnimNode('FullBodySlot'));
 		upperBodySlot = AnimNodeSlot(SkelComp.FindAnimNode('UpperBodySlot'));
 
-		preJumpAnimName = 'Betty_Jump_2_Start';
+		preJumpAnimName = 'Betty_Jump_Preup';
 		attackAnimNames[0] = 'B_attack_seq';
 		attackAnimNames[1] = 'Betty_attack_2_seq';
 		attackAnimNames[2] = 'Betty_attack_3_seq';
@@ -255,7 +254,6 @@ simulated function prepareJump(){
 		//When this animation ends it activates a notify called StartJump for jumping
 		fullBodySlot.PlayCustomAnim(preJumpAnimName,1.5f,0.0f,0.0f,false,true);
 	}
-
 }
 
 
@@ -301,8 +299,6 @@ simulated function array<ParticleSystemComponent> frenesiUsed(){
 	PSCArray.AddItem(WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(FrenesiPS, Mesh, 'Frenesi_BotomSocket', true));
 	PSCArray.AddItem(WorldInfo.MyEmitterPool.SpawnEmitter(Frenesi2PS, Location, Rotation, self));
 	return PSCArray;
-
-	//return WorldInfo.MyEmitterPool.SpawnEmitter(FrenesiPS,location,Rotation,self);
 }
 
 simulated function calcHitLocation()
@@ -648,6 +644,8 @@ DefaultProperties
 
 	//Default is 420
 	JumpZ=550
+	//JumpZ=1000
+	MaxFallSpeed=999999
 
 	//Default is 0.05
 	AirControl=0.5
