@@ -80,16 +80,6 @@ state Attacking{
 
 DefaultProperties
 {
-	//Setting up the light environment
-	Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment
-		ModShadowFadeoutTime=0.25
-		MinTimeBetweenFullUpdates=0.2
-		LightShadowMode=LightShadow_ModulateBetter
-		ShadowFilterQuality=SFQ_High
-		bSynthesizeSHLight=TRUE
-	End Object
-	Components.Add(MyLightEnvironment)
-
 	Begin Object Name=CollisionCylinder
 		CollisionHeight=+70.000000
 		CollisionRadius=+65.000000

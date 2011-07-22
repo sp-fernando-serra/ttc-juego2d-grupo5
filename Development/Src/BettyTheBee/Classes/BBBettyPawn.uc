@@ -13,6 +13,10 @@ var float RollingSpeedModifier;
  *  First we have to play PreJump animation and later do the jump.
  */
 var bool bPreparingJump;
+
+/**Threshold in Pawn Z velocity to do a DoubleJump*/
+var		float	DoubleJumpThreshold;
+
 /** Bool to know it next jump is a mushroom jump
  *  Mushroom jump is higher than normal jump. Using mushroomJumpZModifier
  */
@@ -20,7 +24,7 @@ var bool bMushroomJump;
 /** Amount to modify the normal height jump ina mushroom jump */
 var float mushroomJumpZModifier;
 
-var DynamicLightEnvironmentComponent LightEnvironment;
+//var DynamicLightEnvironmentComponent LightEnvironment;
 
 /** AnimNode used to play custom fullbody anims */
 var AnimNodeSlot fullBodySlot;
@@ -124,6 +128,7 @@ simulated function name GetDefaultCameraMode(PlayerController RequestedBy)
 {
 	return 'ThirdPerson';
 	//return 'third';
+	//return none;
 }
 
 
@@ -250,38 +255,133 @@ function bool isRolling(){
 	return bIsRolling;
 }
 
-simulated function prepareJump(){
+simulated function prepareJump(bool bUpdating){
 	if(!bPreparingJump && Physics != PHYS_Falling){
 		bPreparingJump = true;
 		//When this animation ends it activates a notify called StartJump for jumping
-		fullBodySlot.PlayCustomAnim(preJumpAnimName,1.5f,0.0f,0.0f,false,true);
+		fullBodySlot.PlayCustomAnim(preJumpAnimName,1.0f,0.0f,0.0f,false,true);
 	}
+	else if ( !bUpdating && CanDoubleJump()&& (Abs(Velocity.Z) < DoubleJumpThreshold) && IsLocallyControlled() )
+	{
+ 		if ( PlayerController(Controller) != None )
+			PlayerController(Controller).bDoubleJump = true;
+		DoDoubleJump(bUpdating);
+		MultiJumpRemaining -= 1;
+	}
+}
+
+function bool CanDoubleJump()
+{
+	return ( (MultiJumpRemaining > 0) && (Physics == PHYS_Falling) && bReadyToDoubleJump );
 }
 
 
 
-//function bool DoJump( bool bUpdating )
-//{
-//	if (bJumpCapable && !bIsCrouched && !bWantsToCrouch && (Physics == PHYS_Walking || Physics == PHYS_Ladder || Physics == PHYS_Spider))
-//	{
-//		if ( Physics == PHYS_Spider )
-//			Velocity = JumpZ * Floor;
-//		else if ( Physics == PHYS_Ladder )
-//			Velocity.Z = 0;
-//		else if ( bIsWalking )
-//			Velocity.Z = Default.JumpZ;
-//		else
-//			Velocity.Z = JumpZ;
-//		if (Base != None && !Base.bWorldGeometry && Base.Velocity.Z > 0.f)
-//		{
-//			Velocity.Z += Base.Velocity.Z;
-//		}
+function bool DoJump( bool bUpdating )
+{
+	if (bJumpCapable && !bIsCrouched && !bWantsToCrouch && (Physics == PHYS_Walking || Physics == PHYS_Ladder || Physics == PHYS_Spider))
+	{
+		if ( Physics == PHYS_Spider )
+			Velocity = JumpZ * Floor;
+		else if ( Physics == PHYS_Ladder )
+			Velocity.Z = 0;
+		else if ( bIsWalking )
+			Velocity.Z = Default.JumpZ;
+		else
+			Velocity.Z = JumpZ;
+		if (Base != None && !Base.bWorldGeometry && Base.Velocity.Z > 0.f)
+		{
+			if ( (WorldInfo.WorldGravityZ != WorldInfo.DefaultGravityZ) && (GetGravityZ() == WorldInfo.WorldGravityZ) )
+			{
+				Velocity.Z += Base.Velocity.Z * sqrt(GetGravityZ()/WorldInfo.DefaultGravityZ);
+			}
+			else
+			{
+				Velocity.Z += Base.Velocity.Z;
+			}
+		}
 		
-//		SetPhysics(PHYS_Falling);
-//		return true;
-//	}
-//	return false;
-//}
+		SetPhysics(PHYS_Falling);
+		bReadyToDoubleJump = true;
+		//bDodging = false;
+		return true;
+	}
+	return false;
+}
+
+function DoDoubleJump( bool bUpdating )
+{
+	if ( !bIsCrouched && !bWantsToCrouch )
+	{
+		if ( !IsLocallyControlled() || AIController(Controller) != None )
+		{
+			MultiJumpRemaining -= 1;
+		}
+		Velocity.Z = JumpZ + MultiJumpBoost;
+		//UTInventoryManager(InvManager).OwnerEvent('MultiJump');
+		SetPhysics(PHYS_Falling);
+		//BaseEyeHeight = DoubleJumpEyeHeight;
+		//if (!bUpdating)
+		//{
+		//	SoundGroupClass.Static.PlayDoubleJumpSound(self);
+		//}
+	}
+}
+
+event Landed(vector HitNormal, actor FloorActor)
+{
+	local vector Impulse;
+
+	Super.Landed(HitNormal, FloorActor);
+
+	// adds impulses to vehicles and dynamicSMActors (e.g. KActors)
+	Impulse.Z = Velocity.Z * 4.0f; // 4.0f works well for landing on a Scorpion
+	if (DynamicSMActor(FloorActor) != None)
+	{
+		DynamicSMActor(FloorActor).StaticMeshComponent.AddImpulse(Impulse, Location);
+	}
+
+	//if ( Velocity.Z < -200 )
+	//{
+	//	OldZ = Location.Z;
+	//	bJustLanded = bUpdateEyeHeight && (Controller != None) && Controller.LandingShake();
+	//}
+
+	if (UTInventoryManager(InvManager) != None)
+	{
+		UTInventoryManager(InvManager).OwnerEvent('Landed');
+	}
+	if ((MultiJumpRemaining < MaxMultiJump) || Velocity.Z < -2 * JumpZ)
+	{
+		// slow player down if double jump landing
+		Velocity.X *= 0.1;
+		Velocity.Y *= 0.1;
+	}
+
+	//AirControl = DefaultAirControl;
+	MultiJumpRemaining = MaxMultiJump;
+	//bDodging = false;
+	bReadyToDoubleJump = false;
+	if (UTBot(Controller) != None)
+	{
+		UTBot(Controller).ImpactVelocity = vect(0,0,0);
+	}
+
+	//if(!bHidden)
+	//{
+	//	PlayLandingSound();
+	//}
+	//if (Velocity.Z < -MaxFallSpeed)
+	//{
+	//	SoundGroupClass.Static.PlayFallingDamageLandSound(self);
+	//}
+	//else if (Velocity.Z < MaxFallSpeed * -0.5)
+	//{
+	//	SoundGroupClass.Static.PlayLandSound(self);
+	//}
+
+	SetBaseEyeheight();
+}
 
 simulated function healUsed(){
 	//WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(HealPS,Mesh,'Bip01',false,vect(0.0f,0.0f,50.0f));
@@ -403,7 +503,7 @@ function bool canStartCombo()
 
 function ForceJump()
 {
- 	PrepareJump();
+ 	PrepareJump(false);
 	bMushroomJump = true;
 	//JumpZ *= mushroomJumpZModifier;
 	JumpZ = mushroomJumpZModifier;
@@ -602,20 +702,6 @@ simulated event ToggleAttack(){
 DefaultProperties
 {
 
-	Components.Remove(Sprite)
-	//Setting up the light environment
-	Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment
-		ModShadowFadeoutTime=0.25
-		MinTimeBetweenFullUpdates=0.2
-		//AmbientGlow=(R=.01,G=.01,B=.01,A=1)
-		//AmbientShadowColor=(R=0.15,G=0.15,B=0.15)
-		LightShadowMode=LightShadow_ModulateBetter
-		ShadowFilterQuality=SFQ_High
-		bSynthesizeSHLight=TRUE
-	End Object
-	Components.Add(MyLightEnvironment)
-	LightEnvironment = MyLightEnvironment
-	//Setting up the mesh and animset components
 	Begin Object Class=SkeletalMeshComponent Name=InitialSkeletalMesh
 		CastShadow=true
 		bCastDynamicShadow=true
@@ -653,15 +739,21 @@ DefaultProperties
 
 	GroundSpeed = 400.0f;
 
-	AirSpeed = 600.0f;
+	AirSpeed = 1200.0f;
 
 	//Default is 420
-	JumpZ=550
+	JumpZ=800
 	//JumpZ=1000
 	MaxFallSpeed=999999
 
 	//Default is 0.05
-	AirControl=0.5
+	AirControl=+0.35
+
+	MaxMultiJump = 1
+	//Default is 160.0
+	DoubleJumpThreshold=320.0
+
+	CustomGravityScaling = 2.5
 
 
 	Health = 5;

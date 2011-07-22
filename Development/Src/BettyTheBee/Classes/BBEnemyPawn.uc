@@ -113,8 +113,8 @@ state Idle{
 
 function bool isDying();
 
-state Dying{
-	event BeginState(Name PreviousStateName)
+simulated state Dying{
+	simulated event BeginState(Name PreviousStateName)
 	{
 		stopPariclesFijado();
 		customAnimSlot.PlayCustomAnim(dyingAnimName,1.0f,0.25,0.0f,false,true);		
