@@ -1,4 +1,4 @@
-class BBPlayerController extends PlayerController;
+class BBPlayerController extends UDKPlayerController;
 
 var bool bBettyMovement;
 var float speed, sideSpeed, backSpeed;
@@ -649,10 +649,24 @@ simulated function bool canUseRoll(){
 
 function CheckJumpOrDuck()
 {
-	if ( bPressedJump && (Pawn != None) )
+	if ( Pawn == None )
 	{
-		BBBettyPawn(Pawn).prepareJump();
+		return;
 	}
+	//Nunca entraba en este codigo. El doubleJump esta implementado en el prepareJump
+	//if ( bDoubleJump && (bUpdating || ((BBBettyPawn(Pawn) != None) && BBBettyPawn(Pawn).CanDoubleJump())) )
+	//{
+	//	BBBettyPawn(Pawn).DoDoubleJump( bUpdating );
+	//}
+    if ( bPressedJump )
+	{
+		BBBettyPawn(Pawn).prepareJump(bUpdating);
+	}
+	//if ( Pawn.Physics != PHYS_Falling && Pawn.bCanCrouch )
+	//{
+	//	// crouch if pressing duck
+	//	Pawn.ShouldCrouch(bDuck != 0);
+	//}
 }
 
 event PlayerTick(float DeltaTime){

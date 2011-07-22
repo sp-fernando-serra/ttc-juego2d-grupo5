@@ -306,7 +306,7 @@ DefaultProperties
 	Begin Object class=SkeletalMeshComponent Name=Sword
 		SkeletalMesh=SkeletalMesh'Betty_Player.SkModels.BettyClub'	
     end object
-	SwordMesh=Sword
+	//SwordMesh=Sword
     Mesh=Sword
    // Components.Add(Sword)
 

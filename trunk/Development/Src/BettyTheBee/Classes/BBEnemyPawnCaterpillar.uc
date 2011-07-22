@@ -85,15 +85,6 @@ Begin:
 
 DefaultProperties
 {
-	//Setting up the light environment
-	Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment
-		ModShadowFadeoutTime=0.25
-		MinTimeBetweenFullUpdates=0.2
-		LightShadowMode=LightShadow_Modulate
-		ShadowFilterQuality=SFQ_Low
-		bSynthesizeSHLight=TRUE
-	End Object
-	Components.Add(MyLightEnvironment)
 
 	Begin Object Name=CollisionCylinder
 			
