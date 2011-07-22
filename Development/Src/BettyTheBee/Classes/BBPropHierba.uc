@@ -3,6 +3,7 @@ class BBPropHierba extends BBProp placeable classGroup(BBActor);
 var SkeletalMeshComponent Mesh;
 var BBBettyPawn tempPawn;
 var Vector PawnLocation;
+var float distance;
 
 var name windAnimName;
 
@@ -10,6 +11,12 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 {
 	super.PostInitAnimTree(SkelComp);
 	windAnimName = 'wind';	
+
+	//foreach AllActors( class 'BBBettyPawn', tempPawn )
+	//{
+    //// hace que tempPawn= Betty
+	//}
+
 }
 
 state movedByPlayer
@@ -57,14 +64,18 @@ auto state idle
 		gotoState('movedByPlayer');
 	}
 	
-	
-	//function MovedByWind ()
-	//{
-	//	Mesh.PlayAnim(windAnimName,2,true);
-	//}
-
 Begin:
-	Mesh.PlayAnim(windAnimName,4,true);
+	// la idea es que no se anime si betty no ve la hierba (playercanseeme) o esta muy lejos (location-temppawn.location). 
+	// Pero no acaba de funcionar y tampoco se si merece la pena. Alomejor con sustituir por el LOD de 1grid ya basta
+
+	//if(PlayerCanSeeMe()) {
+	////distance=VSize(Location-tempPawn.Location);
+	////if (distance<512) {
+		Mesh.PlayAnim(windAnimName,4,true);
+	////}
+	//}
+	//Sleep(4);
+	//goto 'Begin';
 
 }
 
