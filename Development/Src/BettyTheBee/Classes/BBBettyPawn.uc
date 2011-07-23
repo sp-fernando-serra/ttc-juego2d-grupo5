@@ -24,7 +24,7 @@ var bool bMushroomJump;
 /** Amount to modify the normal height jump ina mushroom jump */
 var float mushroomJumpZModifier;
 
-//var DynamicLightEnvironmentComponent LightEnvironment;
+
 
 /** AnimNode used to play custom fullbody anims */
 var AnimNodeSlot fullBodySlot;
@@ -742,14 +742,15 @@ DefaultProperties
 	AirSpeed = 1200.0f;
 
 	//Default is 420
-	JumpZ=800
-	//JumpZ=1000
+	JumpZ=900
+	//JumpZ=800
 	MaxFallSpeed=999999
 
 	//Default is 0.05
 	AirControl=+0.35
 
 	MaxMultiJump = 1
+	MultiJumpBoost = -100;
 	//Default is 160.0
 	DoubleJumpThreshold=320.0
 
