@@ -21,7 +21,6 @@ event TickAnim(float DeltaSeconds){
 			specialIdleTimeLeft -= DeltaSeconds;
 			if(specialIdleTimeLeft < 0){
 				SetActiveChild(0,BlendTime);
-				//Children[0].Anim.ReplayAnim();
 				timeActive = 0.0;
 				isSpecialIdlePlaying = false;
 			}
@@ -29,12 +28,11 @@ event TickAnim(float DeltaSeconds){
 			timeActive += DeltaSeconds;
 			if(timeActive > timeToNextSpecialIdle){
 				SetActiveChild(1,BlendTime);
-				//Children[1].Anim.ReplayAnim();				
 				isSpecialIdlePlaying = true;
 				specialIdleTimeLeft = AnimNodeSequence(Children[1].Anim).GetTimeLeft();
 			}
 		}
-	}	
+	}
 }
 
 event OnBecomeRelevant(){
@@ -45,7 +43,6 @@ event OnCeaseRelevant(){
 	timeActive = 0.0f;
 	if(specialIdleTimeLeft > 0){
 		SetActiveChild(0,0.0);
-		//Children[0].Anim.ReplayAnim();
 		isSpecialIdlePlaying = false;
 	}
 }
@@ -60,11 +57,11 @@ DefaultProperties
 	Children(0)=(Name="Idle",Weight=1.0)
 	Children(1)=(Name="SpecialIdle")
 	bFixNumChildren = true
-	bPlayActiveChild = true	
+	bPlayActiveChild = true
 
 	bCallScriptEventOnInit = true
 	bCallScriptEventOnBecomeRelevant = true
 	bCallScriptEventOnCeaseRelevant = true
 
-	CategoryDesc = "BB"	
+	CategoryDesc = "BB"
 }

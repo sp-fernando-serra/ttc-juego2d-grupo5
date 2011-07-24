@@ -1778,7 +1778,6 @@ simulated function OnSetPhysics(SeqAct_SetPhysics Action)
 	}
 	else
 	{
-		`log('aaa');
 		Super.OnSetPhysics(Action);
 	}
 }
