@@ -82,7 +82,10 @@ function TickHUD()
 	
 	UTP = BBBettyPawn(PC.Pawn);
 	
-
+	if (UTP == None)
+	{
+		return;
+	}
 
 	if(BBPlayerController(PC).reactivateTime[HN_Heal]!=0){
 		mc_mask_vida.SetFloat("_yscale", (100*(1-BBPlayerController(PC).reactivateTime[HN_Heal]/BBPlayerController(PC).coldDowns[HN_Heal])));		
@@ -111,13 +114,7 @@ function TickHUD()
 			ASvida( String(UTP.Health));
 
 	LastHealthpc=UTP.Health;
-
-
-
-	if (UTP == None)
-	{
-		return;
-	}
+	
 	//`log(String(UTP.Health));
 	/*//If the cached value for Health percentage isn't equal to the current...
 	if (LastHealthpc != getpc2(UTP.Health, UTP.HealthMax))
