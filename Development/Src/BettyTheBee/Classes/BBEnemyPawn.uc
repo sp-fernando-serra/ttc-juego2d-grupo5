@@ -18,7 +18,7 @@ var () bool bAggressive<DisplayName = Is Aggressive?>;
 var () array<BBRoutePoint> MyRoutePoints;
 
 var bool bIsDying;
-var class<DamageType> MyDamageType;
+var class<BBDamageType> MyDamageType;
 
 /** AnimNode used to play custom anims */
 var AnimNodePlayCustomAnim customAnimSlot;
@@ -150,7 +150,7 @@ defaultproperties
 
 	Exclamacion_PS=ParticleSystem'Betty_ant.PS.PS_exclamacion'
 
-	MyDamageType = class'DamageType'
+	MyDamageType = class'BBDamageType_EnemyPawn'
 
 }
 

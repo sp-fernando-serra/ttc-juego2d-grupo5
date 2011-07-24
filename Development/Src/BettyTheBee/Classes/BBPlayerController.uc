@@ -765,19 +765,19 @@ Begin:
 	WorldInfo.SeamlessTravel("BB-BettyLevelMenu");
 }
 
-state Dead{
-Begin:
-	`log("Player Muerto");
-	WorldInfo.Game.Broadcast(self,"You are Dead!");
-	WorldInfo.Game.Broadcast(self,"Restarting level in...");
-	WorldInfo.Game.Broadcast(self,"3");
-	Sleep(1);
-	WorldInfo.Game.Broadcast(self,"2");
-	Sleep(1);
-	WorldInfo.Game.Broadcast(self,"1");
-	Sleep(1);
-	WorldInfo.SeamlessTravel("BB-BettyLevelMenu");
-}
+//state Dead{
+//Begin:
+//	`log("Player Muerto");
+//	WorldInfo.Game.Broadcast(self,"You are Dead!");
+//	WorldInfo.Game.Broadcast(self,"Restarting level in...");
+//	WorldInfo.Game.Broadcast(self,"3");
+//	Sleep(1);
+//	WorldInfo.Game.Broadcast(self,"2");
+//	Sleep(1);
+//	WorldInfo.Game.Broadcast(self,"1");
+//	Sleep(1);
+//	WorldInfo.SeamlessTravel("BB-BettyLevelMenu");
+//}
 
 
 

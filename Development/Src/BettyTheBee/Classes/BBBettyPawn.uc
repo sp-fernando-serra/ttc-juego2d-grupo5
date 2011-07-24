@@ -36,6 +36,14 @@ var name attackAnimNames[3];
 /** Indicates the index of next attack anim (0, 1 or 2) */
 var int nextAttackIndex;
 var name grenadeAnimName;
+
+/** World time that we started the death animation */
+var				float	StartDeathAnimTime;
+/** Type of damage that started the death anim */
+var				class<BBDamageType> DeathAnimDamageType;
+/** Time that we took damage of type DeathAnimDamageType. */
+var				float	TimeLastTookDeathAnimDamage;
+
 const ROLL_LEFT = 0;
 const ROLL_RIGHT = 1;
 var name rollAnimNames[2];
@@ -559,6 +567,111 @@ event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector
 	Worldinfo.Game.Broadcast(self,Name$": "$Damage$ " done by "$DamageCauser.Name $ " Life: "$Health);
 }
 
+/** Function called by Died(). Used to play death anim
+ * 
+ */ 
+simulated function PlayDying(class<DamageType> MyDamageType, vector HitLoc){
+	local class<BBDamageType> MyBBDamageType;
+	local vector ApplyImpulse, ShotDir;
+	local TraceHitInfo HitInfo;
+
+	super.PlayDying(MyDamageType, HitLoc);
+
+	MyBBDamageType = class<BBDamageType>(MyDamageType);
+
+	if(MyBBDamageType != None && MyBBDamageType.default.DeathAnim != ''){
+			SetPhysics(PHYS_RigidBody);
+			// We only want to turn on 'ragdoll' collision when we are not using a hip spring, otherwise we could push stuff around.
+			SetPawnRBChannels(TRUE);
+			
+			Mesh.PhysicsAssetInstance.SetAllBodiesFixed(FALSE);
+
+			// Turn on angular motors on skeleton.
+			Mesh.bUpdateJointsFromAnimation = TRUE;
+			//Mesh.PhysicsAssetInstance.SetNamedMotorsAngularPositionDrive(false, false, NoDriveBodies, Mesh, true);
+			Mesh.PhysicsAssetInstance.SetAngularDriveScale(1.0f, 1.0f, 0.0f);
+
+			fullBodySlot.PlayCustomAnim(MyBBDamageType.default.DeathAnim, MyBBDamageType.default.DeathAnimRate, 0.05, -1.0, false, false);
+			SetTimer(0.1, true, 'DoingDeathAnim');
+			StartDeathAnimTime = WorldInfo.TimeSeconds;
+			TimeLastTookDeathAnimDamage = WorldInfo.TimeSeconds;
+			DeathAnimDamageType = MyBBDamageType;
+	}
+	else
+	{
+		SetPhysics(PHYS_RigidBody);
+		Mesh.PhysicsAssetInstance.SetAllBodiesFixed(FALSE);
+		SetPawnRBChannels(TRUE);
+
+		if( TearOffMomentum != vect(0,0,0) )
+		{
+			ShotDir = normal(TearOffMomentum);
+			ApplyImpulse = ShotDir * MyBBDamageType.default.KDamageImpulse;
+
+			// If not moving downwards - give extra upward kick
+			if ( Velocity.Z > -10 )
+			{
+				ApplyImpulse += Vect(0,0,1)*MyBBDamageType.default.KDeathUpKick;
+			}
+			CheckHitInfo( HitInfo, Mesh, Normal(TearOffMomentum), TakeHitLocation );
+			Mesh.AddImpulse(ApplyImpulse, TakeHitLocation, HitInfo.BoneName, true);
+		}
+	}	
+}
+
+simulated function DoingDeathAnim(){
+	local AnimNodeSequence SlotSeqNode;
+	local bool bStopAnim;
+
+	// If we want to stop animation after a certain
+	if( DeathAnimDamageType != None &&
+		DeathAnimDamageType.default.StopAnimAfterDamageInterval != 0.0 &&
+		(WorldInfo.TimeSeconds - TimeLastTookDeathAnimDamage) > DeathAnimDamageType.default.StopAnimAfterDamageInterval )
+	{
+		bStopAnim = TRUE;
+	}
+
+	SlotSeqNode = fullBodySlot.GetCustomAnimNodeSeq();
+	if(!SlotSeqNode.bPlaying || bStopAnim)
+	{
+		SetPhysics(PHYS_RigidBody);
+		Mesh.PhysicsAssetInstance.SetAllMotorsAngularPositionDrive(false, false);
+		//HipBodyInst = Mesh.PhysicsAssetInstance.FindBodyInstance('b_Hips', Mesh.PhysicsAsset);
+		//HipBodyInst.EnableBoneSpring(FALSE, FALSE, DummyMatrix);
+
+		// Ensure we have ragdoll collision on at this point
+		SetPawnRBChannels(TRUE);
+		Mesh.PhysicsWeight=1.0f;
+		ClearTimer('DoingDeathAnim');
+		DeathAnimDamageType = None;
+	}
+}
+
+/** Use to change RBChannels when entering or exiting RagdollMode
+ * @param bRagdollMode  true if entering in RagdollMode
+ */ 
+simulated function SetPawnRBChannels(bool bRagdollMode)
+{
+	if(bRagdollMode)
+	{
+		Mesh.SetRBChannel(RBCC_Pawn);
+		Mesh.SetRBCollidesWithChannel(RBCC_Default,TRUE);
+		Mesh.SetRBCollidesWithChannel(RBCC_Pawn,TRUE);
+		Mesh.SetRBCollidesWithChannel(RBCC_Vehicle,TRUE);
+		Mesh.SetRBCollidesWithChannel(RBCC_Untitled3,FALSE);
+		Mesh.SetRBCollidesWithChannel(RBCC_BlockingVolume,TRUE);
+	}
+	else
+	{
+		Mesh.SetRBChannel(RBCC_Untitled3);
+		Mesh.SetRBCollidesWithChannel(RBCC_Default,FALSE);
+		Mesh.SetRBCollidesWithChannel(RBCC_Pawn,FALSE);
+		Mesh.SetRBCollidesWithChannel(RBCC_Vehicle,FALSE);
+		Mesh.SetRBCollidesWithChannel(RBCC_Untitled3,TRUE);
+		Mesh.SetRBCollidesWithChannel(RBCC_BlockingVolume,FALSE);
+	}
+}
+
 simulated function GetUnequipped()
 {
 	local BBWeaponNone Inv;
@@ -627,77 +740,6 @@ simulated event ToggleAttack(){
 	BBWeaponSword(Weapon).ToggleAttack();
 }
 
-
-
-//simulated function PlayDying(class<DamageType> DamageType, vector HitLoc)
-//{
-//  local vector ApplyImpulse, ShotDir;
-  
-//  bReplicateMovement = false;
-//  bTearOff = true;
-//  Velocity += TearOffMomentum;
-//  SetDyingPhysics();
-//  bPlayedDeath = true;
-//  HitDamageType = DamageType; // these are replicated to other clients
-//  TakeHitLocation = HitLoc;
-
-
-
-//  if ( WorldInfo.NetMode == NM_DedicatedServer )
-//  {
-//    GotoState('Dying');
-//    return;
-//  }
-//  InitRagdoll();
-//  mesh.MinDistFactorForKinematicUpdate = 0.f;
-  
-//  if (Physics == PHYS_RigidBody)
-//  {
-
-//    setPhysics(PHYS_Falling);
-//  }
-//  PreRagdollCollisionComponent = CollisionComponent;
-//  CollisionComponent = Mesh;
-//  if( Mesh.bNotUpdatingKinematicDueToDistance )
-//  {
-//    Mesh.ForceSkelUpdate();
-//    Mesh.UpdateRBBonesFromSpaceBases(TRUE, TRUE);
-//  }
-//  if( Mesh.PhysicsAssetInstance != None )
-//    Mesh.PhysicsAssetInstance.SetAllBodiesFixed(FALSE);
-//  Mesh.SetRBChannel(RBCC_Pawn);
-//  Mesh.SetRBCollidesWithChannel(RBCC_Default,TRUE);
-//  Mesh.SetRBCollidesWithChannel(RBCC_Pawn,TRUE);
-//  Mesh.SetRBCollidesWithChannel(RBCC_Vehicle,TRUE);
-//  Mesh.SetRBCollidesWithChannel(RBCC_Untitled3,FALSE);
-//  Mesh.SetRBCollidesWithChannel(RBCC_BlockingVolume,TRUE);
-//  Mesh.ForceSkelUpdate();
-//  Mesh.UpdateRBBonesFromSpaceBases(TRUE, TRUE);
-//  Mesh.PhysicsWeight = 1.0;
-//  Mesh.bUpdateKinematicBonesFromAnimation=false;
-//  // mesh.bPauseAnims=True;
-//  Mesh.SetRBLinearVelocity(Velocity, false);
-//  mesh.SetTranslation(vect(0,0,1) * 6);
-//  Mesh.ScriptRigidBodyCollisionThreshold = MaxFallSpeed;
-//  Mesh.SetNotifyRigidBodyCollision(true);
-//  Mesh.WakeRigidBody();
-
- 
-//  if( TearOffMomentum != vect(0,0,0) )
-//  {
-//    ShotDir = normal(TearOffMomentum);
-//    ApplyImpulse = ShotDir * DamageType.default.KDamageImpulse;
-//    // If not moving downwards - give extra upward kick
-//    if ( Velocity.Z > -10 )
-//    {
-//      ApplyImpulse += Vect(0,0,1)*2;
-//    }
-//    Mesh.AddImpulse(ApplyImpulse, TakeHitLocation,, true);
-//  }
-//  GotoState('Dying');
-//}
-
-
 DefaultProperties
 {
 
@@ -709,21 +751,18 @@ DefaultProperties
 		BlockRigidBody=true;
 		CollideActors=true;
 		BlockZeroExtent=true;
-		//What to change if you'd like to use your own meshes and animations
-		PhysicsAsset=PhysicsAsset'CH_AnimCorrupt.Mesh.SK_CH_Corrupt_Male_Physics'
-		//AnimSets(0)=AnimSet'CH_AnimHuman.Anims.K_AnimHuman_AimOffset'
-		//AnimSets(1)=AnimSet'CH_AnimHuman.Anims.K_AnimHuman_BaseMale'
-		//AnimTreeTemplate=AnimTree'CH_AnimHuman_Tree.AT_CH_Human'
-		//SkeletalMesh=SkeletalMesh'CH_LIAM_Cathode.Mesh.SK_CH_LIAM_Cathode'
-
+	
 		AnimSets(0)=AnimSet'Betty_Player.SkModels.Betty_AnimSet'
 		AnimTreeTemplate=AnimTree'Betty_Player.SkModels.Betty_AnimTree'
 		SkeletalMesh=SkeletalMesh'Betty_Player.SkModels.Betty_SkMesh'
+		PhysicsAsset=PhysicsAsset'Betty_Player.SkModels.Betty_Physics'
+		bHasPhysicsAssetInstance=true
 		//SkeletalMesh=SkeletalMesh'Betty_PlayerAITOR.SkModels.Betty_SkMesh'
 	End Object
 	//Setting up a proper collision cylinder
 	Mesh=InitialSkeletalMesh;
 	Components.Add(InitialSkeletalMesh);
+	CollisionComponent=InitialSkeletalMesh
 	CollisionType=COLLIDE_BlockAll
 	Begin Object Name=CollisionCylinder
 		CollisionRadius=+0025.000000

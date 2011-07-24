@@ -1,0 +1,21 @@
+class BBDamageType extends DamageType;
+
+/************** DEATH ANIM *********/
+
+/** Name of animation to play upon death. */
+var(DeathAnim)	name	DeathAnim;
+/** How fast to play the death animation */
+var(DeathAnim)	float	DeathAnimRate;
+/** If non-zero, stop death anim after this time (in seconds) after stopping taking damage of this type. */
+var(DeathAnim)	float	StopAnimAfterDamageInterval;
+
+/***********************************/
+
+/** NO IMPLEMENTADO!!!  camera anim played instead of the default damage shake when taking this type of damage */
+var CameraAnim DamageCameraAnim;
+
+DefaultProperties
+{
+	DeathAnimRate = 1.0f
+	StopAnimAfterDamageInterval = 0.0f
+}
