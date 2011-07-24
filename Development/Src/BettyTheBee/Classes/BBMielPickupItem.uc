@@ -79,6 +79,9 @@ DefaultProperties
 	destellos_PS=ParticleSystem'Betty_item.PS.magicMissleImpact_vFX'
 
 	rotationPerSec = 90.0f
+
+	//Para no considerarlo como punto de ruta para la IA
+	bBlocked = true
 }
 
 

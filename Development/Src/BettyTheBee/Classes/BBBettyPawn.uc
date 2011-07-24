@@ -503,11 +503,10 @@ function bool canStartCombo()
 
 function ForceJump()
 {
- 	PrepareJump(false);
-	bMushroomJump = true;
 	//JumpZ *= mushroomJumpZModifier;
 	JumpZ = mushroomJumpZModifier;
-	
+ 	DoJump(false);
+	bMushroomJump = true;	
 }
 
 
@@ -515,7 +514,7 @@ function EndJump(){
 	if(bMushroomJump){
 		bMushroomJump = false;
 		//JumpZ /= mushroomJumpZModifier;
-		JumpZ=550;
+		JumpZ=Default.JumpZ;
 	}
 }
 
@@ -767,7 +766,7 @@ DefaultProperties
 	RollingSpeedModifier = 1.0f;
 
 	//mushroomJumpZModifier = 1.5f;
-	mushroomJumpZModifier=825.0f;
+	mushroomJumpZModifier=1350.0f;
 
 	// FOV / Sight
 	ViewPitchMin=-6000
