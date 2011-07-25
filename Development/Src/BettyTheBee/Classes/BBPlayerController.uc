@@ -380,57 +380,55 @@ function ResetPPSettings(Pawn inPawn){
 //--------------------------------FUNCIONES ROTACION CAMARA Y PLAYER-----------------------------
 
 
-function UpdateRotationCustom( float DeltaTime, bool updatePawnRot)
+function UpdateRotationCustom( float DeltaTime, bool updatePawnRot){
+	local Rotator	DeltaRot, newRotation, ViewRotation;	
+
+	ViewRotation = Rotation;
+	if (Pawn!=none && updatePawnRot)
 	{
-		local Rotator	DeltaRot, newRotation, ViewRotation;	
-
-		ViewRotation = Rotation;
-		if (Pawn!=none && updatePawnRot)
-		{
-			Pawn.SetDesiredRotation(ViewRotation);		
-		}
-
-		// Calculate Delta to be applied on ViewRotation
-		DeltaRot.Yaw	= PlayerInput.aTurn;
-		DeltaRot.Pitch	= PlayerInput.aLookUp;
-
-		ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
-		ViewShake( deltaTime );
-//`log(TargetedPawn);
-		switch(GetStateName())
-			{
-				case 'PlayerWalking' : 
-
-					NewRotation = ViewRotation;
-					NewRotation.Roll = Rotation.Roll;
-					if ( Pawn != None && updatePawnRot)						
-							Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, RotationSpeed, true), DeltaTime);
-
-					break;
-
-				default: //CombatStance, Grenade_attack y Sword_Attack
-
-					if(TargetedPawn!=none){ //estamos fijados a un enemigo
-						NewRotation=rotator(TargetedPawn.GetTargetLocation() - Pawn.GetTargetLocation());
-						if ( Pawn != None )
-							Pawn.FaceRotation(NewRotation, deltatime);
-						ViewRotation.Yaw=NewRotation.Yaw;
-					}
-					else{ //no estamos fijados a un enemigo
-						NewRotation = ViewRotation;
-						NewRotation.Roll = Rotation.Roll;
-						if ( Pawn != None && updatePawnRot)						
-								Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, RotationSpeed, true), DeltaTime);
-					}
-				break;
-			}	
-
-		SetRotation(ViewRotation);	
-
+		Pawn.SetDesiredRotation(ViewRotation);		
 	}
 
+	// Calculate Delta to be applied on ViewRotation
+	DeltaRot.Yaw	= PlayerInput.aTurn;
+	DeltaRot.Pitch	= PlayerInput.aLookUp;
 
-	function PlayerMove( float DeltaTime ){
+	ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
+	ViewShake( deltaTime );
+	//`log(TargetedPawn);
+	switch(GetStateName()){
+		case 'PlayerWalking' : 
+
+			NewRotation = ViewRotation;
+			NewRotation.Roll = Rotation.Roll;
+			if ( Pawn != None && updatePawnRot)						
+					Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, RotationSpeed, true), DeltaTime);
+
+			break;
+
+		default: //CombatStance, Grenade_attack y Sword_Attack
+
+			if(TargetedPawn!=none){ //estamos fijados a un enemigo
+				NewRotation=rotator(TargetedPawn.GetTargetLocation() - Pawn.GetTargetLocation());
+				if ( Pawn != None )
+					Pawn.FaceRotation(NewRotation, deltatime);
+				ViewRotation.Yaw=NewRotation.Yaw;
+			}
+			else{ //no estamos fijados a un enemigo
+				NewRotation = ViewRotation;
+				NewRotation.Roll = Rotation.Roll;
+				if ( Pawn != None && updatePawnRot)						
+						Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, RotationSpeed, true), DeltaTime);
+			}
+			break;
+		}	
+
+	SetRotation(ViewRotation);	
+
+}
+
+
+function PlayerMove( float DeltaTime ){
 
 	local vector	 X,Y,Z, NewAccel;
 	local eDoubleClickDir	DoubleClickMove;
@@ -765,19 +763,56 @@ Begin:
 	WorldInfo.SeamlessTravel("BB-BettyLevelMenu");
 }
 
-//state Dead{
-//Begin:
-//	`log("Player Muerto");
-//	WorldInfo.Game.Broadcast(self,"You are Dead!");
-//	WorldInfo.Game.Broadcast(self,"Restarting level in...");
-//	WorldInfo.Game.Broadcast(self,"3");
-//	Sleep(1);
-//	WorldInfo.Game.Broadcast(self,"2");
-//	Sleep(1);
-//	WorldInfo.Game.Broadcast(self,"1");
-//	Sleep(1);
-//	WorldInfo.SeamlessTravel("BB-BettyLevelMenu");
-//}
+state Dead{
+
+	function PlayerMove(float DeltaTime)
+	{
+		local vector X,Y,Z;
+		local rotator DeltaRot, ViewRotation;
+
+		if ( !bFrozen )
+		{
+			if ( bPressedJump )
+			{
+				StartFire( 0 );
+				bPressedJump = false;
+			}
+			GetAxes(Rotation,X,Y,Z);
+			// Update view rotation.
+			ViewRotation = Rotation;
+			// Calculate Delta to be applied on ViewRotation
+			DeltaRot.Yaw	= PlayerInput.aTurn;
+			DeltaRot.Pitch	= PlayerInput.aLookUp;
+			ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
+			SetRotation(ViewRotation);
+			if ( Role < ROLE_Authority ) // then save this move and replicate it
+					ReplicateMove(DeltaTime, vect(0,0,0), DCLICK_None, rot(0,0,0));
+		}
+		else if ( !IsTimerActive() || GetTimerCount() > MinRespawnDelay )
+		{
+			bFrozen = false;
+		}
+
+		ViewShake(DeltaTime);
+	}
+
+	//function FindGoodView()
+	//{
+		
+	//}
+
+Begin:
+	`log("Player Muerto");
+	//WorldInfo.Game.Broadcast(self,"You are Dead!");
+	//WorldInfo.Game.Broadcast(self,"Restarting level in...");
+	//WorldInfo.Game.Broadcast(self,"3");
+	//Sleep(1);
+	//WorldInfo.Game.Broadcast(self,"2");
+	//Sleep(1);
+	//WorldInfo.Game.Broadcast(self,"1");
+	//Sleep(1);
+	//WorldInfo.SeamlessTravel("BB-BettyLevelMenu");
+}
 
 
 
@@ -962,6 +997,8 @@ DefaultProperties
 	//bPlay_humo_correr=true;
 
 	RotationSpeed=150000;
+
+	MinRespawnDelay = 3.0f
 
 	costHeal = 20;
 	amountHealed = 3;
