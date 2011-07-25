@@ -170,6 +170,8 @@ DefaultProperties
     Damage=0
     MomentumTransfer=10
 
+	MyDamageType=class'BBDamageType_EnemyPawn'
+
 	bWorldGeometry=false
 	Speed=1500
 	MaxSpeed=0

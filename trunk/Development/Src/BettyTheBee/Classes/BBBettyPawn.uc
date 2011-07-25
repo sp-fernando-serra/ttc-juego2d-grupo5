@@ -579,6 +579,8 @@ simulated function PlayDying(class<DamageType> MyDamageType, vector HitLoc){
 
 	MyBBDamageType = class<BBDamageType>(MyDamageType);
 
+	CollisionComponent = Mesh;
+
 	if(MyBBDamageType != None && MyBBDamageType.default.DeathAnim != ''){
 			SetPhysics(PHYS_RigidBody);
 			// We only want to turn on 'ragdoll' collision when we are not using a hip spring, otherwise we could push stuff around.
@@ -592,7 +594,8 @@ simulated function PlayDying(class<DamageType> MyDamageType, vector HitLoc){
 			Mesh.PhysicsAssetInstance.SetAngularDriveScale(1.0f, 1.0f, 0.0f);
 
 			fullBodySlot.PlayCustomAnim(MyBBDamageType.default.DeathAnim, MyBBDamageType.default.DeathAnimRate, 0.05, -1.0, false, false);
-			SetTimer(0.1, true, 'DoingDeathAnim');
+			//Descomentar para pasar a Ragdoll al finalizar animacion
+			//SetTimer(0.1, true, 'DoingDeathAnim');
 			StartDeathAnimTime = WorldInfo.TimeSeconds;
 			TimeLastTookDeathAnimDamage = WorldInfo.TimeSeconds;
 			DeathAnimDamageType = MyBBDamageType;
@@ -600,6 +603,7 @@ simulated function PlayDying(class<DamageType> MyDamageType, vector HitLoc){
 	else
 	{
 		SetPhysics(PHYS_RigidBody);
+		Mesh.PhysicsWeight=1.0f;
 		Mesh.PhysicsAssetInstance.SetAllBodiesFixed(FALSE);
 		SetPawnRBChannels(TRUE);
 
@@ -762,13 +766,14 @@ DefaultProperties
 	//Setting up a proper collision cylinder
 	Mesh=InitialSkeletalMesh;
 	Components.Add(InitialSkeletalMesh);
-	CollisionComponent=InitialSkeletalMesh
+	//CollisionComponent=InitialSkeletalMesh
 	CollisionType=COLLIDE_BlockAll
 	Begin Object Name=CollisionCylinder
 		CollisionRadius=+0025.000000
 		CollisionHeight=+0045.000000
 	End Object
 	CylinderComponent=CollisionCylinder
+	CollisionComponent=CollisionCylinder
 
 	EquipSwordPS = ParticleSystem'Betty_Player.Particles.EquipSword_PS'
 	HealPS = ParticleSystem'Betty_Player.Particles.Heal_PS'
