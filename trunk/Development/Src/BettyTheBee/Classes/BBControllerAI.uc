@@ -98,7 +98,7 @@ Begin:
 		actual_node = last_node;
 		GotoState('FollowPath');
 	}
-	goto 'Begin';
+	//goto 'Begin';
 
 }
 
