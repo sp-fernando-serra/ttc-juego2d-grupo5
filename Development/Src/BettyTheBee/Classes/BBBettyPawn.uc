@@ -268,6 +268,7 @@ simulated function prepareJump(bool bUpdating){
 		bPreparingJump = true;
 		//When this animation ends it activates a notify called StartJump for jumping
 		fullBodySlot.PlayCustomAnim(preJumpAnimName,1.0f,0.0f,0.0f,false,true);
+		fullBodySlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Default,RBA_Default,RBA_Default);
 	}
 	else if ( !bUpdating && CanDoubleJump()&& (Abs(Velocity.Z) < DoubleJumpThreshold) && IsLocallyControlled() )
 	{
@@ -578,7 +579,7 @@ simulated function PlayDying(class<DamageType> MyDamageType, vector HitLoc){
 	super.PlayDying(MyDamageType, HitLoc);
 
 	MyBBDamageType = class<BBDamageType>(MyDamageType);
-
+	PreRagdollCollisionComponent = CollisionComponent;
 	CollisionComponent = Mesh;
 
 	if(MyBBDamageType != None && MyBBDamageType.default.DeathAnim != ''){
