@@ -10,12 +10,16 @@ var float Speed;
 var () float PerceptionDistance<DisplayName=Perception Distance>;
 /** Attack distance */
 var () float AttackDistance<DisplayName=Attack Distance>;
+/** Float between 0.0 and 1.0 used to determine the percentage of attackDistance to start attacking.
+ *  Used to move Enemy closer than AttackDistance when following the player
+ */
+var () float AttackDistanceFactor<DisplayName=Attack Distance Factor>;
 /** Attack Damage */
 var () int AttackDamage<DisplayName=Attack Damage>;
 /** If TRUE the pawn will attack the player when he enter in Range of View */
 var () bool bAggressive<DisplayName = Is Aggressive?>;
 /** Array of BBRoutePoints to patroll */
-var () array<BBRoutePoint> MyRoutePoints;
+var () Route MyRoutePoints;
 
 var bool bIsDying;
 var class<BBDamageType> MyDamageType;
@@ -67,7 +71,7 @@ event Tick(float DeltaTime){
 	col.A=255.0f;
 	super.Tick(DeltaTime);
 
-	DrawDebugCone(Location,Vector(Rotation),SightRadius,0.785398,0.15,32,col,false);
+	DrawDebugCone(Location,Vector(Rotation),SightRadius,(1-Square(PeripheralVision)),0.15,32,col,false);
 }
 
 function playPariclesFijado()
@@ -107,9 +111,9 @@ state ChasePlayer{
 
 }
 
-state Idle{
+//state Idle{
 
-}
+//}
 
 function bool isDying();
 
@@ -143,8 +147,13 @@ defaultproperties
 
 	bAggressive = true;
 
+	AttackDistanceFactor = 0.6f;
+
+
 	//PeripheralVision is Cos of desired vision angle cos(45) = 0.707106
 	PeripheralVision = 0.707106;
+
+	RotationRate=(Pitch=40000,Yaw=40000,Roll=20000)
 
 	TargetedPawn_PS=ParticleSystem'Betty_Particles.enemigos.enemigo_fijado'
 
@@ -153,4 +162,3 @@ defaultproperties
 	MyDamageType = class'BBDamageType_EnemyPawn'
 
 }
-
