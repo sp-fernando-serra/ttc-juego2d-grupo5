@@ -3,6 +3,8 @@ class BBEnemyPawnRhino extends BBEnemyPawn placeable;
 /** Damage done by Charge Attack */
 var int ChargeDamage;
 
+var AnimNodeBlendList animStateList;
+
 simulated function PostBeginPlay()
 {
 	super.PostBeginPlay();
@@ -23,6 +25,21 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 		//Name of diferent animations for playing in custom node (esta aqui porque en defaultProperties no funciona)
 		attackAnimName = 'Attack';
 		dyingAnimName = 'Dead';
+		animStateList = AnimNodeBlendList(SkelComp.FindAnimNode('listState'));
+	}
+}
+
+state ChasePlayer{
+	simulated event BeginState(name NextStateName){		
+		super.BeginState(NextStateName);
+		//Going to animations of state 1 (Chase player)
+		animStateList.SetActiveChild(1,0.25);
+	}
+
+	simulated event EndState(name NextStateName){		
+		super.EndState(NextStateName);
+		//Going to animations of state 0 (Patrol)
+		animStateList.SetActiveChild(0,0.25);
 	}
 }
 

@@ -14,12 +14,12 @@ state Attacking
 		distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
         if (distanceToPlayer > attackDistance * 2)
         { 
-			MyEnemyTestPawn.GotoState('Chaseplayer');
-			GotoState('Chaseplayer');
+			MyEnemyTestPawn.GotoState('');
+			PopState();
 			break;
         }
 		Sleep(1);
 	}
-	MyEnemyTestPawn.GotoState('Idle');
-	GotoState('Idle');
+	MyEnemyTestPawn.GotoState('');
+	PopState();
 }
