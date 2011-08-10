@@ -21,7 +21,7 @@ var		float	DoubleJumpThreshold;
  *  Mushroom jump is higher than normal jump. Using mushroomJumpZModifier
  */
 var bool bMushroomJump;
-/** Amount to modify the normal height jump ina mushroom jump */
+/** Amount to modify the normal height jump in a mushroom jump if mushroomJumpZ in mushroom class is 0.0 */
 var float mushroomJumpZModifier;
 
 
@@ -510,10 +510,14 @@ function bool canStartCombo()
 	return false;
 }
 
-function ForceJump()
+function ForceJump(float mushroomJumpZ)
 {
 	//JumpZ *= mushroomJumpZModifier;
 	JumpZ = mushroomJumpZModifier;
+	if(mushroomJumpZ <= 0)
+		JumpZ = mushroomJumpZModifier;
+	else
+		JumpZ = mushroomJumpZ;
  	DoJump(false);
 	bMushroomJump = true;	
 }
@@ -522,7 +526,6 @@ function ForceJump()
 function EndJump(){
 	if(bMushroomJump){
 		bMushroomJump = false;
-		//JumpZ /= mushroomJumpZModifier;
 		JumpZ=Default.JumpZ;
 	}
 }
