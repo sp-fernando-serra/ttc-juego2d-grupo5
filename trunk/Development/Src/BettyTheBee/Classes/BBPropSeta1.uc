@@ -4,6 +4,8 @@ class BBPropSeta1 extends BBProp placeable
 
 var SkeletalMeshComponent Mesh;
 var BBBettyPawn tempPawn;
+/** Amount to jump in a mushroom jump. Default in pawn is 1350.0f */
+var () float mushroomJumpZ<DisplayName=Mushroom Jump Z>;
 
 var name boingAnimName;
 
@@ -14,14 +16,14 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 }
 
 event bump(Actor Other, PrimitiveComponent OtherComp, Vector HitNormal){
-	if(HitNormal.Z > HitNormal.X && HitNormal.Z > HitNormal.Y && BBBettyPawn(Other) != none){
+	if(HitNormal.Z > 0.7 && BBBettyPawn(Other) != none){
 		Mesh.PlayAnim(boingAnimName,0.5);
 		tempPawn = BBBettyPawn(Other);
 	}
 }
 
 event doJump(){
-	tempPawn.ForceJump();	
+	tempPawn.ForceJump(mushroomJumpZ);	
 }
 
 simulated event endAnim(){
@@ -68,5 +70,7 @@ DefaultProperties
 	CollisionType = COLLIDE_BlockAll
 	bStatic = False
 	bMovable = false
+
+	mushroomJumpZ = 1350.0f;
 
 }
