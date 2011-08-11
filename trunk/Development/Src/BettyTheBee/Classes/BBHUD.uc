@@ -42,6 +42,10 @@ event PostRender()
 }
 
 
+function ASvida(String texto1){
+HudMovie.ASvida(texto1);
+}
+
 DefaultProperties
 {
 }

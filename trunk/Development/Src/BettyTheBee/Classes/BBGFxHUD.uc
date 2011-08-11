@@ -110,8 +110,9 @@ function TickHUD()
 
 	//ASvariables(UTP.InvManager.PendingWeapon.getNom(),string(UTP.InvManager.InventoryChain),"cc");
 
-	if(LastHealthpc!=UTP.Health)
+	if(LastHealthpc!=UTP.Health){
 			ASvida( String(UTP.Health));
+	}
 
 	LastHealthpc=UTP.Health;
 	
