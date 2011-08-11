@@ -796,12 +796,13 @@ state Dead{
 		ViewShake(DeltaTime);
 	}
 
-	//function FindGoodView()
-	//{
+//function FindGoodView()
+//	{
 		
-	//}
+//	}
 
 Begin:
+	BBHUD(myHUD).ASvida(String(BBBettyPawn(Pawn).Health));
 	`log("Player Muerto");
 	//WorldInfo.Game.Broadcast(self,"You are Dead!");
 	//WorldInfo.Game.Broadcast(self,"Restarting level in...");
