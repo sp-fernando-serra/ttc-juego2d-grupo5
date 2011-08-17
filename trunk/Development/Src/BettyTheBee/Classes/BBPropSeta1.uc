@@ -2,7 +2,7 @@ class BBPropSeta1 extends BBProp placeable
 	classGroup(BBActor);
 
 
-var SkeletalMeshComponent Mesh;
+var () SkeletalMeshComponent Mesh;
 var BBBettyPawn tempPawn;
 /** Amount to jump in a mushroom jump. Default in pawn is 1350.0f */
 var () float mushroomJumpZ<DisplayName=Mushroom Jump Z>;
@@ -11,8 +11,7 @@ var name boingAnimName;
 
 simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 {
-	super.PostInitAnimTree(SkelComp);
-	boingAnimName = 'Boing';
+	super.PostInitAnimTree(SkelComp);	
 }
 
 event bump(Actor Other, PrimitiveComponent OtherComp, Vector HitNormal){
@@ -72,5 +71,6 @@ DefaultProperties
 	bMovable = false
 
 	mushroomJumpZ = 1350.0f;
+	boingAnimName = "Boing";
 
 }
