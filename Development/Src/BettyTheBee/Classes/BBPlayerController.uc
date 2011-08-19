@@ -5,6 +5,8 @@ var float speed, sideSpeed, backSpeed;
 var BBEnemyPawn targetedPawn;
 var bool bCombatStance;
 
+var BBBettyPawn MyBettyPawn;
+
 var rotator myRotation,myDesiredRotation;
 var bool bLastStrafe, bLastForward,bLastBackward;
 var bool bUpdateRot;
@@ -24,6 +26,7 @@ var float radioLockon;
 var float RotationSpeed;
 
 var bool block;
+var bool bSliding;
 
 /** Honey cost of Heal */
 var int costHeal;
@@ -314,6 +317,7 @@ exec function EButtonDown(){
 	//}
 }
 
+
 exec function GetVida(){
 	
 	if(canUseHeal()){
@@ -442,6 +446,7 @@ function PlayerMove( float DeltaTime ){
 		}
 		else
 		{
+
 			if (PlayerInput.aForward > 0){
 				pawn.GroundSpeed = speed;
 			}
@@ -821,7 +826,7 @@ Begin:
 
 
 state PlayerWalking{
-
+	
 	//NANDO: Aqui estaba la funcion PlayerMove() que ahora esta fuera de cualquier estado ya que este era el estado por defecto
 	//       Si se quiere modificar el comportameinto de PlayerMove en algun estado basta con sobreescribir esta funcion.
 	function PlayerMove(float DeltaTime){
@@ -829,10 +834,189 @@ state PlayerWalking{
 	}
 }
 
+
+//Letra 'H'
+exec function gotoSlide()
+{
+	bSliding=!bSliding;
+	if(bSliding){
+		GotoState('PlayerSlide');
+	}
+	else
+	{
+		GotoState('PlayerWalking');
+	}
+}
+
+State PlayerSlide{
+	function PlayerMove( float DeltaTime ){
+
+	local vector	 X,Y,Z, NewAccel;
+	local eDoubleClickDir	DoubleClickMove;
+	local bool	 bSaveJump;
+	local Rotator DeltaRot, ViewRotation, OldRotation, NewRot;
+
+	if(bBettyMovement){
+		if( Pawn == None )
+		{
+			GotoState('Dead');
+		}
+		else
+		{			
+			if (PlayerInput.aForward > 0){
+				pawn.GroundSpeed = 2*speed;
+			}
+			else if (PlayerInput.aForward <=0 && PlayerInput.aStrafe!=0)
+				pawn.GroundSpeed = sideSpeed;
+			else 
+				pawn.GroundSpeed = backSpeed;
+			
+			GetAxes(Pawn.Rotation,X,Y,Z);
+
+			//NewAccel = PlayerInput.aForward*X + PlayerInput.aStrafe*Y;
+			NewAccel.Z	= 0;
+			NewAccel = X*1 +  PlayerInput.aStrafe*Y;
+			NewAccel = Pawn.AccelRate * Normal(NewAccel);
+
+			DoubleClickMove = PlayerInput.CheckForDoubleClickMove( DeltaTime/WorldInfo.TimeDilation );
+
+			
+			OldRotation = Rotation;
+			UpdateRotationCustom( DeltaTime , VSize(NewAccel) != 0);
+			
+			bDoubleJump = false;			
+
+			if( bPressedJump && Pawn.CannotJumpNow() )
+			{
+				bSaveJump = true;
+				bPressedJump = false;
+			}
+			else
+			{
+				bSaveJump = false;
+			}
+
+			if( Role < ROLE_Authority ) // then save this move and replicate it
+			{
+				
+				ReplicateMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);
+			}
+			else
+			{
+				if(!BBBettyPawn(Pawn).IsRolling()){
+					if(canUseRoll()  && PlayerInput.aStrafe>0 && PlayerInput.aForward == 0){
+						BBBettyPawn(Pawn).animRollRight();
+						reactivateTime[HN_Roll] = coldDowns[HN_Roll];
+					}
+					else if (canUseRoll()  && PlayerInput.aStrafe<0 && PlayerInput.aForward == 0){
+						BBBettyPawn(Pawn).animRollLeft();
+						reactivateTime[HN_Roll] = coldDowns[HN_Roll];
+					}
+					ProcessMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);
+				}				
+			}
+			bPressedJump = bSaveJump;
+		}
+		
+	}else{
+		
+			if( Pawn == None )
+			{
+			GotoState('Dead');
+			}
+			else
+			{
+			
+			if(PlayerInput.aForward!=0 || PlayerInput.aStrafe!=0){
+				speed = 400;
+			}
+			pawn.GroundSpeed = speed;
+
+			GetAxes(Rotation,X,Y,Z);
+
+			//update viewrotation
+
+			ViewRotation = Rotation;
+
+			// Calculate Delta to be applied on ViewRotation
+			DeltaRot.Yaw	= PlayerInput.aTurn;
+			DeltaRot.Pitch	= PlayerInput.aLookUp;
+			ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
+			SetRotation(ViewRotation);
+
+			// Update acceleration.
+			//NewAccel = PlayerInput.aForward*X + PlayerInput.aStrafe*Y;
+			NewAccel.Z	= 0;
+			NewAccel = 1*X+  PlayerInput.aStrafe*Y;
+
+
+
+			// pawn face newaccel direction // 
+
+			OldRotation = Pawn.Rotation;
+
+			if( Pawn != None )
+
+			{ if( NewAccel.X > 0.0 || NewAccel.X < 0.0 || NewAccel.Y > 0.0 || NewAccel.Y < 0.0 )
+
+			NewRot = Rotator(NewAccel);
+			else
+			NewRot = Pawn.Rotation;	
+
+			}
+			Pawn.FaceRotation(RInterpTo(OldRotation,NewRot,Deltatime,100000,true),Deltatime);
+
+
+
+			NewAccel = Pawn.AccelRate * Normal(NewAccel);
+
+			DoubleClickMove = PlayerInput.CheckForDoubleClickMove( DeltaTime/WorldInfo.TimeDilation );
+
+			if( bPressedJump && Pawn.CannotJumpNow() )
+			{
+			bSaveJump = true;
+			bPressedJump = false;
+			}
+			else
+			{
+			bSaveJump = false;
+			}
+
+			ProcessMove(DeltaTime, NewAccel, DoubleClickMove,Rotation);
+
+
+		bPressedJump = bSaveJump;
+		}
+	}
+	
+}
+
+event BeginState(Name PreviousStateName)
+	{
+		super.BeginState(PreviousStateName);
+		//BBBettyPawn(Pawn).slide(0);
+		Pawn.GotoState('PlayerSlide');
+		
+	}
+
+	event EndState(Name NextStateName)
+	{
+		super.EndState(NextStateName);
+		//BBBettyPawn(Pawn).slide(2);
+	}
+
+Begin:
+	//BBBettyPawn(Pawn).slide(1);
+
+}
+
+
+
 //exec function gotoFuria()
 //{
 //GotoState('Furia');
 //}
+
 exec function gotoWalk()
 {
 	GotoState('PlayerWalking');
@@ -995,6 +1179,7 @@ DefaultProperties
 	radioLockon=1000.0;
 
 	broll=false;
+	bSliding=false;
 	//bPlay_humo_correr=true;
 
 	RotationSpeed=150000;
