@@ -38,8 +38,8 @@ var transient Vector LastCheckAttackRangeTargetLocation;
 var transient Vector LastCheckAttackRangeClosestPoint;
 var transient Actor LastCheckAttackRangeTarget;
 
-function SetPawn(BBEnemyPawn NewPawn)
-{
+function SetPawn(BBEnemyPawn NewPawn){
+
 	MyEnemyTestPawn = NewPawn;
 	
 	Possess(MyEnemyTestPawn, false);
@@ -52,8 +52,7 @@ function SetPawn(BBEnemyPawn NewPawn)
 	
 }
 
-function Possess(Pawn aPawn, bool bVehicleTransition)
-{
+function Possess(Pawn aPawn, bool bVehicleTransition){
     if (aPawn.bDeleteMe)
 	{
 		`Warn(self @ GetHumanReadableName() @ "attempted to possess destroyed Pawn" @ aPawn);
