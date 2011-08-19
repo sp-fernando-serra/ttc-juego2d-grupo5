@@ -559,7 +559,7 @@ function EndJump(){
 }
 
 simulated event StartJump(){
-	bPreparingJump = false;
+ 	bPreparingJump = false;
 	DoJump(false);
 	//if(bMushroomJump){
 	//	bMushroomJump = false;
@@ -861,7 +861,7 @@ DefaultProperties
 
 
 	Health = 5;
-	itemsMiel = 1000;
+	itemsMiel = 500;
 	bCanPickupInventory = true;
 	InventoryManagerClass = class'BettyTheBee.BBInventoryManager';
 
