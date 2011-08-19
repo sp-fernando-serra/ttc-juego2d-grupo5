@@ -48,6 +48,11 @@ const ROLL_LEFT = 0;
 const ROLL_RIGHT = 1;
 var name rollAnimNames[2];
 
+const SLIDING_START = 0;
+const SLIDING       = 1;
+const SLIDING_END   = 2;
+var name slideAnimNames[3];
+
 ///**GroundParticles al andar o correr 
 //var ParticleSystemComponent ParticlesComponent_humo_correr;
 //var ParticleSystemComponent ParticlesComponent_ini_correr;
@@ -209,6 +214,10 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 
 		rollAnimNames[ROLL_LEFT] = 'Betty_roll Left_2';
 		rollAnimNames[ROLL_RIGHT] = 'Betty_roll Right_2';
+
+		slideAnimNames[SLIDING_START] = 'Betty_Slide_Start';
+		slideAnimNames[SLIDING] = 'Betty_Slide_Loop';
+		slideAnimNames[SLIDING_END] = 'Betty_Slide_End';
 	}
 }
 
@@ -239,6 +248,25 @@ function  animRollRight(){
 	Mesh.RootMotionAccelScale.X = RollingSpeedModifier;
 	Mesh.RootMotionAccelScale.Y = RollingSpeedModifier;
 	Mesh.RootMotionAccelScale.Z = RollingSpeedModifier;
+}
+function  slide(float i){
+	
+	//bSliding=true;
+	if(i==0){
+		fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING_START],1.0f,0.0f,0.0f);
+	}
+	if(i==1){
+		fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING],1.0f,0.0f,0.0f,true);
+
+	}
+	if(i==2){
+		fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING_END],1.0f,0.0f,0.0f);
+	}
+	//fullBodySlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Translate,RBA_Translate,RBA_Default);
+	//Mesh.RootMotionMode = RMM_Accel;
+	//Mesh.RootMotionAccelScale.X = RollingSpeedModifier;
+	//Mesh.RootMotionAccelScale.Y = RollingSpeedModifier;
+	//Mesh.RootMotionAccelScale.Z = RollingSpeedModifier;
 }
 
 //Only used with RMM_Translate
@@ -746,6 +774,34 @@ simulated function GetGrenade()
 
 simulated event ToggleAttack(){
 	BBWeaponSword(Weapon).ToggleAttack();
+}
+
+
+auto state idle
+{
+Begin:
+	fullBodySlot.StopCustomAnim(0);
+}
+
+state playerSlide
+{
+
+	event BeginState(name PreviousStateName){
+		super.BeginState(PreviousStateName);
+		
+	}
+
+	event EndState(name NextStateName)
+	{
+		super.EndState(NextStateName);
+		fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING_END],1.0f,0.0f,0.0f,false,true);
+		gotoState('idle');
+	}
+Begin:
+	fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING_START],1.0f,0.0f,0.0f,false,true);
+	//FinishAnim(slideAnimNames[SLIDING_START]);
+	FinishAnim(fullBodySlot.GetCustomAnimNodeSeq());
+	fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING],1.0f,0.0f,0.0f,true);
 }
 
 DefaultProperties
