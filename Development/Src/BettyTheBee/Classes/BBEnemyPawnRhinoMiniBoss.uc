@@ -77,19 +77,19 @@ Running:
 	Sleep(4.0f);
 Attack:
 	customAnimSlot.PlayCustomAnim(chargeAttackAnimName,1.5f,0.25,0.25,false,true);
-	customAnimSlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Discard,RBA_Discard,RBA_Discard);
-	//Mesh.RootMotionMode = RMM_Accel;
-	//Mesh.RootMotionAccelScale.X = attackChargeSpeedModifier;
-	//Mesh.RootMotionAccelScale.Y = attackChargeSpeedModifier;
-	//Mesh.RootMotionAccelScale.Z = attackChargeSpeedModifier;
+	customAnimSlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Translate,RBA_Translate,RBA_Default);
+	Mesh.RootMotionMode = RMM_Accel;
+	Mesh.RootMotionAccelScale.X = attackChargeSpeedModifier;
+	Mesh.RootMotionAccelScale.Y = attackChargeSpeedModifier;
+	Mesh.RootMotionAccelScale.Z = attackChargeSpeedModifier;
 	GroundSpeed = chargeSpeed;
 	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());
 
 	// Discard root motion. So mesh stays locked in place.
 	// We need this to properly blend out to another animation
-	//customAnimSlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Discard,RBA_Discard,RBA_Discard);
+	customAnimSlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Discard,RBA_Discard,RBA_Discard);
 	// Tell mesh to stop using root motion
-	//Mesh.RootMotionMode = RMM_Ignore;
+	Mesh.RootMotionMode = RMM_Ignore;
 
 	GroundSpeed = default.GroundSpeed;	
 	Controller.GotoState('ChasePlayer');

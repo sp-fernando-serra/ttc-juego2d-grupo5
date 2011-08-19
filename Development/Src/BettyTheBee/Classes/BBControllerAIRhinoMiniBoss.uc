@@ -155,23 +155,27 @@ Running:
 			MoveTo(NextMoveLocation,Target);
 		}else{
 			`log(self @ "Can't find path to" @ Target);
+			GotoState('Idle');
 		}
 	}
 	goto 'Running';
 
 Attacking:
-	CurrentTargetIsReachable = NavigationHandle.PointReachable(attackChargeDirection);
-	if(CurrentTargetIsReachable){
-		MoveTo(attackChargeDirection);
-	}else{  //Actor is NOT directly reachable
-		//If path exists
-		if(NavigationHandle.GetNextMoveLocation( NextMoveLocation, Pawn.GetCollisionRadius())){
-			MoveTo(NextMoveLocation);
-		}else{
-			`log(self @ "Can't find path to" @ Target);
-		}
-	}
-	goto 'Attacking';
+	Focus = none;
+	StopLatentExecution();
+	Pawn.Acceleration = vect(0,0,0);
+	//CurrentTargetIsReachable = NavigationHandle.PointReachable(attackChargeDirection);
+	//if(CurrentTargetIsReachable){
+	//	MoveTo(attackChargeDirection);
+	//}else{  //Actor is NOT directly reachable
+	//	//If path exists
+	//	if(NavigationHandle.GetNextMoveLocation( NextMoveLocation, Pawn.GetCollisionRadius())){
+	//		MoveTo(NextMoveLocation);
+	//	}else{
+	//		`log(self @ "Can't find path to" @ Target);
+	//	}
+	//}
+	//goto 'Attacking';
 }
 
 state Attacking
