@@ -19,14 +19,15 @@ event Tick(float DeltaTime){
 	local Color col;
 
 	super.Tick(DeltaTime);
-	//if(bDebug){
+	if(bDebug && !isDying() && !isDead()){
 		col.B=0.0f;
 		col.G=0.0f;
-		col.R=255.0f;
+		col.R=100.0f;
 		col.A=255.0f;
 
 		DrawDebugSphere(Location,attackChargeDistance,16,col.R,col.G,col.B,false);
-	//}
+		DrawDebugSphere(Location,AttackDistance,16,0.0,100.0,25.0,false);
+	}
 }
 
 simulated function PostBeginPlay()
@@ -77,12 +78,15 @@ Running:
 	Sleep(4.0f);
 Attack:
 	customAnimSlot.PlayCustomAnim(chargeAttackAnimName,1.5f,0.25,0.25,false,true);
-	customAnimSlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Translate,RBA_Translate,RBA_Default);
-	Mesh.RootMotionMode = RMM_Accel;
+	customAnimSlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Translate,RBA_Discard,RBA_Default);
+
+	Mesh.RootMotionMode = RMM_Accel;	
 	Mesh.RootMotionAccelScale.X = attackChargeSpeedModifier;
 	Mesh.RootMotionAccelScale.Y = attackChargeSpeedModifier;
 	Mesh.RootMotionAccelScale.Z = attackChargeSpeedModifier;
+
 	GroundSpeed = chargeSpeed;
+	RotationRate = Rotator(vect(0,0,0));
 	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());
 
 	// Discard root motion. So mesh stays locked in place.
@@ -91,7 +95,8 @@ Attack:
 	// Tell mesh to stop using root motion
 	Mesh.RootMotionMode = RMM_Ignore;
 
-	GroundSpeed = default.GroundSpeed;	
+	GroundSpeed = default.GroundSpeed;
+	RotationRate = default.RotationRate;
 	Controller.GotoState('ChasePlayer');
 	GotoState('ChasePlayer');
 }
@@ -187,7 +192,7 @@ DefaultProperties
 	AttackDamage = 3;
 	ChargeDamage = 3;
 	chargeSpeed = 750;
-	attackChargeDistance = 600.0f;
+	attackChargeDistance = 500.0f;
 	attackChargeSpeedModifier = 1.0f;
 
 	//Name of diferent animations for playing in custom node
