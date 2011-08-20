@@ -2,7 +2,7 @@ class BBControllerAIRhinoMiniBoss extends BBControllerAI;
 
 var float attackChargeDistance;
 
-var vector attackChargeDirection;
+
 
 function SetPawn(BBEnemyPawn NewPawn){
 
@@ -127,55 +127,46 @@ state Charging{
 		if(IsWithinAttackChargeRange(thePlayer)){
 			MyEnemyTestPawn.GotoState('Charging','Attack');
 			ClearTimer('CheckChargeAttackRange');
-			attackChargeDirection = Pawn.Location + Normal(Vector(Pawn.Rotation))*attackChargeDistance;
 			GotoState('Charging','Attacking');
 		}
 	}
 
 Begin:
 
-	SetTimer(0.25f, true, 'CheckChargeAttackRange');
 	Target = thePlayer;
 	//Stop Pawn Movement
 	StopLatentExecution();
 	Pawn.Acceleration = vect(0,0,0);
+	//If in 5 seconds the target continues out of range, finish Charge
 	Sleep(5.0f);
-	GotoState('Idle');
+	MyEnemyTestPawn.GotoState('Charging','Attack');
+	ClearTimer('CheckChargeAttackRange');
+	GotoState('Charging','Attacking');
 
 Running:
-	CurrentTargetIsReachable = NavigationHandle.ActorReachable(Target);
-	if(CurrentTargetIsReachable){
-		Focus = Target;
-		if(Target != none)
-			MoveToward(Target, Target, attackChargeDistance);
-	}else{  //Actor is NOT directly reachable
-		Focus = Target;
-		//If path exists
-		if(NavigationHandle.GetNextMoveLocation( NextMoveLocation, Pawn.GetCollisionRadius())){
-			MoveTo(NextMoveLocation,Target);
-		}else{
-			`log(self @ "Can't find path to" @ Target);
-			GotoState('Idle');
+	SetTimer(0.25f, true, 'CheckChargeAttackRange');
+	while(true){
+		CurrentTargetIsReachable = NavigationHandle.ActorReachable(Target);
+		if(CurrentTargetIsReachable){
+			//Focus = Target;
+			if(Target != none)
+				MoveToward(Target, Target);
+		}else{  //Actor is NOT directly reachable
+			//Focus = Target;
+			//If path exists
+			if(NavigationHandle.GetNextMoveLocation( NextMoveLocation, Pawn.GetCollisionRadius())){
+				MoveTo(NextMoveLocation,Target);
+			}else{
+				`log(self @ "Can't find path to" @ Target);
+				GotoState('Idle');
+			}
 		}
-	}
-	goto 'Running';
+	}	
 
 Attacking:
 	Focus = none;
-	StopLatentExecution();
-	Pawn.Acceleration = vect(0,0,0);
-	//CurrentTargetIsReachable = NavigationHandle.PointReachable(attackChargeDirection);
-	//if(CurrentTargetIsReachable){
-	//	MoveTo(attackChargeDirection);
-	//}else{  //Actor is NOT directly reachable
-	//	//If path exists
-	//	if(NavigationHandle.GetNextMoveLocation( NextMoveLocation, Pawn.GetCollisionRadius())){
-	//		MoveTo(NextMoveLocation);
-	//	}else{
-	//		`log(self @ "Can't find path to" @ Target);
-	//	}
-	//}
-	//goto 'Attacking';
+	Target = none;
+	StopLatentExecution();	
 }
 
 state Attacking

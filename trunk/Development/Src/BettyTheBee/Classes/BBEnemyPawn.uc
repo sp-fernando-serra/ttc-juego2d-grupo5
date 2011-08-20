@@ -67,10 +67,10 @@ event Tick(float DeltaTime){
 	local Color col;
 
 	super.Tick(DeltaTime);
-	if(bDebug){
-		col.B=0.0f;
-		col.G=0.0f;
-		col.R=255.0f;
+	if(bDebug && !isDying() && !isDead()){
+		col.B=100.0f;
+		col.G=20.0f;
+		col.R=0.0f;
 		col.A=255.0f;
 
 		DrawDebugCone(Location,Vector(Rotation),SightRadius,(1-Square(PeripheralVision)),0.15,32,col,false);
@@ -114,11 +114,13 @@ state ChasePlayer{
 
 }
 
-//state Idle{
+function bool isDying(){
+	return IsInState('Dying');
+}
 
-//}
-
-function bool isDying();
+function bool isDead(){
+	return IsInState('Dead');
+}
 
 simulated state Dying{
 	simulated event BeginState(Name PreviousStateName)
