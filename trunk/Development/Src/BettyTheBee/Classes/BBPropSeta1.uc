@@ -1,8 +1,6 @@
 class BBPropSeta1 extends BBProp placeable
 	classGroup(BBActor);
 
-
-var () SkeletalMeshComponent Mesh;
 var BBBettyPawn tempPawn;
 /** Amount to jump in a mushroom jump. Default in pawn is 1350.0f */
 var () float mushroomJumpZ<DisplayName=Mushroom Jump Z>;

@@ -221,6 +221,7 @@ state Chaseplayer{
 	}
 	event BeginState(name PreviousStateName){
 		super.BeginState(PreviousStateName);
+		BBEnemyPawn(Pawn).playParticlesExclamacion();
 		SetTimer(0.5,true,'CheckVisibility');
 	}
 

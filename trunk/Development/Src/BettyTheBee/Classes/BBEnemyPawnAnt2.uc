@@ -12,16 +12,14 @@ simulated function PostBeginPlay()
     
 }
 
-simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
-{
-	super.PostInitAnimTree(SkelComp);
-	if (SkelComp == Mesh)
-	{
-		//Name of diferent animations for playing in custom node (esta aqui porque en defaultProperties no funciona)
-		attackAnimName = 'Ant_attack_seq';
-		dyingAnimName = 'Ant_iddle_seq';
-	}
-}
+//simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
+//{
+//	super.PostInitAnimTree(SkelComp);
+//	if (SkelComp == Mesh)
+//	{
+		
+//	}
+//}
 
 state Attacking{
 
@@ -90,4 +88,8 @@ DefaultProperties
 	PerceptionDistance = 1500;
 	AttackDistance = 40;
 	AttackDamage = 1;
+
+	//Name of diferent animations for playing in custom node (esta aqui porque en defaultProperties no funciona)
+	attackAnimName = "Ant_Attack_2_seq";
+	dyingAnimName = "Ant_iddle_seq";
 }

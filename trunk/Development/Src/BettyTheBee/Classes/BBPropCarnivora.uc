@@ -2,8 +2,6 @@ class BBPropCarnivora extends BBProp placeable
 	classGroup(BBActor);
 
 
-var SkeletalMeshComponent Mesh;
-
 /** AnimNode used to play custom anims */
 var AnimNodePlayCustomAnim customAnimSlot;
 

@@ -107,7 +107,7 @@ function stopPariclesFijado(){
 }
 
 function playParticlesExclamacion(){
-  Exclamacion_PSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(Exclamacion_PS,Mesh,'exclamacion',true);
+	Exclamacion_PSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(Exclamacion_PS,Mesh,'exclamacion',true);
 }
 
 state ChasePlayer{

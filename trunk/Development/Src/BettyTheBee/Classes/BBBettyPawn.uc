@@ -3,6 +3,10 @@ class BBBettyPawn extends BBPawn;
 var int itemsMiel;//contador de items 'Mel'
 
 var bool bIsRolling;
+var bool bIsInvulnerable;
+
+var float invulnerableTime;
+var float invulnerableMaxTime;
 
 /** Speed whe rolling = 
  *  NormalSpeed * RollingSpeedModifier
@@ -43,6 +47,9 @@ var				float	StartDeathAnimTime;
 var				class<BBDamageType> DeathAnimDamageType;
 /** Time that we took damage of type DeathAnimDamageType. */
 var				float	TimeLastTookDeathAnimDamage;
+
+var MaterialInterface DefaultMaterial;
+var MaterialInterface DamageMaterial;
 
 const ROLL_LEFT = 0;
 const ROLL_RIGHT = 1;
@@ -147,6 +154,12 @@ simulated function name GetDefaultCameraMode(PlayerController RequestedBy)
 
 event Tick(float DeltaTime){
 	//if(bIsRolling) SetPhysics(PHYS_Walking);
+	if(isInvulnerable()){
+		invulnerableTime -= DeltaTime;
+		if(invulnerableTime <= 0){
+			SetInvulnerable(false);
+		}
+	}
 }
 
 //event PostBeginPlay()
@@ -291,6 +304,20 @@ function bool isRolling(){
 	return bIsRolling;
 }
 
+function bool isInvulnerable(){
+	return bIsInvulnerable;
+}
+
+function SetInvulnerable(bool flag){
+	if(flag){		
+		Mesh.SetMaterial(0,DamageMaterial);
+		invulnerableTime = invulnerableMaxTime;
+	}else{
+		Mesh.SetMaterial(0,DefaultMaterial);
+	}
+	bIsInvulnerable = flag;
+}
+
 simulated function prepareJump(bool bUpdating){
 	if(!bPreparingJump && Physics != PHYS_Falling){
 		bPreparingJump = true;
@@ -370,6 +397,7 @@ event Landed(vector HitNormal, actor FloorActor)
 	local vector Impulse;
 
 	Super.Landed(HitNormal, FloorActor);
+
 
 	// adds impulses to vehicles and dynamicSMActors (e.g. KActors)
 	Impulse.Z = Velocity.Z * 4.0f; // 4.0f works well for landing on a Scorpion
@@ -595,8 +623,29 @@ function AnimNodeSequence getAttackAnimNode()
 }
 
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
-	super.TakeDamage(Damage, InstigatedBy, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
-	Worldinfo.Game.Broadcast(self,Name$": "$Damage$ " done by "$DamageCauser.Name $ " Life: "$Health);
+	
+	if(!isInvulnerable()){
+		super.TakeDamage(Damage, InstigatedBy, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
+		SetInvulnerable(true);
+		ZeroMovementVariables();
+		Worldinfo.Game.Broadcast(self,Name$": "$Damage$ " done by "$DamageCauser.Name $ " Life: "$Health);
+	}
+}
+
+function PlayHit(float Damage, Controller InstigatedBy, vector HitLocation, class<DamageType> MyDamageType, vector Momentum, TraceHitInfo HitInfo){
+	local class<BBDamageType> MyBBDamageType;
+
+	super.PlayHit(Damage,InstigatedBy,HitLocation,MyDamageType,Momentum, HitInfo);
+
+	MyBBDamageType = class<BBDamageType>(MyDamageType);
+
+	if(MyBBDamageType != none && MyBBDamageType.default.HitAnim != ''){
+		if(!fullBodySlot.bIsPlayingCustomAnim && !upperBodySlot.bIsPlayingCustomAnim){
+			fullBodySlot.PlayCustomAnim(MyBBDamageType.default.HitAnim,MyBBDamageType.default.HitAnimRate,0.1,0.1,false,true);
+		}
+	}
+
+	
 }
 
 /** Function called by Died(). Used to play death anim
@@ -802,6 +851,7 @@ Begin:
 	//FinishAnim(slideAnimNames[SLIDING_START]);
 	FinishAnim(fullBodySlot.GetCustomAnimNodeSeq());
 	fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING],1.0f,0.0f,0.0f,true);
+
 }
 
 DefaultProperties
@@ -842,6 +892,9 @@ DefaultProperties
 
 	GroundSpeed = 400.0f;
 
+	//Default +02048.000000
+	//AccelRate = 64.0f
+
 	AirSpeed = 1200.0f;
 
 	//Default is 420
@@ -878,6 +931,11 @@ DefaultProperties
 	//aquets parametres no me mirat perque funcionen
 	RotationRate=(Pitch=20000,Yaw=20000,Roll=20000)
 	MaxPitchLimit=3072
+
+	DefaultMaterial = Material'Betty_Player.Materials.Betty_texture_Mat';
+	DamageMaterial = Material'Betty_Player.Materials.Betty_translucent_Mat';
+
+	invulnerableMaxTime = 3.0f;
 
 
 	EquipSwordCue=SoundCue'Betty_Sounds.SoundCues.EquippingSword01_Cue';

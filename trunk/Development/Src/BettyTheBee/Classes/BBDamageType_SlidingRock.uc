@@ -1,4 +1,4 @@
-class BBDamageType_EnemyPawn extends BBDamageType;
+class BBDamageType_SlidingRock extends BBDamageType;
 
 DefaultProperties
 {
@@ -10,3 +10,4 @@ DefaultProperties
 	HitAnimRate = 1.0f;
 	hitStopTime = 0.3f;
 }
+

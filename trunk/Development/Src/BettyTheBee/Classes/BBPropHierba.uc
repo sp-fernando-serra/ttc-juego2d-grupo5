@@ -1,6 +1,5 @@
 class BBPropHierba extends BBProp placeable classGroup(BBActor);
 
-var SkeletalMeshComponent Mesh;
 var BBBettyPawn tempPawn;
 var Vector PawnLocation;
 var float distance;
