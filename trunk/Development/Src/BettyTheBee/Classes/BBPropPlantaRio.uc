@@ -1,6 +1,6 @@
 class BBPropPlantaRio extends BBProp placeable classGroup(BBActor);
 
-var SkeletalMeshComponent Mesh;
+//var SkeletalMeshComponent Mesh;
 var BBBettyPawn tempPawn;
 var Vector PawnLocation;
 var float distance;
