@@ -1,4 +1,4 @@
-class SlideVolume extends TriggerVolume placeable classGroup(BBActor);
+class BBSlideVolume extends TriggerVolume placeable classGroup(BBActor);
 
 var BBBettyPawn tempPawn;
 
