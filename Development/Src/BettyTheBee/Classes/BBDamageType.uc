@@ -11,6 +11,17 @@ var(DeathAnim)	float	StopAnimAfterDamageInterval;
 
 /***********************************/
 
+/************** HIT *********/
+
+/** Name of animation to play upon death. */
+var(Hit)	name	HitAnim;
+/** How fast to play the death animation */
+var(Hit)	float	HitAnimRate;
+/** When get hitted the pawn stops his movement "hitStopTime" seconds */
+var(Hit)    float HitStopTime;
+
+/***********************************/
+
 /** NO IMPLEMENTADO!!!  camera anim played instead of the default damage shake when taking this type of damage */
 var CameraAnim DamageCameraAnim;
 

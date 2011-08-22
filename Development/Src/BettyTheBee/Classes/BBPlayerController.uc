@@ -50,6 +50,10 @@ var int costGrenade;
 /** Used for deactivate emitter when frenesi finishes */
 var array<ParticleSystemComponent> frenesiPSCS;
 
+/** Shows when the pawn is Stopped by an enemy hit */
+var bool bStoppedByHit;
+/** When get hitted the pawn stops his movement "hitStopTime" seconds */
+var float hitStopTime;
 
 var	SoundCue HealSound;
 var SoundCue FrenesiSound;
@@ -331,10 +335,6 @@ exec function EButtonDown(){
 exec function GetVida(){
 	
 	if(canUseHeal()){
-		//SOLO PARA PODER USAR HEAL SIEMPRE. QUITAR AL TERMINAR DE DEBUGAR
-		if(Pawn.Health == Pawn.HealthMax){
-			Pawn.TakeDamage(1,self,vect(0,0,0),vect(0,0,0),HealDamageType,,Pawn);
-		}
 		//Returns true only if healing has been sucessfull
 		if(Pawn.HealDamage(amountHealed,self,HealDamageType)){
 			BBBettyPawn(Pawn).itemsMiel -= costHeal;
@@ -682,6 +682,17 @@ function CheckJumpOrDuck()
 	//}
 }
 
+function NotifyTakeHit(Controller InstigatedBy, Vector HitLocation, int Damage, class<DamageType> myDamageType, Vector Momentum){
+	local class<BBDamageType> myBBDamageType;
+
+	myBBDamageType = class<BBDamageType>(MyDamageType);
+
+	if(myBBDamageType.default.hitStopTime > 0.0){
+		bStoppedByHit = true;
+		hitStopTime = myBBDamageType.default.hitStopTime;
+	}
+}
+
 event PlayerTick(float DeltaTime){
 	local int i;
 	super.PlayerTick(DeltaTime);
@@ -707,7 +718,15 @@ event PlayerTick(float DeltaTime){
 		ResetPPSettings(Pawn);
 		Pawn.MovementSpeedModifier = 1.0f;
 		//WorldInfo.Game.SetGameSpeed(1.0f);
-	}	
+	}
+
+	if(bStoppedByHit){
+		hitStopTime -= DeltaTime;
+		Pawn.ZeroMovementVariables();
+		if(hitStopTime <=0){
+			bStoppedByHit = false;
+		}
+	}
 }
 
 
