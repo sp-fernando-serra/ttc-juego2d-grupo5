@@ -1,7 +1,7 @@
 class BBPlayerController extends UDKPlayerController;
 
 var bool bBettyMovement;
-var float speed, sideSpeed, backSpeed;
+var float speed, sideSpeed, backSpeed, slideSpeed;
 var BBEnemyPawn targetedPawn;
 var bool bCombatStance;
 
@@ -187,7 +187,7 @@ exec function StopFire( optional byte FireModeNum )
 exec function LockOn()
 {
 
-	// local Actor HitActor;
+  //local Actor HitActor;
   //local Vector HitLocation, HitNormal, EyeLocation;
   //local Rotator EyeRotation;
 
@@ -211,6 +211,9 @@ exec function LockOn()
  //     Vect(1.f, 1.f, 1.f),, 
  //      TRACEFLAG_PhysicsVolumes
  //   )
+if (!bSliding)
+{
+
 	foreach WorldInfo.AllPawns( class 'BBEnemyPawn', A , BBBettyPawn(Pawn).Location, radioLockon)
 	{
 		if(!A.bPlayedDeath){
@@ -243,6 +246,7 @@ exec function LockOn()
 		
 	}
 
+
 		
 	if(array_enemigos.length>0){
 		TargetedPawn=array_enemigos[0];	
@@ -259,16 +263,22 @@ exec function LockOn()
 
 }
 
+}
+
 
 //BOTON DERECHO RATON (UP)
 exec function LockOff()
 {
+	if (!bSliding)
+	{
+
 	if(TargetedPawn != none){
 		array_enemigos.Remove(0,array_enemigos.length);
 		TargetedPawn.stopPariclesFijado();
 		TargetedPawn=none;
 	}
 	gotostate('PlayerWalking');
+	}
 }
 
 
@@ -613,7 +623,7 @@ function AnimNodeSequence getActiveAnimNode()
 
 function bool canAttack(){
 
-	if(Pawn.Physics != PHYS_Falling && !IsInState('Grenade_Attack')) return true;	
+	if(Pawn.Physics != PHYS_Falling && !IsInState('Grenade_Attack') && !bSliding) return true;	
 	return false;
 }
 
@@ -624,14 +634,14 @@ function bool canCombo()
 	tempPawn = BBBettyPawn(Pawn);
 	if(tempPawn!=None)
 	{
-		if(tempPawn.canStartCombo() && IsInState('Sword_Attack') && Pawn.Physics != PHYS_Falling) return true;
+		if(tempPawn.canStartCombo() && IsInState('Sword_Attack') && Pawn.Physics != PHYS_Falling  && !bSliding) return true;
 	}
 	return false;
 }
 
 simulated function bool canThrowGrenade(){
 	
-	if(reactivateTime[HN_Grenade] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costGrenade) return true;
+	if(reactivateTime[HN_Grenade] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costGrenade  && !bSliding) return true;
 	else return false;
 }
 
@@ -646,7 +656,7 @@ simulated function bool canUseFrenesi(){
 }
 
 simulated function bool canUseRoll(){
-	if(broll && reactivateTime[HN_Roll] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && Pawn.Physics != PHYS_Falling) return true;
+	if(broll && reactivateTime[HN_Roll] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && Pawn.Physics != PHYS_Falling  && !bSliding) return true;
 	else return false;
 }
 
@@ -862,20 +872,22 @@ State PlayerSlide{
 			GotoState('Dead');
 		}
 		else
-		{			
+		{
+			speed=slideSpeed;
 			if (PlayerInput.aForward > 0){
-				pawn.GroundSpeed = 2*speed;
+				pawn.GroundSpeed = slideSpeed*1.5;
 			}
 			else if (PlayerInput.aForward <=0 && PlayerInput.aStrafe!=0)
-				pawn.GroundSpeed = sideSpeed;
+			Pawn.GroundSpeed = slideSpeed;
 			else 
-				pawn.GroundSpeed = backSpeed;
+				pawn.GroundSpeed = slideSpeed*0.8;
 			
 			GetAxes(Pawn.Rotation,X,Y,Z);
 
 			//NewAccel = PlayerInput.aForward*X + PlayerInput.aStrafe*Y;
 			NewAccel.Z	= 0;
-			NewAccel = X*1 +  PlayerInput.aStrafe*Y;
+
+			NewAccel = X*1935.502686 +  PlayerInput.aStrafe*Y;
 			NewAccel = Pawn.AccelRate * Normal(NewAccel);
 
 			DoubleClickMove = PlayerInput.CheckForDoubleClickMove( DeltaTime/WorldInfo.TimeDilation );
@@ -1002,6 +1014,7 @@ event BeginState(Name PreviousStateName)
 	event EndState(Name NextStateName)
 	{
 		super.EndState(NextStateName);
+		Pawn.GotoState('idle');
 		//BBBettyPawn(Pawn).slide(2);
 	}
 
@@ -1175,6 +1188,7 @@ DefaultProperties
 	speed = 400;
 	sideSpeed = 300;
 	backSpeed = 250;
+	slideSpeed = 600;
 
 	radioLockon=1000.0;
 
