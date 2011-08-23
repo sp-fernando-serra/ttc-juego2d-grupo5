@@ -131,10 +131,19 @@ function TickHUD()
 }
 
 function ASvida(String texto1)
-//function ASvariables(String texto1)
 {
-     //`log("sendind information to flash with the slots availables");
      ActionScriptVoid("vida");
+}
+
+
+function texto_ayuda(String texto1, int tamany)
+{
+     ActionScriptVoid("ayuda_texto");
+}
+
+function texto_ayudaOFF()
+{
+     ActionScriptVoid("ayuda_textoOFF");
 }
 
 

@@ -46,6 +46,16 @@ function ASvida(String texto1){
 HudMovie.ASvida(texto1);
 }
 
+function texto_ayuda(String texto1, int tamany)
+{
+    HudMovie.texto_ayuda(texto1,tamany);
+}
+
+function texto_ayudaOFF()
+{
+    HudMovie.texto_ayudaOFF();
+}
+
 DefaultProperties
 {
 }
