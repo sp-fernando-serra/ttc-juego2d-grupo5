@@ -156,6 +156,7 @@ exec function GetGrenade(){
 //BOTON IZQUIERDO RATON (DOWN)
 exec function StartFire( optional byte FireModeNum )
 {	
+	BBHUD(myHUD).texto_ayuda("akjsk klkkkk!!!", 500);
 	//if ( BBBettyPawn(Pawn) != None && !bCinematicMode && !WorldInfo.bPlayersOnly )
 	//{
 	//	if( BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponSword'){			
@@ -199,7 +200,7 @@ exec function LockOn()
 	local BBEnemyPawn A;//,B;
 	local int i;
 
-	
+	BBHUD(myHUD).texto_ayudaOFF();
 	//foreach   VisibleActors(class 'BBEnemyPawn', A , radioLockon)	
 	//GetPlayerViewPoint(EyeLocation, EyeRotation);
 
