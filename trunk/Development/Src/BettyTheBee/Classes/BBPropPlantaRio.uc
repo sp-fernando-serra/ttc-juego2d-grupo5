@@ -1,23 +1,10 @@
 class BBPropPlantaRio extends BBProp placeable classGroup(BBActor);
 
-//var SkeletalMeshComponent Mesh;
 var BBBettyPawn tempPawn;
 var Vector PawnLocation;
 var float distance;
 
 var name windAnimName;
-
-simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
-{
-	super.PostInitAnimTree(SkelComp);
-	windAnimName = 'wind';	
-
-	//foreach AllActors( class 'BBBettyPawn', tempPawn )
-	//{
-    //// hace que tempPawn= Betty
-	//}
-
-}
 
 state movedByPlayer
 {
@@ -117,5 +104,7 @@ DefaultProperties
 	CollisionType = COLLIDE_BlockAll
 	bStatic = False
 	bMovable = false
+
+	windAnimName = "wind";
 
 }
