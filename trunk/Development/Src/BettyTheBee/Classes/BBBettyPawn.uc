@@ -74,9 +74,16 @@ var ParticleSystem FrenesiPS;
 /** ParticleSystem used in Frenesi hability */
 var ParticleSystem Frenesi2PS;
 
+/**ParticleSystem used in footsteps*/
+var ParticleSystem FootstepPS;
+
 //Sounds
 /** Sound for equipping the Sword */
 var SoundCue EquipSwordCue;
+/** Sound for left footstep */
+var SoundCue LeftFootStepCue;
+/** Sound for right footstep */
+var SoundCue RightFootStepCue;
 
 var() SkeletalMeshComponent grenadeMesh;
 
@@ -262,7 +269,7 @@ function  animRollRight(){
 	Mesh.RootMotionAccelScale.Y = RollingSpeedModifier;
 	Mesh.RootMotionAccelScale.Z = RollingSpeedModifier;
 }
-function  slide(float i){
+function slide(float i){
 	
 	//bSliding=true;
 	if(i==0){
@@ -632,6 +639,27 @@ event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector
 	}
 }
 
+/**
+ * PlayFootStepSound()
+ * called by AnimNotify_Footstep
+ *
+ * FootDown specifies which foot hit
+ */
+event PlayFootStepSound(int FootDown){
+	local Vector socketLocation;
+	local Rotator socketRotation;
+	if(FootDown == 0){  //Left Footstep
+		PlaySound(LeftFootStepCue);
+		Mesh.GetSocketWorldLocationAndRotation('FootRight',socketLocation, socketRotation);
+		WorldInfo.MyEmitterPool.SpawnEmitter(FootstepPS, socketLocation);
+	}else{              //Right Footstep
+		PlaySound(RightFootStepCue);
+		Mesh.GetSocketWorldLocationAndRotation('FootLeft',socketLocation, socketRotation);
+		WorldInfo.MyEmitterPool.SpawnEmitter(FootstepPS, socketLocation);
+	}
+	MakeNoise(1.0);
+}
+
 function PlayHit(float Damage, Controller InstigatedBy, vector HitLocation, class<DamageType> MyDamageType, vector Momentum, TraceHitInfo HitInfo){
 	local class<BBDamageType> MyBBDamageType;
 
@@ -890,6 +918,8 @@ DefaultProperties
 	FrenesiPS = ParticleSystem'Betty_Player.Particles.Frenesi_PS'
 	Frenesi2PS = ParticleSystem'Betty_Player.Particles.Frenesi2_PS'
 
+	FootstepPS = ParticleSystem'Betty_Particles.PSWalkingGround'
+
 	GroundSpeed = 400.0f;
 
 	//Default +02048.000000
@@ -939,6 +969,8 @@ DefaultProperties
 
 
 	EquipSwordCue=SoundCue'Betty_Sounds.SoundCues.EquippingSword01_Cue';
+	RightFootStepCue=SoundCue'Betty_Sounds.SoundCues.Footstep02_Cue'
+	LeftFootStepCue=SoundCue'Betty_Sounds.SoundCues.Footstep02b_Cue'
 	
 	Begin Object Class=SkeletalMeshComponent Name=grenade
 	SkeletalMesh=SkeletalMesh'Betty_Player.SkModels.GrenadeSk'

@@ -8,6 +8,8 @@ var float Speed;
 
 /** Distance to see player */
 var () float PerceptionDistance<DisplayName=Perception Distance>;
+/** Radius to determine wich pawns alert of Player presence */
+var () float alertRadius<DisplayName=Alertness Radius>;
 /** Attack distance */
 var () float AttackDistance<DisplayName=Attack Distance>;
 /** Float between 0.0 and 1.0 used to determine the percentage of attackDistance to start attacking.
@@ -72,8 +74,12 @@ event Tick(float DeltaTime){
 		col.G=20.0f;
 		col.R=0.0f;
 		col.A=255.0f;
-
+		//Blue cone is vision
 		DrawDebugCone(Location,Vector(Rotation),SightRadius,(1-Square(PeripheralVision)),0.15,32,col,false);
+		//Green sphere attack range
+		DrawDebugSphere(Location,AttackDistance,16,0.0,100.0,25.0,false);
+		//Light blue sphere hearing range
+		DrawDebugSphere(Location,HearingThreshold,16,0.0,100.0,150.0,false);
 	}
 }
 
@@ -157,6 +163,13 @@ defaultproperties
 
 	//PeripheralVision is Cos of desired vision angle cos(45) = 0.707106
 	PeripheralVision = 0.707106;
+
+	alertRadius = +800.0
+	
+	//Pawn can hear through walls
+	bMuffledHearing = false
+	//Max distance to hear a 1.0 noise
+	HearingThreshold = +600.0
 
 	RotationRate=(Pitch=40000,Yaw=40000,Roll=20000)
 
