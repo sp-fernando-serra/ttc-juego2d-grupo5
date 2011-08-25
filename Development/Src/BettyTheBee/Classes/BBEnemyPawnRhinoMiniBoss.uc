@@ -16,17 +16,10 @@ var name chargeRunAnimName;
 var name chargeAttackAnimName;
 
 event Tick(float DeltaTime){
-	local Color col;
-
 	super.Tick(DeltaTime);
 	if(bDebug && !isDying() && !isDead()){
-		col.B=0.0f;
-		col.G=0.0f;
-		col.R=100.0f;
-		col.A=255.0f;
-
-		DrawDebugSphere(Location,attackChargeDistance,16,col.R,col.G,col.B,false);
-		DrawDebugSphere(Location,AttackDistance,16,0.0,100.0,25.0,false);
+		//Red sphere is attackcharge range
+		DrawDebugSphere(Location,attackChargeDistance,16,100.0,0.0,0.0,false);
 	}
 }
 

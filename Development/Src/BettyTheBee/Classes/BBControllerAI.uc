@@ -14,6 +14,10 @@ var int attackDamage;
 
 var float distanceToPlayer;
 var Vector lastLocation;
+/** Bool to know if this pawn has seen/heard the player or other pawn alerted this of player's presence */
+var bool bAlertedByOtherPawn;
+/** Radius to determine wich pawns alert of Player presence */
+var float alertRadius;
 
 
 var bool followingPath;
@@ -49,6 +53,7 @@ function SetPawn(BBEnemyPawn NewPawn){
 	AttackDistance = MyEnemyTestPawn.AttackDistance;
 	attackDistanceFactor = MyEnemyTestPawn.AttackDistanceFactor;
 	PerceptionDistance = MyEnemyTestPawn.PerceptionDistance;
+	alertRadius = MyEnemyTestPawn.alertRadius;
 	
 }
 
@@ -159,6 +164,8 @@ function CheckDirectReachability()
 }
 
 event SeePlayer(Pawn SeenPlayer){
+	local BBEnemyPawn pawnToAlert;
+	
 	if(bAggressive){
 		StopLatentExecution();
 		thePlayer = BBPawn(SeenPlayer);
@@ -168,7 +175,25 @@ event SeePlayer(Pawn SeenPlayer){
         	Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": I can see you!! (followpath)");
 			GotoState('Chaseplayer');
 		}
+		if(!bAlertedByOtherPawn){
+			foreach VisibleActors(class'BBEnemyPawn', pawnToAlert, alertRadius, Pawn.Location){
+				BBControllerAI(pawnToAlert.Controller).alertPawnPresence(SeenPlayer);
+			}
+		}
+		bAlertedByOtherPawn = false;
 	}
+}
+
+
+event HearNoise( float Loudness, Actor NoiseMaker, optional Name NoiseType ){
+	if(BBBettyPawn(NoiseMaker) != none){
+		SeePlayer(BBBettyPawn(NoiseMaker));
+	}
+}
+
+function alertPawnPresence(Pawn SeenPlayer){
+	bAlertedByOtherPawn = true;
+	SeePlayer(SeenPlayer);
 }
 
 
@@ -221,7 +246,8 @@ state Chaseplayer{
 	}
 	event BeginState(name PreviousStateName){
 		super.BeginState(PreviousStateName);
-		BBEnemyPawn(Pawn).playParticlesExclamacion();
+		if(PreviousStateName != 'Attacking')
+			BBEnemyPawn(Pawn).playParticlesExclamacion();
 		SetTimer(0.5,true,'CheckVisibility');
 	}
 
