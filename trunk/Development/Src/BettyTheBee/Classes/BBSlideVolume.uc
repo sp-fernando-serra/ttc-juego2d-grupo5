@@ -12,6 +12,8 @@ state playerInside
 	event UnTouch( Actor Other )
 	{
 		gotoState('idle');
+		tempPawn.GotoState('idle');
+		tempPawn.Controller.GotoState('PlayerWalking');
 	}
 
 	event BeginState(Name PreviousStateName)
@@ -24,7 +26,8 @@ state playerInside
 	event EndState(Name NextStateName)
 	{
 		super.EndState(NextStateName);
-		tempPawn.Controller.GotoState('idle');
+		tempPawn.GotoState('idle');
+		tempPawn.Controller.GotoState('PlayerWalking');
 	}
 
 Begin:
