@@ -269,25 +269,6 @@ function  animRollRight(){
 	Mesh.RootMotionAccelScale.Y = RollingSpeedModifier;
 	Mesh.RootMotionAccelScale.Z = RollingSpeedModifier;
 }
-function slide(float i){
-	
-	//bSliding=true;
-	if(i==0){
-		fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING_START],1.0f,0.0f,0.0f);
-	}
-	if(i==1){
-		fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING],1.0f,0.0f,0.0f,true);
-
-	}
-	if(i==2){
-		fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING_END],1.0f,0.0f,0.0f);
-	}
-	//fullBodySlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Translate,RBA_Translate,RBA_Default);
-	//Mesh.RootMotionMode = RMM_Accel;
-	//Mesh.RootMotionAccelScale.X = RollingSpeedModifier;
-	//Mesh.RootMotionAccelScale.Y = RollingSpeedModifier;
-	//Mesh.RootMotionAccelScale.Z = RollingSpeedModifier;
-}
 
 //Only used with RMM_Translate
 //simulated event RootMotionModeChanged(SkeletalMeshComponent SkelComp)
