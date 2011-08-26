@@ -9,11 +9,17 @@ var() float attackChargeSpeedModifier;
 
 var() float attackDistanceNear;
 
+/** Time stunned after hitwall collision */
+var() float timeStunned;
+
 var AnimNodeBlendList animStateList;
 
 var name chargePrepareAnimName;
 var name chargeRunAnimName;
 var name chargeAttackAnimName;
+var name chargeHitWallAnimName;
+var name chargeStunnedAnimName;
+var name chargeAwakeAnimName;
 
 event Tick(float DeltaTime){
 	super.Tick(DeltaTime);
@@ -45,6 +51,8 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 	}
 }
 
+
+
 state ChasePlayer{
 	simulated event BeginState(name NextStateName){		
 		super.BeginState(NextStateName);
@@ -60,6 +68,23 @@ state ChasePlayer{
 }
 
 state Charging{
+
+	simulated event EndState(name NextStateName){
+		super.EndState(NextStateName);
+		// Discard root motion. So mesh stays locked in place.
+		// We need this to properly blend out to another animation
+		customAnimSlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Discard,RBA_Discard,RBA_Discard);
+		// Tell mesh to stop using root motion
+		Mesh.RootMotionMode = RMM_Ignore;
+
+		GroundSpeed = default.GroundSpeed;
+		RotationRate = default.RotationRate;
+	}
+
+	event HitWall( vector HitNormal, actor Wall, PrimitiveComponent WallComp ){
+		super.HitWall(HitNormal, Wall, WallComp);
+		GotoState('Stunned');
+	}
 	
 Begin:
 	customAnimSlot.PlayCustomAnim(chargePrepareAnimName,1.0f,0.25,0.25,false,true);
@@ -71,7 +96,7 @@ Running:
 	Sleep(4.0f);
 Attack:
 	customAnimSlot.PlayCustomAnim(chargeAttackAnimName,1.5f,0.25,0.25,false,true);
-	customAnimSlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Translate,RBA_Discard,RBA_Default);
+	customAnimSlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Translate,RBA_Translate,RBA_Default);
 
 	Mesh.RootMotionMode = RMM_Accel;	
 	Mesh.RootMotionAccelScale.X = attackChargeSpeedModifier;
@@ -82,16 +107,37 @@ Attack:
 	RotationRate = Rotator(vect(0,0,0));
 	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());
 
+	
+	Controller.GotoState('ChasePlayer');
+	GotoState('ChasePlayer');
+}
+
+state Stunned{
+	simulated event BeginState(name NextStateName){		
+		super.BeginState(NextStateName);
+		Controller.GotoState('Stunned');
+		customAnimSlot.PlayCustomAnim(chargeHitWallAnimName,1.0f,0.25f,0.0f,false,true);
+		customAnimSlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Translate,RBA_Translate,RBA_Default);
+
+		Mesh.RootMotionMode = RMM_Translate;
+	}
+
+Begin:
+	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());
+	
 	// Discard root motion. So mesh stays locked in place.
 	// We need this to properly blend out to another animation
 	customAnimSlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Discard,RBA_Discard,RBA_Discard);
 	// Tell mesh to stop using root motion
 	Mesh.RootMotionMode = RMM_Ignore;
 
-	GroundSpeed = default.GroundSpeed;
-	RotationRate = default.RotationRate;
+	customAnimSlot.PlayCustomAnim(chargeStunnedAnimName, 1.0f, 0.0f, 0.0f, true, true);
+	Sleep(timeStunned);
+	customAnimSlot.PlayCustomAnim(chargeAwakeAnimName, 1.0f, 0.0f, 0.0f, false, true);
+	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());	
+
 	Controller.GotoState('ChasePlayer');
-	GotoState('ChasePlayer');
+	GotoState('');
 }
 
 state Attacking{
@@ -188,6 +234,8 @@ DefaultProperties
 	attackChargeDistance = 500.0f;
 	attackChargeSpeedModifier = 1.0f;
 
+	timeStunned = 3.0f;
+
 	//Name of diferent animations for playing in custom node
 	attackAnimName = "Attack";
 	dyingAnimName = "Dead";
@@ -195,5 +243,8 @@ DefaultProperties
 	chargePrepareAnimName = "charge0_prepare";
 	chargeRunAnimName = "charge1_run";
 	chargeAttackAnimName = "charge2_attack_move";
+	chargeHitWallAnimName = "charge3_stepback";
+	chargeStunnedAnimName = "charge4_stun";
+	chargeAwakeAnimName = "charge5_awake";
 
 }

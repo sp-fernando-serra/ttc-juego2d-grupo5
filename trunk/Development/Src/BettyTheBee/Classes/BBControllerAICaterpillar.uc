@@ -9,14 +9,6 @@ var float timeBetweenShots;
  */
 var float randomTimeBetweenShots;
 
-var float orientation, orientation2;
-var float  angle_degrees;
-var Vector lateral;
-
-DefaultProperties
-{
-}
-
 function SetPawn(BBEnemyPawn NewPawn){
 	super.SetPawn(NewPawn);
 	if(BBEnemyPawnCaterpillar(NewPawn) == none){
@@ -27,40 +19,51 @@ function SetPawn(BBEnemyPawn NewPawn){
 	}
 }
 
-state Attacking
-{
-
- Begin:
-	Pawn.Acceleration = vect(0,0,0);
-	MyEnemyTestPawn.GotoState('Attacking');
-
+event SeePlayer(Pawn SeenPlayer){
+	local BBEnemyPawn pawnToAlert;
 	
+	if(bAggressive){
+		StopLatentExecution();
+		thePlayer = BBPawn(SeenPlayer);
+		distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
+		if (distanceToPlayer < attackDistance)
+		{ 
+        	//Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": I can see you!! (followpath)");
+			GotoState('Attacking');
+		}
+		if(!bAlertedByOtherPawn){
+			foreach VisibleActors(class'BBEnemyPawn', pawnToAlert, alertRadius, Pawn.Location){
+				BBControllerAI(pawnToAlert.Controller).alertPawnPresence(SeenPlayer);
+			}
+		}
+		bAlertedByOtherPawn = false;
+	}
+}
+
+state Attacking{
+
+	ignores SeePlayer, HearNoise;
+ Begin:
+	Pawn.ZeroMovementVariables();
+	MyEnemyTestPawn.GotoState('Attacking');	
 
 	while(thePlayer.Health > 0)
 	{   				
-		angle_degrees = Acos(thePlayer.Location dot Pawn.Location) * 180/pi;
-		distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
-		orientation = Vector(Pawn.GetViewRotation()) dot Normal(thePlayer.Location - Pawn.Location);
-
-
-		lateral=vector(Pawn.GetViewRotation());
-		// Rotate 90 degrees in XZ, I'm going to assume (probably wrongly) that this lateral vector will point to the left of the facing, but it COULD be facing to the right
-		// in which case the answers below are the wrong way round...
-		lateral=lateral cross vect(0,0,1);
- 
-		orientation2 = lateral dot Normal(thePlayer.Location - Pawn.Location);
-		  // > 0.0  A sits to the left of B
-		  // = 0.0  A is in front of/behind B (exactly 90° between A and B)
-		  // < 0.0  A sits to the right of B
+		distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);		
 				
-        if (distanceToPlayer > attackDistance || orientation < 0)            
+        if (distanceToPlayer > attackDistance )            
         { 
-			MyEnemyTestPawn.GotoState('ChasePlayer');
-            GotoState('Chaseplayer');
+			MyEnemyTestPawn.GotoState('');
+            GotoState('Idle');
 			break;
         }
 		Sleep(1);
 	}
-	MyEnemyTestPawn.GotoState('Idle');
+	MyEnemyTestPawn.GotoState('');
 	GotoState('Idle');
+}
+
+
+DefaultProperties
+{
 }

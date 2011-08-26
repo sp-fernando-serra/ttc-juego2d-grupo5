@@ -922,6 +922,7 @@ DefaultProperties
 	DoubleJumpThreshold=320.0
 
 	CustomGravityScaling = 2.5
+	//Buoyancy = 1.0
 
 
 	Health = 5;
@@ -946,7 +947,7 @@ DefaultProperties
 	DefaultMaterial = Material'Betty_Player.Materials.Betty_texture_Mat';
 	DamageMaterial = Material'Betty_Player.Materials.Betty_translucent_Mat';
 
-	invulnerableMaxTime = 3.0f;
+	invulnerableMaxTime = 1.5f;
 
 
 	EquipSwordCue=SoundCue'Betty_Sounds.SoundCues.EquippingSword01_Cue';
