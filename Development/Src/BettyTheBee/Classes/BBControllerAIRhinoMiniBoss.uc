@@ -33,7 +33,16 @@ auto state idle{
 
 state ChasePlayer{
 
-	ignores SeePlayer;
+	ignores SeePlayer,HearNoise;
+
+	event EndState(name NextStateName){		
+		ClearTimer('CheckIndirectReachability');
+		ClearTimer('CheckDirectReachability');		
+	}
+	//It's here for overwrite the super.BeginState(). We don't want to perform a CheckVisibility in RhinoMiniBoss
+	event BeginState(name PreviousStateName){
+
+	}
 
 Begin:
 	if(thePlayer != none){
@@ -55,7 +64,6 @@ Targeting:
 
 		//only bother moving if we're not in attack range or don't have line-of-sight
 		if(!IsWithinAttackRange(Target) && GeneratePathToActor(Target)){
-
 			//just in case...
 			ClearTimer('CheckIndirectReachability');
 			ClearTimer('CheckDirectReachability');
@@ -83,8 +91,7 @@ Targeting:
 		ClearTimer('CheckDirectReachability');
 
 		//if the target is now directly reachable AND within line of sight, then let's attack baby attack!
-		if(IsWithinAttackRange(Target))
-		{
+		if(IsWithinAttackRange(Target)){
 			// if we're within range, attempt to finish rotating towards target...
 			//`log("Within attack range, finishing rotation...");
 			//if(RotDegreesBetweenYaw(Rotator(Target.Location-Pawn.Location),Rotation) > 14)
@@ -115,12 +122,17 @@ Targeting:
 
 state Charging{
 
-	ignores SeePlayer;
+	ignores SeePlayer, HearNoise;
 
 
 	event BeginState(name PreviousStateName){
 		super.BeginState(PreviousStateName);
 		MyEnemyTestPawn.GotoState('Charging');
+	}
+	
+	event EndState(name PreviousStateName){
+		super.EndState(PreviousStateName);
+		ClearTimer('CheckChargeAttackRange');
 	}
 
 	function CheckChargeAttackRange(){
@@ -169,6 +181,16 @@ Attacking:
 	StopLatentExecution();	
 }
 
+state Stunned{
+	ignores SeePlayer, HearNoise;
+
+	simulated event BeginState(name PreviousStateName){
+		super.BeginState(PreviousStateName);
+		StopLatentExecution();
+		Pawn.ZeroMovementVariables();
+	}
+}
+
 state Attacking
 {
  Begin:
@@ -192,5 +214,6 @@ state Attacking
 
 DefaultProperties
 {
+	MinHitWall = -0.7f;
 	
 }

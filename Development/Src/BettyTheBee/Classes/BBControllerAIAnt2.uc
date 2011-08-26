@@ -6,8 +6,11 @@ DefaultProperties
 
 state Attacking
 {
+
+	ignores SeePlayer, HearNoise;
+
  Begin:
-	Pawn.Acceleration = vect(0,0,0);
+	Pawn.ZeroMovementVariables();
 	MyEnemyTestPawn.GotoState('Attacking');
 	while(thePlayer.Health > 0)
 	{   

@@ -26,19 +26,6 @@ simulated function PostBeginPlay()
     
 }
 
-simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
-{
-	super.PostInitAnimTree(SkelComp);
-	if (SkelComp == Mesh)
-	{
-		//Name of diferent animations for playing in custom node (esta aqui porque en defaultProperties no funciona)
-		attackAnimName = 'Throw';
-		attackBeginAnime = 'Stand_Up';
-        attackEndAnime = 'Go_Down';
-		dyingAnimName = 'Die';		
-	}
-}
-
 state Attacking{
 	
 	simulated event doDamage(){
@@ -75,11 +62,13 @@ state Attacking{
 		customAnimSlot.PlayCustomAnim(attackEndAnime,1.0f,0.0f,0.25f,false,true);
 	}
 Begin:
+	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());
+Attack:
 	customAnimSlot.PlayCustomAnim(attackAnimName,1.0f,0.0f,0.0f,false,true);
 	Sleep(customAnimSlot.GetCustomAnimNodeSeq().GetTimeLeft() - 0.05f);
 	customAnimSlot.StopAnim();	
 	Sleep(timeBetweenShots + randomTimeBetweenShots * FRand());
-	goto 'Begin';
+	goto 'Attack';
 }
 
 
@@ -131,4 +120,10 @@ DefaultProperties
 	timeBetweenShots = 2;
 	randomTimeBetweenShots = 1;
 	randomness=(X=0.1,Y=0.1,Z=0.05);
+
+	//Name of diferent animations for playing in custom node (esta aqui porque en defaultProperties no funciona)
+	attackAnimName = "Throw";
+	attackBeginAnime = "Stand_Up";
+    attackEndAnime = "Go_Down";
+	dyingAnimName = "Die";	
 }

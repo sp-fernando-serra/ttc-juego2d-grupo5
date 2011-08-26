@@ -33,15 +33,6 @@ var Vector NextMoveLocation;
 /** Vector with las player location */
 var Vector LastPlayerLocation;
 
-var transient float LastObstructionJumpTime;
-var transient int ObstructionJumpCount;
-var int ObstructionDir;
-
-var transient Vector LastCheckAttackRangePawnLocation;
-var transient Vector LastCheckAttackRangeTargetLocation;
-var transient Vector LastCheckAttackRangeClosestPoint;
-var transient Actor LastCheckAttackRangeTarget;
-
 function SetPawn(BBEnemyPawn NewPawn){
 
 	MyEnemyTestPawn = NewPawn;
@@ -172,7 +163,7 @@ event SeePlayer(Pawn SeenPlayer){
 		distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
 		if (distanceToPlayer < perceptionDistance)
 		{ 
-        	Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": I can see you!! (followpath)");
+        	//Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": I can see you!! (followpath)");
 			GotoState('Chaseplayer');
 		}
 		if(!bAlertedByOtherPawn){
@@ -206,7 +197,7 @@ auto state Idle{
 Begin:
     //`log(MyEnemyTestPawn.name @ ": Starting Idle state");
 	Pawn.Acceleration = vect(0,0,0);
-	//MyEnemyTestPawn.GotoState('Idle');
+	MyEnemyTestPawn.GotoState('');
 
 	//Sleep(IdleInterval);
 	
@@ -220,7 +211,7 @@ Begin:
 
 state Chaseplayer{
 
-	ignores SeePlayer;
+	ignores SeePlayer, HearNoise;
 
 	simulated function CheckVisibility(){
 		if(Pawn(Target) == none){
@@ -251,35 +242,35 @@ state Chaseplayer{
 		SetTimer(0.5,true,'CheckVisibility');
 	}
 
-	event PoppedState(){
-		super.PoppedState();
-		ClearTimer('CheckIndirectReachability');
-		ClearTimer('CheckDirectReachability');
-		ClearTimer('CheckVisibility');
-	}
+	//event PoppedState(){
+	//	super.PoppedState();
+	//	ClearTimer('CheckIndirectReachability');
+	//	ClearTimer('CheckDirectReachability');
+	//	ClearTimer('CheckVisibility');
+	//}
 
-	event PushedState(){
-		super.PushedState();
-		SetTimer(0.5,true,'CheckVisibility');
-	}
+	//event PushedState(){
+	//	super.PushedState();
+	//	SetTimer(0.5,true,'CheckVisibility');
+	//}
 
-	event PausedState(){
-		super.PoppedState();
-		ClearTimer('CheckIndirectReachability');
-		ClearTimer('CheckDirectReachability');
-		ClearTimer('CheckVisibility');
-	}
+	//event PausedState(){
+	//	super.PoppedState();
+	//	ClearTimer('CheckIndirectReachability');
+	//	ClearTimer('CheckDirectReachability');
+	//	ClearTimer('CheckVisibility');
+	//}
 
-	event ContinuedState(){
-		super.PushedState();
-		SetTimer(0.5,true,'CheckVisibility');
-	}
+	//event ContinuedState(){
+	//	super.PushedState();
+	//	SetTimer(0.5,true,'CheckVisibility');
+	//}
 
 Begin:
 
 	if(thePlayer != none){
 		Target = thePlayer;
-		MyEnemyTestPawn.GotoState('ChasePlayer');
+		MyEnemyTestPawn.GotoState('');
 		SetTimer(0.5,true,'CheckVisibility');
 	}else{
 		GotoState('Idle',,,false);
@@ -345,7 +336,7 @@ Targeting:
 			//and if we're STILL within range (since we have lost range when finishing our latent rotation), then actually attack
 			if(IsWithinAttackRange(Target))
 			{
-				PushState('Attacking');
+				GotoState('Attacking');
 			}
 		}
 	}
@@ -392,9 +383,10 @@ Begin:
 			break;
 		}
 	}
+	//Vision of 180º
 	Pawn.PeripheralVision = 0.0f;
 	Sleep(3.0f);
-	Pawn.PeripheralVision = Pawn.default.PeripheralVision;
+	
 	GotoState('Idle',,,true);
 
 }

@@ -116,10 +116,6 @@ function playParticlesExclamacion(){
 	Exclamacion_PSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(Exclamacion_PS,Mesh,'exclamacion',true);
 }
 
-state ChasePlayer{
-
-}
-
 function bool isDying(){
 	return IsInState('Dying');
 }

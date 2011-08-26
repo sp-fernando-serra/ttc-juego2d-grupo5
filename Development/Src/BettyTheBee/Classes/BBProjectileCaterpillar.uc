@@ -166,9 +166,10 @@ DefaultProperties
 	Mesh = BaseMesh;
 
 	RibbonParticleSystem = ParticleSystem'Betty_caterpillar.Particles.Spittle_Particles'
-
+	
+	//Damage is set by the pawn when he fires the projectile depending on attackDamage of Pawn
     Damage=0
-    MomentumTransfer=10
+    MomentumTransfer=0
 
 	MyDamageType=class'BBDamageType_EnemyPawn'
 
