@@ -1,4 +1,4 @@
-class BBEnemyPawnCaterpillar extends BBEnemyPawn placeable;
+class BBEnemyPawnCaterpillar2 extends BBEnemyPawn placeable;
 
 /** Constant time between shots in seconds.
  *  Time = timeBetweenShots + randomTimeBetweenShots*FRand()
@@ -15,6 +15,7 @@ var () float fearDistance;
 
 var name attackBeginAnime;
 var name attackEndAnime;
+var name fearAnimName;
 
 simulated function PostBeginPlay()
 {
@@ -22,7 +23,7 @@ simulated function PostBeginPlay()
 
 	if (MyController == none)
 	{
-		MyController = Spawn(class'BettyTheBee.BBControllerAICaterpillar');
+		MyController = Spawn(class'BettyTheBee.BBControllerAICaterpillar2');
 		MyController.SetPawn(self);		
 	}
     
@@ -80,7 +81,8 @@ FinishAttack:
 }
 
 state Fearing{
-
+Begin:
+	customAnimSlot.PlayCustomAnim(fearAnimName, 1.0f, 0.25, 0.25, true, true);
 }
 
 
@@ -112,10 +114,10 @@ DefaultProperties
         BlockActors = True
         CollideActors =True
 
-		AnimSets(0)=AnimSet'Betty_caterpillar.SkModels.Caterpillar_anims'
+		AnimSets(0)=AnimSet'Betty_caterpillar.SkModels.Caterpillar2_AnimSet'
 		AnimTreeTemplate=AnimTree'Betty_caterpillar.SkModels.Caterpillar_AnimTree'
-		PhysicsAsset=PhysicsAsset'Betty_caterpillar.SkModels.Caterpillar_Physics'
-		SkeletalMesh=SkeletalMesh'Betty_caterpillar.SkModels.Caterpillar'
+		PhysicsAsset=PhysicsAsset'Betty_caterpillar.SkModels.Caterpillar2_Physics'
+		SkeletalMesh=SkeletalMesh'Betty_caterpillar.SkModels.Caterpillar2'
     End Object
 	//CollisionComponent=SkMesh
 	Mesh=SkMesh
@@ -136,8 +138,9 @@ DefaultProperties
 	fearDistance = 400;
 
 	//Name of diferent animations for playing in custom node (esta aqui porque en defaultProperties no funciona)
-	attackAnimName = "Throw";
-	attackBeginAnime = "Stand_Up";
-    attackEndAnime = "Go_Down";
-	dyingAnimName = "Die";	
+	attackAnimName = "Oruga_Attack_seq";
+	attackBeginAnime = "Oruga_Alert_up_seq";
+    attackEndAnime = "Oruga_Down_seq";
+	//dyingAnimName = "Die";
+	fearAnimName = "Oruga_Afraid_seq";
 }

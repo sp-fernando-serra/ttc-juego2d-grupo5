@@ -1,4 +1,4 @@
-class BBControllerAICaterpillar extends BBControllerAI;
+class BBControllerAICaterpillar2 extends BBControllerAI;
 
 /** Constant time between shots in seconds.
  *  Time = timeBetweenShots + randomTimeBetweenShots*FRand()
@@ -12,11 +12,11 @@ var float randomTimeBetweenShots;
 var float fearDistance;
 
 function SetPawn(BBEnemyPawn NewPawn){
-	local BBEnemyPawnCaterpillar tempPawn;
+	local BBEnemyPawnCaterpillar2 tempPawn;
 
 	super.SetPawn(NewPawn);
 
-	tempPawn = BBEnemyPawnCaterpillar(NewPawn);
+	tempPawn = BBEnemyPawnCaterpillar2(NewPawn);
 	if(tempPawn == none){
 		`Warn("Attempting to assign a CaterpillarAI to "@NewPawn.Name);
 	}else{
@@ -80,7 +80,7 @@ state Fearing{
 
 Begin:
 	Pawn.ZeroMovementVariables();
-	MyEnemyTestPawn.GotoState('Attacking','FinishAttack');	
+		MyEnemyTestPawn.GotoState('Attacking','FinishAttack');		
 
 	while(thePlayer.Health > 0)
 	{   				
