@@ -17,7 +17,7 @@ state Attacking
 		distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
         if (distanceToPlayer > attackDistance * 2)
         { 
-			MyEnemyTestPawn.GotoState('Chaseplayer');
+			MyEnemyTestPawn.GotoState('');
             GotoState('Chaseplayer');
 			break;
         }

@@ -432,7 +432,7 @@ event Landed(vector HitNormal, actor FloorActor)
 	//{
 	//	SoundGroupClass.Static.PlayLandSound(self);
 	//}
-
+	MakeNoise(1.0);
 	SetBaseEyeheight();
 }
 
