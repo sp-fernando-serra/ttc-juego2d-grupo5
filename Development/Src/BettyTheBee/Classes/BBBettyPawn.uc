@@ -84,6 +84,16 @@ var SoundCue EquipSwordCue;
 var SoundCue LeftFootStepCue;
 /** Sound for right footstep */
 var SoundCue RightFootStepCue;
+/** Sound for jumping attack */
+var SoundCue JumpingAttackCue;
+/** Sound for Jump */
+var SoundCue JumpCue;
+/** Sound for double jump */
+var SoundCue DoubleJumpCue;
+/** Sound for Heal hability */
+var	SoundCue HealSound;
+/** Sound played when betty gets damage*/
+var SoundCue HitSound;
 
 var() SkeletalMeshComponent grenadeMesh;
 
@@ -354,6 +364,7 @@ function bool DoJump( bool bUpdating )
 		}
 		
 		SetPhysics(PHYS_Falling);
+		PlaySound(JumpCue);
 		bReadyToDoubleJump = true;
 		//bDodging = false;
 		return true;
@@ -372,6 +383,7 @@ function DoDoubleJump( bool bUpdating )
 		Velocity.Z = JumpZ + MultiJumpBoost;
 		//UTInventoryManager(InvManager).OwnerEvent('MultiJump');
 		SetPhysics(PHYS_Falling);
+		PlaySound(DoubleJumpCue);
 		//BaseEyeHeight = DoubleJumpEyeHeight;
 		//if (!bUpdating)
 		//{
@@ -443,6 +455,7 @@ simulated function healUsed(){
 	SpawnLocation = Location;
 	SpawnLocation.Z -= GetCollisionHeight() + 2.0f;
 	WorldInfo.MyEmitterPool.SpawnEmitter(HealPS,SpawnLocation,,self);
+	PlaySound(HealSound);
 	
 }
 
@@ -653,8 +666,7 @@ function PlayHit(float Damage, Controller InstigatedBy, vector HitLocation, clas
 			fullBodySlot.PlayCustomAnim(MyBBDamageType.default.HitAnim,MyBBDamageType.default.HitAnimRate,0.1,0.1,false,true);
 		}
 	}
-
-	
+	PlaySound(HitSound);
 }
 
 /** Function called by Died(). Used to play death anim
@@ -950,9 +962,16 @@ DefaultProperties
 	invulnerableMaxTime = 1.5f;
 
 
-	EquipSwordCue=SoundCue'Betty_Sounds.SoundCues.EquippingSword01_Cue';
-	RightFootStepCue=SoundCue'Betty_Sounds.SoundCues.Footstep02_Cue'
-	LeftFootStepCue=SoundCue'Betty_Sounds.SoundCues.Footstep02b_Cue'
+	EquipSwordCue=SoundCue'Betty_Player.Sounds.FxSacarArma0_Cue';
+	RightFootStepCue=SoundCue'Betty_Player.Sounds.FxPasoPiedraDcho_Cue'
+	LeftFootStepCue=SoundCue'Betty_Player.Sounds.FxPasoPiedraIzq_Cue'
+
+	JumpCue=SoundCue'Betty_Player.Sounds.FxSaltoBetty1_Cue';
+	DoubleJumpCue=SoundCue'Betty_Player.Sounds.FxSaltoBetty2_Cue'
+
+	HealSound=SoundCue'Betty_Player.Sounds.FxHechizoCura_Cue'
+
+	HitSound=SoundCue'Betty_Player.Sounds.FxGolpeBetty_Cue'
 	
 	Begin Object Class=SkeletalMeshComponent Name=grenade
 	SkeletalMesh=SkeletalMesh'Betty_Player.SkModels.GrenadeSk'

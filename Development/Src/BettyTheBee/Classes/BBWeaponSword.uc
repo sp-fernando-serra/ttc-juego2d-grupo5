@@ -1,7 +1,5 @@
 class BBWeaponSword extends BBWeapon;
 
-
-
 //Temp vars for use with traces
 var Vector vStartTrace, vEndTrace;
 var vector  vHitLoc, vHitNorm;

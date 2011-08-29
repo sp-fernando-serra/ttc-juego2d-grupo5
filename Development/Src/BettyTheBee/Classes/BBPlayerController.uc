@@ -55,7 +55,6 @@ var bool bStoppedByHit;
 /** When get hitted the pawn stops his movement "hitStopTime" seconds */
 var float hitStopTime;
 
-var	SoundCue HealSound;
 var SoundCue FrenesiSound;
 enum EHabilityNames
 {
@@ -340,10 +339,8 @@ exec function GetVida(){
 		if(Pawn.HealDamage(amountHealed,self,HealDamageType)){
 			BBBettyPawn(Pawn).itemsMiel -= costHeal;
 			BBBettyPawn(Pawn).healUsed();
-			reactivateTime[HN_Heal] = coldDowns[HN_Heal];
-			PlaySound( HealSound );			
+			reactivateTime[HN_Heal] = coldDowns[HN_Heal];			
 		}
-		
 	}
 }
 
@@ -1234,8 +1231,4 @@ DefaultProperties
 	coldDowns[HN_Frenesi] = 1.0f;
 	coldDowns[HN_Roll] = 3.0f;
 	coldDowns[HN_Grenade] = 5.0f;
-
-
-	HealSound=SoundCue'Betty_Sounds.vida_cue'
-
 }
