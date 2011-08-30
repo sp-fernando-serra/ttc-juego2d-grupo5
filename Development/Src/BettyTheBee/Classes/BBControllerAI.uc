@@ -1,6 +1,5 @@
 class BBControllerAI extends AIController;
 
-var BBEnemyPawn MyEnemyTestPawn;
 var BBPawn thePlayer;
 
 
@@ -35,16 +34,14 @@ var Vector LastPlayerLocation;
 
 function SetPawn(BBEnemyPawn NewPawn){
 
-	MyEnemyTestPawn = NewPawn;
-	
-	Possess(MyEnemyTestPawn, false);
-	ScriptedRoute = MyEnemyTestPawn.MyRoutePoints;
-	bAggressive = MyEnemyTestPawn.bAggressive;
-	AttackDamage = MyEnemyTestPawn.AttackDamage;
-	AttackDistance = MyEnemyTestPawn.AttackDistance;
-	attackDistanceFactor = MyEnemyTestPawn.AttackDistanceFactor;
-	PerceptionDistance = MyEnemyTestPawn.PerceptionDistance;
-	alertRadius = MyEnemyTestPawn.alertRadius;
+	Possess(NewPawn, false);
+	ScriptedRoute = NewPawn.MyRoutePoints;
+	bAggressive = NewPawn.bAggressive;
+	AttackDamage = NewPawn.AttackDamage;
+	AttackDistance = NewPawn.AttackDistance;
+	attackDistanceFactor = NewPawn.AttackDistanceFactor;
+	PerceptionDistance = NewPawn.PerceptionDistance;
+	alertRadius = NewPawn.alertRadius;
 	
 }
 
@@ -163,7 +160,7 @@ event SeePlayer(Pawn SeenPlayer){
 		distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
 		if (distanceToPlayer < perceptionDistance)
 		{ 
-        	//Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": I can see you!! (followpath)");
+        	//Worldinfo.Game.Broadcast(self, Pawn.name $ ": I can see you!! (followpath)");
 			GotoState('Chaseplayer');
 		}
 		if(!bAlertedByOtherPawn){
@@ -195,14 +192,14 @@ auto state Idle{
 	}
 
 Begin:
-    //`log(MyEnemyTestPawn.name @ ": Starting Idle state");
-	Pawn.Acceleration = vect(0,0,0);
-	MyEnemyTestPawn.GotoState('');
+    //`log(Pawn.name @ ": Starting Idle state");
+	Pawn.ZeroMovementVariables();
+	Pawn.GotoState('');
 
 	//Sleep(IdleInterval);
 	
 	if(ScriptedRoute != none){
-		//`log(MyEnemyTestPawn.name @ ": Going to follow path");
+		//`log(Pawn.name @ ": Going to follow path");
 		GotoState('ScriptedRouteMove');
 	}
 	//goto 'Begin';
@@ -270,7 +267,7 @@ Begin:
 
 	if(thePlayer != none){
 		Target = thePlayer;
-		MyEnemyTestPawn.GotoState('');
+		Pawn.GotoState('');
 		SetTimer(0.5,true,'CheckVisibility');
 	}else{
 		GotoState('Idle',,,false);

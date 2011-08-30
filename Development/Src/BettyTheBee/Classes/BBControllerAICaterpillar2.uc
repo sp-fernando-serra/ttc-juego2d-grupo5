@@ -35,7 +35,7 @@ event SeePlayer(Pawn SeenPlayer){
 		distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
 		if (distanceToPlayer < attackDistance)
 		{ 
-        	//Worldinfo.Game.Broadcast(self, MyEnemyTestPawn.name $ ": I can see you!! (followpath)");
+        	//Worldinfo.Game.Broadcast(self, Pawn.name $ ": I can see you!! (followpath)");
 			Focus = thePlayer;
 			GotoState('Attacking');
 		}
@@ -51,27 +51,46 @@ event SeePlayer(Pawn SeenPlayer){
 state Attacking{
 
 	ignores SeePlayer, HearNoise;
+
+	simulated function CheckVisibility(){
+		if(Pawn(Target) == none || !CanSee(Pawn(Target))){
+			StopLatentExecution();
+			Pawn.GotoState('');
+			GotoState('Idle');
+		}		
+	}
+	event BeginState(name PreviousStateName){
+		super.BeginState(PreviousStateName);
+		BBEnemyPawn(Pawn).playParticlesExclamacion();
+		SetTimer(0.5,true,'CheckVisibility');
+	}
+	event EndState(name NextStateName){
+		super.EndState(NextStateName);
+		Focus = none;
+		Target = none;
+		ClearTimer('CheckVisibility');
+	}
+	
+
  Begin:
 	Pawn.ZeroMovementVariables();
-	MyEnemyTestPawn.GotoState('Attacking');	
-
-	while(thePlayer.Health > 0)
+	Pawn.GotoState('Attacking');	
+	Target = thePlayer;
+	while(Target != none && thePlayer.Health > 0)
 	{   				
 		distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);		
 				
         if (distanceToPlayer > attackDistance )            
         { 
-			MyEnemyTestPawn.GotoState('');
-			Focus = none;
-            GotoState('Idle');
+			Pawn.GotoState('');
+			GotoState('Idle');
 			break;
         }else if(distanceToPlayer < fearDistance){
-			Focus = none;
-            GotoState('Fearing');
+			 GotoState('Fearing');
         }
 		Sleep(0.25);
 	}
-	MyEnemyTestPawn.GotoState('');
+	Pawn.GotoState('');	
 	GotoState('Idle');
 }
 
@@ -80,7 +99,7 @@ state Fearing{
 
 Begin:
 	Pawn.ZeroMovementVariables();
-		MyEnemyTestPawn.GotoState('Attacking','FinishAttack');		
+	Pawn.GotoState('Attacking','FinishAttack');		
 
 	while(thePlayer.Health > 0)
 	{   				
@@ -94,7 +113,7 @@ Begin:
         }
 		Sleep(0.25);
 	}
-	MyEnemyTestPawn.GotoState('');
+	Pawn.GotoState('');
 	GotoState('Idle');
 }
 

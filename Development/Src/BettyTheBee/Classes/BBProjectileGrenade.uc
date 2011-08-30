@@ -144,12 +144,14 @@ simulated event HitWall(vector HitNormal, actor Wall, PrimitiveComponent WallCom
 DefaultProperties
 {	
 	Begin Object Name=CollisionCylinder
-		CollisionRadius=12
-		CollisionHeight=24
+		CollisionRadius=0
+		CollisionHeight=0
     End Object
+	CollisionComponent=CollisionCylinder
+	CylinderComponent=CollisionCylinder
 
 	Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment
-	bEnabled=TRUE		
+		bEnabled=TRUE		
     End Object
     Components.Add(MyLightEnvironment)
    
@@ -157,7 +159,6 @@ DefaultProperties
 		SkeletalMesh=SkeletalMesh'Betty_Player.SkModels.GrenadeSk'
 		MorphSets(0)=MorphTargetSet'Betty_Player.SkModels.Grenade_MorphSet'
 		AnimTreeTemplate=AnimTree'Betty_Player.SkModels.Grenade_AnimTree'
-		//PhysicsAsset=PhysicsAsset'Betty_Player.SkModels.Grenade_Physics'
 		Scale=1
 		LightEnvironment=MyLightEnvironment
     end object
@@ -165,9 +166,9 @@ DefaultProperties
 	Mesh = BaseMesh;
 
     Damage=25
-    MomentumTransfer=10
+    //MomentumTransfer=0
 
-	bWorldGeometry=false
+	//bWorldGeometry=false
 	Speed=500
 	MaxSpeed=1000.0
 	Physics=PHYS_Falling;

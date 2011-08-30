@@ -88,7 +88,8 @@ Begin:
 
 DefaultProperties
 {
-
+	
+	//Not used, used Physics Asset for collision
 	Begin Object Name=CollisionCylinder
 			
 		BlockNonZeroExtent=false
@@ -97,9 +98,9 @@ DefaultProperties
 		BlockRigidBody=false
 		CollideActors=false
 
-		CollisionHeight=+45.0
+		CollisionHeight=+100.0
 		CollisionRadius=+20.0
-		//Translation=(X=0.0,Y=0.0,Z=40.0)
+		//Translation=(X=0.0,Y=0.0,Z=0.0)
     end object
 
 	Begin Object class=SkeletalMeshComponent Name=SkMesh
@@ -119,7 +120,7 @@ DefaultProperties
 		PhysicsAsset=PhysicsAsset'Betty_caterpillar.SkModels.Caterpillar2_Physics'
 		SkeletalMesh=SkeletalMesh'Betty_caterpillar.SkModels.Caterpillar2'
     End Object
-	//CollisionComponent=SkMesh
+	CollisionComponent=SkMesh
 	Mesh=SkMesh
     Components.Add(SkMesh)
     
