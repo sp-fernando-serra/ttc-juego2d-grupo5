@@ -5,10 +5,8 @@ var float attackChargeDistance;
 
 
 function SetPawn(BBEnemyPawn NewPawn){
-
 	super.SetPawn(NewPawn);
-	attackChargeDistance = BBEnemyPawnRhinoMiniBoss(MyEnemyTestPawn).attackChargeDistance;
-	
+	attackChargeDistance = BBEnemyPawnRhinoMiniBoss(NewPawn).attackChargeDistance;	
 }
 
 function bool IsWithinAttackChargeRange(Actor other){
@@ -47,7 +45,7 @@ state ChasePlayer{
 Begin:
 	if(thePlayer != none){
 		Target = thePlayer;
-		MyEnemyTestPawn.GotoState('ChasePlayer');
+		Pawn.GotoState('ChasePlayer');
 	}else{
 		GotoState('Idle',,,false);
 	}
@@ -127,7 +125,7 @@ state Charging{
 
 	event BeginState(name PreviousStateName){
 		super.BeginState(PreviousStateName);
-		MyEnemyTestPawn.GotoState('Charging');
+		Pawn.GotoState('Charging');
 	}
 	
 	event EndState(name PreviousStateName){
@@ -137,7 +135,7 @@ state Charging{
 
 	function CheckChargeAttackRange(){
 		if(IsWithinAttackChargeRange(thePlayer)){
-			MyEnemyTestPawn.GotoState('Charging','Attack');
+			Pawn.GotoState('Charging','Attack');
 			ClearTimer('CheckChargeAttackRange');
 			GotoState('Charging','Attacking');
 		}
@@ -151,7 +149,7 @@ Begin:
 	Pawn.Acceleration = vect(0,0,0);
 	//If in 5 seconds the target continues out of range, finish Charge
 	Sleep(5.0f);
-	MyEnemyTestPawn.GotoState('Charging','Attack');
+	Pawn.GotoState('Charging','Attack');
 	ClearTimer('CheckChargeAttackRange');
 	GotoState('Charging','Attacking');
 
@@ -194,20 +192,20 @@ state Stunned{
 state Attacking
 {
  Begin:
-	Pawn.Acceleration = vect(0,0,0);
-	MyEnemyTestPawn.GotoState('Attacking');
+	Pawn.ZeroMovementVariables();
+	Pawn.GotoState('Attacking');
 	while(thePlayer.Health > 0)
 	{   
 		distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
         if (distanceToPlayer > attackDistance * 2)
         { 
-			MyEnemyTestPawn.GotoState('');
+			Pawn.GotoState('');
 			PopState();
 			break;
         }
 		Sleep(1);
 	}
-	MyEnemyTestPawn.GotoState('');
+	Pawn.GotoState('');
 	PopState();
 }
 
