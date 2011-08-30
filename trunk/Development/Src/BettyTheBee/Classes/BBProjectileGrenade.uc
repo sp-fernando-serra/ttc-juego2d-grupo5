@@ -14,6 +14,8 @@ var MorphNodeWeight morph1Weight;
 /** Morph1 para hacer el SkeletalMesh dinamico */
 var MorphNodeWeight morph2Weight;
 
+///** Sound used when grenade impacts on something */
+//var SoundCue impactSound;
 
 
 function Init(vector Direction)
@@ -79,7 +81,8 @@ simulated function ProcessTouch(Actor Other, Vector HitLocation, Vector HitNorma
 
 	if(BBEnemyPawn(Other) != none)
 		Other.TakeDamage( Damage, InstigatorController, Location, MomentumTransfer * Normal(Velocity), MyDamageType,, self);
-	
+
+	PlaySound(ImpactSound);
 	PSC.DeactivateSystem();
 	Destroy();
     }
@@ -121,6 +124,7 @@ simulated event Landed ( vector HitNormal, actor FloorActor ) {
 	//Desactivamos la instancia del PSC
 	//HitLocation.Z = HitLocation.Z - 60;
 	//PSC.SetTranslation(HitLocation);
+	PlaySound(ImpactSound);
 	PSC.DeactivateSystem();
 	//Destruimos el projectil
 	Destroy();
@@ -172,6 +176,9 @@ DefaultProperties
 	TerminalVelocity=3500.0
 
 	RibbonParticleSystem = ParticleSystem'Betty_Player.Particles.Grenade_Particles'
+	
+	//Defined in Projectile.uc
+	ImpactSound = SoundCue'Betty_Player.Sounds.FxImpactoGranadaMiel_Cue'
 
 
 	
