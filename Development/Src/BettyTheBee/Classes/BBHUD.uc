@@ -1,8 +1,10 @@
-//class BBHUD extends UDKHUD;
+//class BBHUD extends UTHUDBase;
 class BBHUD extends HUD;
 
 //Reference the actual SWF container (STGFxHUD created later)
 var BBGFxHUD HudMovie;
+var BBGFxHUDmenu HudMovieMenu;
+var GFxMoviePlayer myHud;
 //var BBPlayerController PlayerOwner;
 
 //Called when this is destroyed
@@ -22,12 +24,19 @@ simulated function PostBeginPlay()
 {
 	super.PostBeginPlay();
 
-	//Create a STGFxHUD for HudMovie
-	HudMovie = new class'BBGFxHUD';
-	//Set the timing mode to TM_Real - otherwide things get paused in menus
-	HudMovie.SetTimingMode(TM_Real);
-	//Call HudMovie's Initialise function
-	HudMovie.Init2();
+	if(WorldInfo.GetMapName()=="BettyLevelMenu"){
+		//HudMovieMenu = new class'BBGFxHUDmenu';
+		//HudMovieMenu.SetTimingMode(TM_Real);
+		//HudMovieMenu.Init2();
+	}
+	else{ 
+		HudMovie = new class'BBGFxHUD';
+		//Set the timing mode to TM_Real - otherwide things get paused in menus
+		HudMovie.SetTimingMode(TM_Real);
+		//Call HudMovie's Initialise function
+		HudMovie.Init2();
+	}
+
 }
 function startAnimacioItem(){
 //	Canvas.Project(PlayerOwner.Pawn.Location)
@@ -38,7 +47,8 @@ function startAnimacioItem(){
 //Called every tick the HUD should be updated
 event PostRender()
 {
-	HudMovie.TickHUD();
+	
+	if(WorldInfo.GetMapName()!="BettyLevelMenu")  HudMovie.TickHUD();
 }
 
 

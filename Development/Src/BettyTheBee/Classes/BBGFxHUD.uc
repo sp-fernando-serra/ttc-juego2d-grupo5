@@ -11,6 +11,9 @@ var GFxObject txt_mum_items;
 var GFxObject txt1,txt2,txt3;
 var GFxAction_GetVariable pausa;
 
+var SoundCue over;
+
+
 //var BettyGamePlayerController PlayerOwner;
 
 
@@ -77,6 +80,7 @@ function TickHUD()
 
 	local PlayerController PC;
 	local BBBettyPawn UTP;
+
 
 	PC = GetPC();
 	
@@ -164,12 +168,43 @@ function animacioItem(){
 
 }
 
+function sonido(String sonido)
+{
+//texto_ayuda("ddddd",50);
+	//GetPC().playsonido();  //PlaySound (over);	
+//GetPC().PlaySound (SoundCue'BettyInterface.sonidos.selec1');	
+	
+}
+
 DefaultProperties
 {
+
+	//TimingMode=TM_Real
+	
 	//this is the HUD. If the HUD is off, then this should be off
-	bDisplayWithHudOff=false
+	//bDisplayWithHudOff=true
+	//bShowHud=true
+	
 	//The path to the swf asset we will create later
 	MovieInfo=SwfMovie'BettyInterface.interface_hud.hud'
 	//Just put it in...
 	//bGammaCorrection = false
+
+
+	//SoundThemes(0)=(ThemeName=default,Theme=UISoundTheme'BettyInterface.sonidos.menu_sounds')
+
+	over=SoundCue'BettyInterface.sonidos.selec1';
+
+	/*
+	SoundCue'BettyInterface.sonidos.selec0'
+	SoundCue'BettyInterface.sonidos.selec2'
+
+	SoundCue'BettyInterface.sonidos.over1'
+	SoundCue'BettyInterface.sonidos.over2'
+	SoundCue'BettyInterface.sonidos.over3'
+	SoundCue'BettyInterface.sonidos.over4'
+
+*/
+
+	
 }
