@@ -388,6 +388,17 @@ Begin:
 
 }
 
+state Stunned{
+	ignores SeePlayer, HearNoise;
+
+	simulated event BeginState(name PreviousStateName){
+		super.BeginState(PreviousStateName);
+		StopLatentExecution();
+		Pawn.ZeroMovementVariables();
+	}
+}
+
+
 /**
  * Simple scripted movement state, attempts to pathfind to ScriptedMoveTarget and
  * returns execution to previous state upon either success/failure.

@@ -23,6 +23,9 @@ var () bool bAggressive<DisplayName = Is Aggressive?>;
 /** Array of BBRoutePoints to patroll */
 var () Route MyRoutePoints;
 
+/** Time this pawn remains stunned*/
+var () float timeStunned;
+
 var bool bIsDying;
 var class<BBDamageType> MyDamageType;
 
@@ -31,9 +34,13 @@ var AnimNodePlayCustomAnim customAnimSlot;
 
 var name attackAnimName;
 var name dyingAnimName;
+var name stunnedAnimName;
 
 var ParticleSystem TargetedPawn_PS;
 var ParticleSystemComponent TargetedPawn_PSC;
+
+var ParticleSystem stunnedPS;
+var ParticleSystemComponent stunnedPSC;
 
 //var ParticleSystem DamagePawn_PS;
 //var ParticleSystemComponent DamagePawn_PSC;
@@ -116,12 +123,154 @@ function playParticlesExclamacion(){
 	Exclamacion_PSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(Exclamacion_PS,Mesh,'exclamacion',true);
 }
 
+function bool Died(Controller Killer, class<DamageType> tempDamageType, Vector HitLocation){
+	local SeqAct_Latent Action;
+
+	// ensure a valid damagetype
+	if ( tempDamageType == None )
+	{
+		tempDamageType = class'DamageType';
+	}
+	// if already destroyed or level transition is occuring then ignore
+	if ( bDeleteMe || WorldInfo.Game == None || WorldInfo.Game.bLevelChange )
+	{
+		return FALSE;
+	}
+	// if this is an environmental death then refer to the previous killer so that they receive credit (knocked into lava pits, etc)
+	if ( tempDamageType.default.bCausedByWorld && (Killer == None || Killer == Controller) && LastHitBy != None )
+	{
+		Killer = LastHitBy;
+	}
+	// gameinfo hook to prevent deaths
+	// WARNING - don't prevent bot suicides - they suicide when really needed
+	if ( WorldInfo.Game.PreventDeath(self, Killer, tempDamageType, HitLocation) )
+	{
+		Health = max(Health, 1);
+		return false;
+	}
+	Health = Min(0, Health);
+	
+	// activate death events
+	if( default.KismetDeathDelayTime > 0 )
+	{
+		DelayTriggerDeath();
+	}
+	else
+	{
+		TriggerEventClass( class'SeqEvent_Death', self );
+	}
+
+	KismetDeathDelayTime = default.KismetDeathDelayTime + WorldInfo.TimeSeconds;
+
+	// and abort any latent actions
+	foreach LatentActions(Action)
+	{
+		Action.AbortFor(self);
+	}
+	LatentActions.Length = 0;
+	// notify the vehicle we are currently driving
+	//if ( DrivenVehicle != None )
+	//{
+	//	Velocity = DrivenVehicle.Velocity;
+	//	DrivenVehicle.DriverDied(DamageType);
+	//}
+	//else if ( Weapon != None )
+	//{
+	//	Weapon.HolderDied();
+	//	ThrowWeaponOnDeath();
+	//}
+	// notify the gameinfo of the death
+	//if ( Controller != None )
+	//{
+	//	WorldInfo.Game.Killed(Killer, Controller, self, damageType);
+	//}
+	//else
+	//{
+	//	WorldInfo.Game.Killed(Killer, Controller(Owner), self, damageType);
+	//}
+	//DrivenVehicle = None;
+	// notify inventory manager
+	//if ( InvManager != None )
+	//{
+	//	InvManager.OwnerDied();
+	//}
+	// push the corpse upward (@fixme - somebody please remove this?)
+	//Velocity.Z *= 1.3;
+	// if this is a human player then force a replication update
+	//if ( IsHumanControlled() )
+	//{
+	//	PlayerController(Controller).ForceDeathUpdate();
+	//}
+	//NetUpdateFrequency = Default.NetUpdateFrequency;
+	PlayDying(tempDamageType, HitLocation);
+	return TRUE;
+}
+
+//=============================================================================
+// Animation interface for controllers
+
+/* PlayXXX() function called by controller to play transient animation actions
+*/
+/* PlayDying() is called on server/standalone game when killed
+and also on net client when pawn gets bTearOff set to true (and bPlayedDeath is false)
+*/
+simulated function PlayDying(class<DamageType> DamageType, vector HitLoc)
+{
+	GotoState('Stunned');
+	//bReplicateMovement = false;
+	//bTearOff = true;
+	//Velocity += TearOffMomentum;
+	SetDyingPhysics();
+	bPlayedDeath = true;
+
+	KismetDeathDelayTime = default.KismetDeathDelayTime + WorldInfo.TimeSeconds;
+}
+
+event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
+	Damage = Max(Damage, 0);
+	if(Health > 0){
+		Health -= Damage;
+	}
+	if(Health <= 0){
+		Health = 0;
+		GotoState('Stunned');
+	}
+}
+
 function bool isDying(){
 	return IsInState('Dying');
 }
 
 function bool isDead(){
 	return IsInState('Dead');
+}
+
+simulated state Stunned{
+	simulated event BeginState(name PreviousStateName){		
+		super.BeginState(PreviousStateName);
+		Controller.GotoState('Stunned');
+		stunnedPSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(stunnedPS, Mesh, 'exclamacion', true, , rot(90,0,0));
+		customAnimSlot.PlayCustomAnim(stunnedAnimName,1.0f,0.25f,0.0f,true,true);		
+	}
+
+	simulated event EndState(name NextStateName){
+		super.EndState(NextStateName);
+		stunnedPSC.SetActive(false);
+		Health = HealthMax;
+	}
+
+	event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
+		if(class<BBDamageType_AirAttack>(DamageType) != none){
+			if(controller != none)
+				Controller.Destroy();
+			Destroy();
+		}
+	}
+
+Begin:
+	Sleep(timeStunned);
+	Controller.GotoState('Idle');
+	GotoState('');
 }
 
 simulated state Dying{
@@ -167,11 +316,15 @@ defaultproperties
 	//Max distance to hear a 1.0 noise
 	HearingThreshold = +600.0
 
+	timeStunned = 5.0f;
+
 	RotationRate=(Pitch=40000,Yaw=40000,Roll=20000)
 
 	TargetedPawn_PS=ParticleSystem'Betty_Particles.enemigos.enemigo_fijado'
 
 	Exclamacion_PS=ParticleSystem'Betty_ant.PS.PS_exclamacion'
+
+	stunnedPS = ParticleSystem'Betty_ant.PS.StunnedStars_PS';
 
 	MyDamageType = class'BBDamageType_EnemyPawn'
 

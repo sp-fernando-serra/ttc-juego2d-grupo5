@@ -597,12 +597,14 @@ function startAttack(optional byte FireModeNum )
 {
 	if(BBBettyPawn(Pawn).Weapon.Class == class'BBWeaponSword'){	
 		if(FireModeNum==0 && canAttack())PushState('Sword_Attack');
+		if(FireModeNum==0 && canAirAttack()) PushState('Air_Attack');
 		if(FireModeNum==1 && canThrowGrenade())PushState('Grenade_Attack');
 	}
 	else{
 		//Pasamos al estado de equipar la espada si no tenemos arma equipada
 		
 		if(FireModeNum==0 && canAttack())PushState('Equipping_Sword');
+		if(FireModeNum==0 && canAirAttack()) PushState('Air_Attack');
 		if(FireModeNum==1 && canThrowGrenade())PushState('Grenade_Attack');
 	}
 }
@@ -622,6 +624,12 @@ function AnimNodeSequence getActiveAnimNode()
 function bool canAttack(){
 
 	if(Pawn.Physics != PHYS_Falling && !IsInState('Grenade_Attack') && !bSliding) return true;	
+	return false;
+}
+
+function bool canAirAttack(){
+
+	if(Pawn.Physics == PHYS_Falling && !IsInState('Air_Attack') && !IsInState('Grenade_Attack') && !bSliding) return true;	
 	return false;
 }
 
@@ -671,7 +679,7 @@ function CheckJumpOrDuck()
 	//}
     if ( bPressedJump )
 	{
-		BBBettyPawn(Pawn).prepareJump(bUpdating);
+  		BBBettyPawn(Pawn).prepareJump(bUpdating);
 	}
 	//if ( Pawn.Physics != PHYS_Falling && Pawn.bCanCrouch )
 	//{
@@ -702,7 +710,7 @@ event PlayerTick(float DeltaTime){
 		else if(reactivateTime[i] < 0)
 		reactivateTime[i] = 0;
 	}
-
+	//Update frenesi duration
 	if(frenesiDuration > 0)
 		frenesiDuration -= DeltaTime;
 	else if(frenesiDuration < 0){
@@ -717,7 +725,7 @@ event PlayerTick(float DeltaTime){
 		Pawn.MovementSpeedModifier = 1.0f;
 		//WorldInfo.Game.SetGameSpeed(1.0f);
 	}
-
+	//Updated time stopped by enemy hit
 	if(bStoppedByHit){
 		hitStopTime -= DeltaTime;
 		Pawn.ZeroMovementVariables();
@@ -1119,11 +1127,8 @@ Begin:
 	PopState();
 }
 
-state Sword_Attack
-{
+state Sword_Attack{
 
-
-	
 	function startAttack(optional byte FireModeNum)
 	{
 		if(canCombo())	GotoState(,'Combo');
@@ -1148,6 +1153,14 @@ Combo:
 	comboAttack();
 	FinishAnim(getActiveAnimNode());
 	PopState();
+
+}
+
+state Air_Attack{
+	event PushedState(){
+		super.PushedState();
+		Pawn.GotoState('AirAttack');
+	}
 
 }
 
