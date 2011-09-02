@@ -134,6 +134,7 @@ DefaultProperties
 
 	//Name of diferent animations for playing in custom node
 	attackAnimName = "Attack";
+	searchingAnimName = "idle2";
 	dyingAnimName = "Dead";
 
 }

@@ -352,6 +352,7 @@ state GoToLastPlayerLocation{
 	event EndState(Name NextStateName){
 		super.EndState(NextStateName);
 		Pawn.PeripheralVision = Pawn.default.PeripheralVision;
+		BBEnemyPawn(Pawn).StopSearchingAnim();
 	}
 
 Begin:
@@ -382,8 +383,9 @@ Begin:
 	}
 	//Vision of 180º
 	Pawn.PeripheralVision = 0.0f;
+	BBEnemyPawn(Pawn).PlaySearchingAnim();
 	Sleep(3.0f);
-	
+
 	GotoState('Idle',,,true);
 
 }

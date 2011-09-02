@@ -91,5 +91,7 @@ DefaultProperties
 
 	//Name of diferent animations for playing in custom node (esta aqui porque en defaultProperties no funciona)
 	attackAnimName = "Ant_Attack_2_seq";
-	dyingAnimName = "Ant_iddle_seq";
+	searchingAnimName = "Ant_Searching_seq";
+	stunnedAnimName = "Ant_Atontada_seq";
+	dyingAnimName = "Ant_Die_seq";
 }
