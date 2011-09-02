@@ -9,9 +9,6 @@ var() float attackChargeSpeedModifier;
 
 var() float attackDistanceNear;
 
-/** Time stunned after hitwall collision */
-var() float timeStunned;
-
 var AnimNodeBlendList animStateList;
 
 var name chargePrepareAnimName;
@@ -112,14 +109,20 @@ Attack:
 	GotoState('ChasePlayer');
 }
 
-state Stunned{
-	simulated event BeginState(name NextStateName){		
-		super.BeginState(NextStateName);
+simulated state Stunned{
+	simulated event BeginState(name PreviousStateName){		
+		super.BeginState(PreviousStateName);
 		Controller.GotoState('Stunned');
+		stunnedPSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(stunnedPS, Mesh, 'exclamacion', true, , rot(90,0,0));
 		customAnimSlot.PlayCustomAnim(chargeHitWallAnimName,1.0f,0.25f,0.0f,false,true);
 		customAnimSlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Translate,RBA_Translate,RBA_Default);
 
 		Mesh.RootMotionMode = RMM_Translate;
+	}
+
+	simulated event EndState(name NextStateName){
+		super.EndState(NextStateName);
+		stunnedPSC.SetActive(false);
 	}
 
 Begin:
@@ -133,6 +136,7 @@ Begin:
 
 	customAnimSlot.PlayCustomAnim(chargeStunnedAnimName, 1.0f, 0.0f, 0.0f, true, true);
 	Sleep(timeStunned);
+	stunnedPSC.SetActive(false);
 	customAnimSlot.PlayCustomAnim(chargeAwakeAnimName, 1.0f, 0.0f, 0.0f, false, true);
 	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());	
 
@@ -220,6 +224,8 @@ DefaultProperties
 
 	Mesh=InitialPawnSkeletalMesh
     Components.Add(InitialPawnSkeletalMesh)
+
+	
 
 	bJumpCapable=false
     bCanJump=false

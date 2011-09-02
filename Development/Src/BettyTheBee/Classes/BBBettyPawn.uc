@@ -40,6 +40,8 @@ var name attackAnimNames[3];
 /** Indicates the index of next attack anim (0, 1 or 2) */
 var int nextAttackIndex;
 var name grenadeAnimName;
+var name airAttackAnimName;
+var name airAttackEndAnimName;
 
 /** World time that we started the death animation */
 var				float	StartDeathAnimTime;
@@ -47,6 +49,8 @@ var				float	StartDeathAnimTime;
 var				class<BBDamageType> DeathAnimDamageType;
 /** Time that we took damage of type DeathAnimDamageType. */
 var				float	TimeLastTookDeathAnimDamage;
+
+var class<BBDamageType> airAttackDamageType;
 
 var MaterialInterface DefaultMaterial;
 var MaterialInterface DamageMaterial;
@@ -234,20 +238,7 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 	if (SkelComp == Mesh)
 	{
 		fullBodySlot = AnimNodeSlot(SkelComp.FindAnimNode('FullBodySlot'));
-		upperBodySlot = AnimNodeSlot(SkelComp.FindAnimNode('UpperBodySlot'));
-
-		preJumpAnimName = 'Betty_Jump_Preup';
-		attackAnimNames[0] = 'B_attack_seq';
-		attackAnimNames[1] = 'Betty_attack_2_seq';
-		attackAnimNames[2] = 'Betty_attack_3_seq';
-		grenadeAnimName = 'Betty_grenade_seq';
-
-		rollAnimNames[ROLL_LEFT] = 'Betty_roll Left_2';
-		rollAnimNames[ROLL_RIGHT] = 'Betty_roll Right_2';
-
-		slideAnimNames[SLIDING_START] = 'Betty_Slide_Start';
-		slideAnimNames[SLIDING] = 'Betty_Slide_Loop';
-		slideAnimNames[SLIDING_END] = 'Betty_Slide_End';
+		upperBodySlot = AnimNodeSlot(SkelComp.FindAnimNode('UpperBodySlot'));		
 	}
 }
 
@@ -853,6 +844,63 @@ Begin:
 	fullBodySlot.StopCustomAnim(0);
 }
 
+state AirAttack{
+	
+	event BeginState(name PreviousStateName){
+		super.BeginState(PreviousStateName);
+		
+	}
+
+	event EndState(name NextStateName){
+		super.EndState(NextStateName);
+		// Discard root motion. So mesh stays locked in place.
+		// We need this to properly blend out to another animation
+		//fullBodySlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Discard,RBA_Discard,RBA_Discard);
+		// Tell mesh to stop using root motion
+		Mesh.RootMotionMode = RMM_Ignore;
+		SetPhysics(PHYS_Walking);
+		CustomGravityScaling = default.CustomGravityScaling;
+		Controller.GoToState('PlayerWalking');
+	}
+
+	event Bump( Actor Other, PrimitiveComponent OtherComp, Vector HitNormal ){
+		super.Bump(Other, OtherComp, HitNormal);
+		if(BBEnemyPawn(Other) != none){
+			Other.TakeDamage(0,Controller, vect(0,0,0), vect(0,0,0), airAttackDamageType);
+		}
+		GotoState('AirAttack', 'Landing');
+	}
+
+	event Landed(vector HitNormal, actor FloorActor){
+		super.Landed(HitNormal, FloorActor);
+		GotoState('AirAttack', 'Landing');
+	}
+
+Begin:
+	fullBodySlot.PlayCustomAnim(airAttackAnimName, 0.75f, 0.15f, 0.0f, false, true);
+	fullBodySlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Translate,RBA_Translate,RBA_Translate);
+	Mesh.RootMotionMode = RMM_Accel;
+	//Paramos todo el movimiento para no seguir subiendo o bajando
+	ZeroMovementVariables();
+	CustomGravityScaling = 0.0f;
+	Sleep(0.5f);
+	CustomGravityScaling = 10.0f;	
+	//Mesh.RootMotionAccelScale.X = attackChargeSpeedModifier;
+	//Mesh.RootMotionAccelScale.Y = attackChargeSpeedModifier;
+	//Mesh.RootMotionAccelScale.Z = attackChargeSpeedModifier;
+
+	FinishAnim(fullBodySlot.GetCustomAnimNodeSeq());
+	
+	GotoState('Idle');
+Landing:
+	fullBodySlot.PlayCustomAnim(airAttackEndAnimName, 1.0f, 0.0f, 0.15f, false, true);
+	fullBodySlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Discard,RBA_Discard,RBA_Default);
+
+	Mesh.RootMotionMode = RMM_Ignore;
+	FinishAnim(fullBodySlot.GetCustomAnimNodeSeq());
+	GotoState('Idle');
+}
+
 state playerSlide
 {
 
@@ -961,6 +1009,25 @@ DefaultProperties
 
 	invulnerableMaxTime = 1.5f;
 
+	//Anim Names
+	preJumpAnimName = "Betty_Jump_Preup";
+	attackAnimNames[0] = "B_attack_seq";
+	attackAnimNames[1] = "Betty_attack_2_seq";
+	attackAnimNames[2] = "Betty_attack_3_seq";
+	grenadeAnimName = "Betty_grenade_seq";
+
+	rollAnimNames[ROLL_LEFT] = "Betty_roll Left_2";
+	rollAnimNames[ROLL_RIGHT] = "Betty_roll Right_2";
+
+	slideAnimNames[SLIDING_START] = "Betty_Slide_Start";
+	slideAnimNames[SLIDING] = "Betty_Slide_Loop";
+	slideAnimNames[SLIDING_END] = "Betty_Slide_End";
+
+	airAttackAnimName = "Betty_Attack_4_start_seq";
+	airAttackEndAnimName = "Betty_Attack_4_end_seq";
+
+	airAttackDamageType = class'BBDamageType_AirAttack';
+
 
 	EquipSwordCue=SoundCue'Betty_Player.Sounds.FxSacarArma0_Cue';
 	RightFootStepCue=SoundCue'Betty_Player.Sounds.FxPasoPiedraDcho_Cue'
@@ -974,7 +1041,7 @@ DefaultProperties
 	HitSound=SoundCue'Betty_Player.Sounds.FxGolpeBetty_Cue'
 	
 	Begin Object Class=SkeletalMeshComponent Name=grenade
-	SkeletalMesh=SkeletalMesh'Betty_Player.SkModels.GrenadeSk'
+		SkeletalMesh=SkeletalMesh'Betty_Player.SkModels.GrenadeSk'
 	End Object
 	grenadeMesh=grenade
 
