@@ -33,6 +33,7 @@ var class<BBDamageType> MyDamageType;
 var AnimNodePlayCustomAnim customAnimSlot;
 
 var name attackAnimName;
+var name searchingAnimName;
 var name dyingAnimName;
 var name stunnedAnimName;
 
@@ -121,6 +122,15 @@ function stopPariclesFijado(){
 
 function playParticlesExclamacion(){
 	Exclamacion_PSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(Exclamacion_PS,Mesh,'exclamacion',true);
+}
+
+function PlaySearchingAnim(){
+	if(searchingAnimName != '')
+		customAnimSlot.PlayCustomAnim(searchingAnimName, 1.0f, 0.25f, 0.25f, true, true);
+}
+
+function StopSearchingAnim(){
+	customAnimSlot.StopCustomAnim(0.25f);
 }
 
 function bool Died(Controller Killer, class<DamageType> tempDamageType, Vector HitLocation){

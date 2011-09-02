@@ -883,12 +883,10 @@ Begin:
 	//Paramos todo el movimiento para no seguir subiendo o bajando
 	ZeroMovementVariables();
 	CustomGravityScaling = 0.0f;
-	Sleep(0.5f);
+	//Esperamos un rato parados en el aire
+	Sleep(0.35f);
 	CustomGravityScaling = 10.0f;	
-	//Mesh.RootMotionAccelScale.X = attackChargeSpeedModifier;
-	//Mesh.RootMotionAccelScale.Y = attackChargeSpeedModifier;
-	//Mesh.RootMotionAccelScale.Z = attackChargeSpeedModifier;
-
+	
 	FinishAnim(fullBodySlot.GetCustomAnimNodeSeq());
 	
 	GotoState('Idle');
