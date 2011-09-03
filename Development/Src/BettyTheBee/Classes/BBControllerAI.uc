@@ -396,6 +396,7 @@ state Stunned{
 	simulated event BeginState(name PreviousStateName){
 		super.BeginState(PreviousStateName);
 		StopLatentExecution();
+		Focus = none;
 		Pawn.ZeroMovementVariables();
 	}
 }
