@@ -906,7 +906,7 @@ state playerSlide
 
 	event BeginState(name PreviousStateName){
 		super.BeginState(PreviousStateName);
-		Mesh.AttachComponentToSocket(hojaSlide, 'centro');
+		Mesh.AttachComponentToSocket(hojaSlide, 'HojaSlide');
 		
 	}
 
