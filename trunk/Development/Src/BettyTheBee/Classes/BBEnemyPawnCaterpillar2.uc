@@ -144,4 +144,6 @@ DefaultProperties
     attackEndAnime = "Oruga_Down_seq";
 	//dyingAnimName = "Die";
 	fearAnimName = "Oruga_Afraid_seq";
+
+	DeadPS = ParticleSystem'Betty_caterpillar.Particles.Dead_PS';
 }

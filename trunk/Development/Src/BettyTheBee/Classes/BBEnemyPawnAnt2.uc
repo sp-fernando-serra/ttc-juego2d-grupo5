@@ -101,5 +101,7 @@ DefaultProperties
 	stunnedAnimName = "Ant_Atontada_seq";
 	dyingAnimName = "Ant_Die_seq";
 
+	DeadPS = ParticleSystem'Betty_ant.PS.Dead_PS';
+
 	damagedSound=SoundCue'Betty_ant.Sounds.FxAntDamaged_Cue'
 }
