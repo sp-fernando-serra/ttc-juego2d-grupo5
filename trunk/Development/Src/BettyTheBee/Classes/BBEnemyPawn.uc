@@ -238,6 +238,7 @@ simulated function PlayDying(class<DamageType> DamageType, vector HitLoc)
 
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	Damage = Max(Damage, 0);
+	playDamaged();
 	if(Health > 0){
 		Health -= Damage;
 	}
@@ -245,6 +246,10 @@ event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector
 		Health = 0;
 		GotoState('Stunned');
 	}
+}
+
+function playDamaged(){
+
 }
 
 function bool isDying(){

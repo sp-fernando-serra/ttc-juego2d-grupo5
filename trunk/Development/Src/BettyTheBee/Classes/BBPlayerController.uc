@@ -1032,6 +1032,7 @@ event BeginState(Name PreviousStateName)
 	{
 		super.BeginState(PreviousStateName);
 		//BBBettyPawn(Pawn).slide(0);
+		//Pawn.SetPhysics(PHYS_Flying);
 		Pawn.GotoState('PlayerSlide');
 		
 	}
