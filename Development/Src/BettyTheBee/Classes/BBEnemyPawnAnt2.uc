@@ -1,5 +1,7 @@
 class BBEnemyPawnAnt2 extends BBEnemyPawn placeable;
 
+var SoundCue damagedSound;
+
 simulated function PostBeginPlay()
 {
 	super.PostBeginPlay();
@@ -53,6 +55,10 @@ state Attacking{
 	}
 }
 
+function playDamaged(){
+	PlaySound(damagedSound);
+}
+
 
 DefaultProperties
 {
@@ -94,4 +100,6 @@ DefaultProperties
 	searchingAnimName = "Ant_Searching_seq";
 	stunnedAnimName = "Ant_Atontada_seq";
 	dyingAnimName = "Ant_Die_seq";
+
+	damagedSound=SoundCue'Betty_ant.Sounds.FxAntDamaged_Cue'
 }

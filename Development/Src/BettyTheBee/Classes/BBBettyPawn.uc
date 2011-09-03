@@ -101,6 +101,8 @@ var SoundCue HitSound;
 
 var() SkeletalMeshComponent grenadeMesh;
 
+var() SkeletalMeshComponent hojaSlide;
+
 //-----------------------------------------------------------------------------------------------
 //-----------------------------------NOTIFYS-----------------------------------------------------
 
@@ -904,6 +906,7 @@ state playerSlide
 
 	event BeginState(name PreviousStateName){
 		super.BeginState(PreviousStateName);
+		Mesh.AttachComponentToSocket(hojaSlide, 'centro');
 		
 	}
 
@@ -940,6 +943,18 @@ DefaultProperties
 		bHasPhysicsAssetInstance=true
 		//SkeletalMesh=SkeletalMesh'Betty_PlayerAITOR.SkModels.Betty_SkMesh'
 	End Object
+	
+	Begin Object Class=SkeletalMeshComponent Name=MyHojaSlide
+		CastShadow=true
+		bCastDynamicShadow=true
+		bOwnerNoSee=false
+		LightEnvironment=MyLightEnvironment;
+		SkeletalMesh=SkeletalMesh'Betty_hojaSlide.SkModels.HojaSlide'
+		End Object
+
+	hojaSlide=MyHojaSlide
+
+
 	//Setting up a proper collision cylinder
 	Mesh=InitialSkeletalMesh;
 	Components.Add(InitialSkeletalMesh);
