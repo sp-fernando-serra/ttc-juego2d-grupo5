@@ -55,6 +55,8 @@ var bool bStoppedByHit;
 /** When get hitted the pawn stops his movement "hitStopTime" seconds */
 var float hitStopTime;
 
+var float AirAttackThreshold;
+
 var SoundCue FrenesiSound;
 enum EHabilityNames
 {
@@ -622,14 +624,15 @@ function AnimNodeSequence getActiveAnimNode()
 }
 
 function bool canAttack(){
-
-	if(Pawn.Physics != PHYS_Falling && !IsInState('Grenade_Attack') && !bSliding) return true;	
+	local BBBettyPawn tempPawn;
+	tempPawn = BBBettyPawn(Pawn);
+	if(Pawn.Physics != PHYS_Falling && !IsInState('Grenade_Attack') && !bSliding && !tempPawn.bPreparingJump) return true;	
 	return false;
 }
 
 function bool canAirAttack(){
 
-	if(Pawn.Physics == PHYS_Falling && !IsInState('Air_Attack') && !IsInState('Grenade_Attack') && !bSliding) return true;	
+	if(Pawn.Physics == PHYS_Falling && (Abs(Pawn.Velocity.Z) < AirAttackThreshold) && !IsInState('Air_Attack') && !IsInState('Grenade_Attack') && !bSliding) return true;	
 	return false;
 }
 
@@ -1230,6 +1233,7 @@ DefaultProperties
 	RotationSpeed=150000;
 
 	MinRespawnDelay = 3.0f
+	AirAttackThreshold = 320.0f;
 
 	costHeal = 20;
 	amountHealed = 3;
