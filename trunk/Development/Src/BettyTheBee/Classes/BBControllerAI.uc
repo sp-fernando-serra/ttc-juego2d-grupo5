@@ -31,6 +31,10 @@ var bool CurrentTargetIsReachable;
 var Vector NextMoveLocation;
 /** Vector with las player location */
 var Vector LastPlayerLocation;
+/** Vector with the start location of the pawn.
+ *  Used to return here if player has been lost
+ */
+var Vector StartLocation;
 
 function SetPawn(BBEnemyPawn NewPawn){
 
@@ -42,7 +46,8 @@ function SetPawn(BBEnemyPawn NewPawn){
 	attackDistanceFactor = NewPawn.AttackDistanceFactor;
 	PerceptionDistance = NewPawn.PerceptionDistance;
 	alertRadius = NewPawn.alertRadius;
-	
+
+	StartLocation = NewPawn.Location;
 }
 
 function Possess(Pawn aPawn, bool bVehicleTransition){
@@ -201,8 +206,35 @@ Begin:
 	if(ScriptedRoute != none){
 		//`log(Pawn.name @ ": Going to follow path");
 		GotoState('ScriptedRouteMove');
+	}else{
+		while( Pawn != None && !Pawn.ReachedPoint(StartLocation,none) ){
+			//If path to point exists
+			if(GeneratePathToLocation(StartLocation)){
+				//If Target is directly Reachable
+				CurrentTargetIsReachable = NavigationHandle.PointReachable(StartLocation);
+				if(CurrentTargetIsReachable){
+					Focus = none;
+					if(!IsZero(StartLocation))
+						MoveTo(StartLocation, none);
+				}else{  //Actor is NOT directly reachable
+					Focus = none;
+					//If path exists
+					if(NavigationHandle.GetNextMoveLocation(NextMoveLocation, Pawn.GetCollisionRadius())){
+						MoveTo(NextMoveLocation,none);
+					}else{
+						`log(self @ "Can't find next step in path to Las player location:" @ LastPlayerLocation);
+						break;
+					}
+				}
+			}else{
+				`log(self @ "Can't find path to last player location:" @ StartLocation);
+				break;
+			}
+		}
 	}
-	//goto 'Begin';
+	//Esperamos 5 segundos antes de volver a comprobar si podemos llegar a la start location
+	Sleep(5.0f);
+	goto 'Begin';
 
 }
 
@@ -365,14 +397,14 @@ Begin:
 			if(CurrentTargetIsReachable){
 				Focus = none;
 				if(!IsZero(LastPlayerLocation))
-					MoveTo(LastPlayerLocation, none);
+					MoveTo(LastPlayerLocation, none, 40.0); //No vamos exactamente al punto sino a 40 UU de distancia, para evitar que dos pawn intenten ir a la misma location
 			}else{  //Actor is NOT directly reachable
 				Focus = none;
 				//If path exists
 				if(NavigationHandle.GetNextMoveLocation(NextMoveLocation, Pawn.GetCollisionRadius())){
 					MoveTo(NextMoveLocation,none);
 				}else{
-					`log(self @ "Can't find next step in path to Las player location:" @ LastPlayerLocation);
+					`log(self @ "Can't find next step in path to Last player location:" @ LastPlayerLocation);
 					break;
 				}
 			}
