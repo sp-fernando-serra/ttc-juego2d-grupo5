@@ -100,7 +100,7 @@ DefaultProperties
 	
 	//this is the HUD. If the HUD is off, then this should be off
 	bDisplayWithHudOff=true
-	bShowHud=true
+	//bShowHud=true
 	
 	//The path to the swf asset we will create later
 	MovieInfo=SwfMovie'BettyInterface.interface_menu.menu'

@@ -49,6 +49,8 @@ var ParticleSystemComponent stunnedPSC;
 var ParticleSystem Exclamacion_PS;
 var ParticleSystemComponent Exclamacion_PSC;
 
+var ParticleSystem DeadPS;
+
 
 simulated function PostBeginPlay()
 {
@@ -276,6 +278,7 @@ simulated state Stunned{
 
 	event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 		if(class<BBDamageType_AirAttack>(DamageType) != none){
+			WorldInfo.MyEmitterPool.SpawnEmitter(DeadPS, Location, Rotation);
 			if(controller != none)
 				Controller.Destroy();
 			Destroy();
