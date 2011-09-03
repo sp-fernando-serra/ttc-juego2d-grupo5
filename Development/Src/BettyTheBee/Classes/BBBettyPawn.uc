@@ -64,11 +64,7 @@ const SLIDING       = 1;
 const SLIDING_END   = 2;
 var name slideAnimNames[3];
 
-///**GroundParticles al andar o correr 
-//var ParticleSystemComponent ParticlesComponent_humo_correr;
-//var ParticleSystemComponent ParticlesComponent_ini_correr;
-//var ParticleSystem ParticlesSystem_humo_correr[5];
-
+//Particle Systems
 /** ParticleSystem que aparece al equipar la espada */
 var ParticleSystem EquipSwordPS;
 /** ParticleSystem used in Heal hability */
@@ -80,6 +76,8 @@ var ParticleSystem Frenesi2PS;
 
 /**ParticleSystem used in footsteps*/
 var ParticleSystem FootstepPS;
+/** ParticleSystem used when landed*/
+var ParticleSystem LandedPS;
 
 //Sounds
 /** Sound for equipping the Sword */
@@ -357,6 +355,7 @@ function bool DoJump( bool bUpdating )
 		}
 		
 		SetPhysics(PHYS_Falling);
+		PlayLandedPS();
 		PlaySound(JumpCue);
 		bReadyToDoubleJump = true;
 		//bDodging = false;
@@ -376,6 +375,7 @@ function DoDoubleJump( bool bUpdating )
 		Velocity.Z = JumpZ + MultiJumpBoost;
 		//UTInventoryManager(InvManager).OwnerEvent('MultiJump');
 		SetPhysics(PHYS_Falling);
+		PlayLandedPS();
 		PlaySound(DoubleJumpCue);
 		//BaseEyeHeight = DoubleJumpEyeHeight;
 		//if (!bUpdating)
@@ -437,6 +437,7 @@ event Landed(vector HitNormal, actor FloorActor)
 	//{
 	//	SoundGroupClass.Static.PlayLandSound(self);
 	//}
+	PlayLandedPS();
 	MakeNoise(1.0);
 	SetBaseEyeheight();
 }
@@ -662,6 +663,13 @@ function PlayHit(float Damage, Controller InstigatedBy, vector HitLocation, clas
 	PlaySound(HitSound);
 }
 
+function PlayLandedPS(){
+	local Vector tempLocation;
+	tempLocation = Location;
+	tempLocation.Z -= GetCollisionHeight();
+	WorldInfo.MyEmitterPool.SpawnEmitter(LandedPS, tempLocation);
+}
+
 /** Function called by Died(). Used to play death anim
  * 
  */ 
@@ -862,6 +870,7 @@ state AirAttack{
 		Mesh.RootMotionMode = RMM_Ignore;
 		SetPhysics(PHYS_Walking);
 		CustomGravityScaling = default.CustomGravityScaling;
+		PlayLandedPS();
 		Controller.GoToState('PlayerWalking');
 	}
 
@@ -973,6 +982,7 @@ DefaultProperties
 	Frenesi2PS = ParticleSystem'Betty_Player.Particles.Frenesi2_PS'
 
 	FootstepPS = ParticleSystem'Betty_Particles.PSWalkingGround'
+	LandedPS = ParticleSystem'Betty_Player.Particles.Landed_PS';
 
 	GroundSpeed = 400.0f;
 
