@@ -156,20 +156,26 @@ Begin:
 Running:
 	SetTimer(0.25f, true, 'CheckChargeAttackRange');
 	while(true){
-		CurrentTargetIsReachable = NavigationHandle.ActorReachable(Target);
-		if(CurrentTargetIsReachable){
-			//Focus = Target;
-			if(Target != none)
-				MoveToward(Target, Target);
-		}else{  //Actor is NOT directly reachable
-			//Focus = Target;
-			//If path exists
-			if(NavigationHandle.GetNextMoveLocation( NextMoveLocation, Pawn.GetCollisionRadius())){
-				MoveTo(NextMoveLocation,Target);
-			}else{
-				`log(self @ "Can't find path to" @ Target);
-				GotoState('Idle');
+		//If path to point exists
+		if(GeneratePathToActor(Target)){
+			CurrentTargetIsReachable = NavigationHandle.ActorReachable(Target);
+			if(CurrentTargetIsReachable){
+				//Focus = Target;
+				if(Target != none)
+					MoveToward(Target, Target);
+			}else{  //Actor is NOT directly reachable
+				//Focus = Target;
+				//If path exists
+				if(NavigationHandle.GetNextMoveLocation( NextMoveLocation, Pawn.GetCollisionRadius())){
+					MoveTo(NextMoveLocation,Target);
+				}else{
+					`log(self @ "Can't find next Move Location to" @ Target);
+					GotoState('Idle');
+				}
 			}
+		}else{
+			`log(self @ "Can't find path to" @ Target);
+			GotoState('Idle');
 		}
 	}	
 

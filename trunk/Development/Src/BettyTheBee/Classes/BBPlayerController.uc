@@ -626,7 +626,7 @@ function AnimNodeSequence getActiveAnimNode()
 function bool canAttack(){
 	local BBBettyPawn tempPawn;
 	tempPawn = BBBettyPawn(Pawn);
-	if(Pawn.Physics != PHYS_Falling && !IsInState('Grenade_Attack') && !bSliding && !tempPawn.bPreparingJump) return true;	
+	if(Pawn.Physics != PHYS_Falling && !IsInState('Grenade_Attack') && !bStoppedByHit && !bSliding && !tempPawn.bPreparingJump) return true;	
 	return false;
 }
 
@@ -643,29 +643,33 @@ function bool canCombo()
 	tempPawn = BBBettyPawn(Pawn);
 	if(tempPawn!=None)
 	{
-		if(tempPawn.canStartCombo() && IsInState('Sword_Attack') && Pawn.Physics != PHYS_Falling  && !bSliding) return true;
+		if(tempPawn.canStartCombo() && IsInState('Sword_Attack') && !bStoppedByHit &&  Pawn.Physics != PHYS_Falling  && !bSliding) return true;
 	}
 	return false;
 }
 
 simulated function bool canThrowGrenade(){
 	
-	if(reactivateTime[HN_Grenade] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costGrenade  && !bSliding) return true;
+	if(reactivateTime[HN_Grenade] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && !bStoppedByHit &&  Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costGrenade  && !bSliding) return true;
 	else return false;
 }
 
 simulated function bool canUseHeal(){
-	if(reactivateTime[HN_Heal] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costHeal) return true;
+	if(reactivateTime[HN_Heal] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && !bStoppedByHit &&  Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costHeal) return true;
 	else return false;
 }
 
 simulated function bool canUseFrenesi(){
-	if(reactivateTime[HN_Frenesi] == 0 && frenesiDuration == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costFrenesi) return true;
+	if(reactivateTime[HN_Frenesi] == 0 && frenesiDuration == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && !bStoppedByHit &&  Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costFrenesi) return true;
 	else return false;
 }
 
 simulated function bool canUseRoll(){
-	if(broll && reactivateTime[HN_Roll] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && Pawn.Physics != PHYS_Falling  && !bSliding) return true;
+	if(broll && reactivateTime[HN_Roll] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && !bStoppedByHit &&  Pawn.Physics != PHYS_Falling  && !bSliding) return true;
+	else return false;
+}
+simulated function bool canJump(){
+	if(!bStoppedByHit) return true;
 	else return false;
 }
 
@@ -680,7 +684,7 @@ function CheckJumpOrDuck()
 	//{
 	//	BBBettyPawn(Pawn).DoDoubleJump( bUpdating );
 	//}
-    if ( bPressedJump )
+    if ( bPressedJump && canJump() )
 	{
   		BBBettyPawn(Pawn).prepareJump(bUpdating);
 	}
@@ -700,6 +704,13 @@ function NotifyTakeHit(Controller InstigatedBy, Vector HitLocation, int Damage, 
 		bStoppedByHit = true;
 		hitStopTime = myBBDamageType.default.hitStopTime;
 	}
+}
+
+function NotifyFailedAttack(){
+	//Use the Hit Stop method for stopping player when realiced a failed attack
+	bStoppedByHit = true;
+	hitStopTime = 0.5f;
+	BBBettyPawn(Pawn).playFailedAttack();
 }
 
 event PlayerTick(float DeltaTime){
@@ -1168,7 +1179,6 @@ state Air_Attack{
 	}
 
 }
-
 
 state Grenade_Attack
 {
