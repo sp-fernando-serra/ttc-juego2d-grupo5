@@ -954,6 +954,7 @@ state playerSlide
 
 	event BeginState(name PreviousStateName){
 		super.BeginState(PreviousStateName);
+		hojaSlide.SetScale(0.65);
 		Mesh.AttachComponentToSocket(hojaSlide, 'HojaSlide');
 		
 	}
@@ -962,6 +963,7 @@ state playerSlide
 	{
 		super.EndState(NextStateName);
 		fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING_END],1.0f,0.0f,0.0f,false,true);
+		Mesh.DetachComponent(hojaSlide);
 		gotoState('idle');
 	}
 Begin:
