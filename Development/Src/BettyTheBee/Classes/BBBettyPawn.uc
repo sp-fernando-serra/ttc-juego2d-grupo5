@@ -468,6 +468,16 @@ simulated function calcHitLocation()
 {
 	BBWeapon(Weapon).calcHitPosition();
 }
+/**This function is called from Kismet, used to draw text in screen
+ * 
+ */ 
+function DrawText(BBSeqAct_DrawText myActionDrawText){
+	BBHUD(PlayerController(Controller).myHUD).texto_ayuda(  myActionDrawText.text1,
+															myActionDrawText.text2,
+															myActionDrawText.size,
+															myActionDrawText.posX * 1024,
+															myActionDrawText.posY * 768);
+}
 
 simulated function StartFire(byte FireModeNum)
 {
