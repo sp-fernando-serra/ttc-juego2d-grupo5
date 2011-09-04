@@ -42,6 +42,7 @@ var int nextAttackIndex;
 var name grenadeAnimName;
 var name airAttackAnimName;
 var name airAttackEndAnimName;
+var name failedAttackAnimName;
 
 /** World time that we started the death animation */
 var				float	StartDeathAnimTime;
@@ -622,7 +623,6 @@ event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector
 	if(!isInvulnerable()){
 		super.TakeDamage(Damage, InstigatedBy, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
 		SetInvulnerable(true);
-		ZeroMovementVariables();
 		Worldinfo.Game.Broadcast(self,Name$": "$Damage$ " done by "$DamageCauser.Name $ " Life: "$Health);
 	}
 }
@@ -699,6 +699,12 @@ function PlayHit(float Damage, Controller InstigatedBy, vector HitLocation, clas
 	}
 	PlaySound(HitSound);
 }
+
+function playFailedAttack(){	
+	fullBodySlot.PlayCustomAnim(failedAttackAnimName, 1.0f, 0.15f, 0.1f, false, true);
+}
+
+
 
 function PlayLandedPS(){
 	local Vector tempLocation;
@@ -949,6 +955,7 @@ Landing:
 	GotoState('Idle');
 }
 
+
 state playerSlide
 {
 
@@ -1047,6 +1054,7 @@ DefaultProperties
 
 	CustomGravityScaling = 2.5
 	//Buoyancy = 1.0
+	Mass = 1.0f;    //Used for handle momentum (in case of takeDamage of Rhino's Charge)
 
 
 	Health = 5;
@@ -1089,6 +1097,7 @@ DefaultProperties
 
 	airAttackAnimName = "Betty_Attack_4_start_seq";
 	airAttackEndAnimName = "Betty_Attack_4_end_seq";
+	failedAttackAnimName = "Betty_Attack_Failed_seq";
 
 	airAttackDamageType = class'BBDamageType_AirAttack';
 

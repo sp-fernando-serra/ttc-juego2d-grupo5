@@ -163,6 +163,7 @@ event SeePlayer(Pawn SeenPlayer){
 		StopLatentExecution();
 		thePlayer = BBPawn(SeenPlayer);
 		distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
+		LastPlayerLocation = thePlayer.Location;
 		if (distanceToPlayer < perceptionDistance)
 		{ 
         	//Worldinfo.Game.Broadcast(self, Pawn.name $ ": I can see you!! (followpath)");

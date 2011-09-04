@@ -8,8 +8,15 @@ var() float attackChargeDistance;
 var() float attackChargeSpeedModifier;
 
 var() float attackDistanceNear;
+/** Used for pushing player when hitted by charge attack */
+var() Vector attackChargeMomentum;
+
+var class<BBDamageType> myChargeDamageType;
 
 var AnimNodeBlendList animStateList;
+
+var bool bDamageTakenInThisStun;
+var bool bDoDamage;
 
 var name chargePrepareAnimName;
 var name chargeRunAnimName;
@@ -76,6 +83,15 @@ event PlayFootStepSound(int FootDown){
 	}
 	MakeNoise(1.0);
 }
+event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
+	//Do not take damage unless Stunned (overrided in Stunned state)
+
+	//Inform player of failed attack (playanimation)
+	if(BBPlayerController(InstigatedBy) != none){
+		BBPlayerController(InstigatedBy).NotifyFailedAttack();
+	}
+}
+
 
 
 state ChasePlayer{
@@ -104,11 +120,23 @@ state Charging{
 
 		GroundSpeed = default.GroundSpeed;
 		RotationRate = default.RotationRate;
+
+		bDoDamage = false;
 	}
 
 	event HitWall( vector HitNormal, actor Wall, PrimitiveComponent WallComp ){
 		super.HitWall(HitNormal, Wall, WallComp);
 		GotoState('Stunned');
+	}
+	event Bump(Actor Other, PrimitiveComponent OtherComp, Vector HitNormal){
+		local Vector tempMomentum;
+		super.Bump(Other, OtherComp, HitNormal);
+		if(bDoDamage && BBBettyPawn(Other) != none){
+			HitNormal.Z = 1.0;
+			tempMomentum = attackChargeMomentum * HitNormal;			
+			Other.TakeDamage(ChargeDamage, Controller, Location, tempMomentum, myChargeDamageType, , self);
+			bDoDamage = false;
+		}
 	}
 	
 Begin:
@@ -116,6 +144,7 @@ Begin:
 	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());
 Running:
 	customAnimSlot.PlayCustomAnim(chargeRunAnimName,2.0f,0.25,0.25,true,true);
+	bDoDamage = true;
 	GroundSpeed = chargeSpeed;
 	Controller.GotoState('Charging','Running');	
 	Sleep(4.0f);
@@ -132,6 +161,8 @@ Attack:
 	RotationRate = Rotator(vect(0,0,0));
 	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());
 
+	bDoDamage = false;
+
 	
 	Controller.GotoState('ChasePlayer');
 	GotoState('ChasePlayer');
@@ -139,8 +170,8 @@ Attack:
 
 simulated state Stunned{
 	simulated event BeginState(name PreviousStateName){		
-		super.BeginState(PreviousStateName);
 		Controller.GotoState('Stunned');
+		bDamageTakenInThisStun = false;
 		stunnedPSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(stunnedPS, Mesh, 'exclamacion', true, , rot(90,0,0));
 		customAnimSlot.PlayCustomAnim(chargeHitWallAnimName,1.0f,0.25f,0.0f,false,true);
 		customAnimSlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Translate,RBA_Translate,RBA_Default);
@@ -149,8 +180,18 @@ simulated state Stunned{
 	}
 
 	simulated event EndState(name NextStateName){
-		super.EndState(NextStateName);
 		stunnedPSC.SetActive(false);
+		bDamageTakenInThisStun = false;
+	}
+
+	event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
+		//Take damage because we are stunned only if bDamageTakenInThisStun == false
+		if(!bDamageTakenInThisStun){
+			super.TakeDamage(Damage, InstigatedBy, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
+			bDamageTakenInThisStun = true;
+			Controller.StopLatentExecution();
+			GotoState('Stunned', 'Awake');
+		}
 	}
 
 Begin:
@@ -164,6 +205,7 @@ Begin:
 
 	customAnimSlot.PlayCustomAnim(chargeStunnedAnimName, 1.0f, 0.0f, 0.0f, true, true);
 	Sleep(timeStunned);
+Awake:
 	stunnedPSC.SetActive(false);
 	customAnimSlot.PlayCustomAnim(chargeAwakeAnimName, 1.0f, 0.0f, 0.0f, false, true);
 	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());	
@@ -227,8 +269,8 @@ state Attacking{
 DefaultProperties
 {
 	Begin Object Name=CollisionCylinder
-		CollisionHeight=+70.000000
-		CollisionRadius=+65.000000
+		CollisionHeight=+105.0  //That's original 70 with DrawScale of 1.5
+		CollisionRadius=+97.5   //That's original 65 with DrawScale of 1.5
 	End object
 
 	Begin Object class=SkeletalMeshComponent Name=InitialPawnSkeletalMesh
@@ -253,6 +295,7 @@ DefaultProperties
 	Mesh=InitialPawnSkeletalMesh
     Components.Add(InitialPawnSkeletalMesh)
 
+	DrawScale = 1.5;
 	FootstepPS = ParticleSystem'Betty_Particles.PSWalkingGround'
 
 	RightFootStepCue=SoundCue'Betty_rhino.Sounds.FxRhinoPaw0_Cue'
@@ -270,8 +313,11 @@ DefaultProperties
 	chargeSpeed = 750;
 	attackChargeDistance = 500.0f;
 	attackChargeSpeedModifier = 1.0f;
+	attackChargeMomentum = (X = -1500.0, Y = -1500.0, Z = 1000.0);
 
 	timeStunned = 3.0f;
+
+	myChargeDamageType = class'BBDamageType_RhinoCharge';
 
 	//Name of diferent animations for playing in custom node
 	attackAnimName = "Attack";
