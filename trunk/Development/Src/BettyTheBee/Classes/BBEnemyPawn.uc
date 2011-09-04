@@ -228,14 +228,9 @@ and also on net client when pawn gets bTearOff set to true (and bPlayedDeath is 
 */
 simulated function PlayDying(class<DamageType> DamageType, vector HitLoc)
 {
-	GotoState('Stunned');
-	//bReplicateMovement = false;
-	//bTearOff = true;
-	//Velocity += TearOffMomentum;
-	SetDyingPhysics();
-	bPlayedDeath = true;
+	super.PlayDying(DamageType, HitLoc);
 
-	KismetDeathDelayTime = default.KismetDeathDelayTime + WorldInfo.TimeSeconds;
+	customAnimSlot.PlayCustomAnim(dyingAnimName,1.0f,0.25,-1.0f,false,true);
 }
 
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
@@ -294,17 +289,10 @@ Begin:
 }
 
 simulated state Dying{
-	simulated event BeginState(Name PreviousStateName)
-	{
-		stopPariclesFijado();
-		customAnimSlot.PlayCustomAnim(dyingAnimName,1.0f,0.25,0.0f,false,true);		
+	simulated event BeginState(Name PreviousStateName){
 		super.BeginState(PreviousStateName);
+		stopPariclesFijado();
 	}
-
-begin:
-	Sleep(customAnimSlot.GetCustomAnimNodeSeq().GetTimeLeft() - 0.05f);
-	//customAnimSlot.GetCustomAnimNodeSeq().SetPosition(1.0f,false);
-	customAnimSlot.StopAnim();
 }
 
 defaultproperties

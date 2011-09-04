@@ -185,9 +185,31 @@ simulated state Stunned{
 	}
 
 	event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
+		local PlayerController PC;
+		local Controller Killer;
+		
 		//Take damage because we are stunned only if bDamageTakenInThisStun == false
 		if(!bDamageTakenInThisStun){
-			super.TakeDamage(Damage, InstigatedBy, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
+			Damage = Max(Damage, 0);
+			if(Damage > 0){
+				playDamaged();
+				if(Health > 0){
+					Health -= Damage;
+				}
+				if(Health <= 0){    //Pawn is dead (not stunned like defautl pawns)
+					PC = PlayerController(Controller);
+					// play force feedback for death
+					if (PC != None)
+					{
+						PC.ClientPlayForceFeedbackWaveform(damageType.default.KilledFFWaveform);
+					}
+					// pawn died
+					Killer = SetKillInstigator(InstigatedBy, DamageType);
+					TearOffMomentum = momentum;
+					Died(Killer, damageType, HitLocation);
+					return;
+				}
+			}
 			bDamageTakenInThisStun = true;
 			Controller.StopLatentExecution();
 			GotoState('Stunned', 'Awake');
