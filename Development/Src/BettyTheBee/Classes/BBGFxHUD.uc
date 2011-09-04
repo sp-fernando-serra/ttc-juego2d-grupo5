@@ -140,9 +140,9 @@ function ASvida(String texto1)
 }
 
 
-function texto_ayuda(String texto1, int tamany)
+function texto_ayuda()
 {
-     ActionScriptVoid("ayuda_texto");
+     ActionScriptVoid("ayuda_texto2");
 }
 
 function texto_ayudaOFF()
@@ -158,6 +158,7 @@ function PlayGame()
 
 function ExitGame(String mapa)
 {
+
 	ConsoleCommand(mapa);
    //GetPC().SetPause(false);
 }
