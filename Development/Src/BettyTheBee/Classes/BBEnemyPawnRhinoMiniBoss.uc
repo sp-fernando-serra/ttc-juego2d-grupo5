@@ -18,6 +18,14 @@ var name chargeHitWallAnimName;
 var name chargeStunnedAnimName;
 var name chargeAwakeAnimName;
 
+/**ParticleSystem used in footsteps*/
+var ParticleSystem FootstepPS;
+
+/** Sound for left footstep */
+var SoundCue LeftFootStepCue;
+/** Sound for right footstep */
+var SoundCue RightFootStepCue;
+
 event Tick(float DeltaTime){
 	super.Tick(DeltaTime);
 	if(bDebug && !isDying() && !isDead()){
@@ -48,6 +56,26 @@ simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 	}
 }
 
+/**
+ * PlayFootStepSound()
+ * called by AnimNotify_Footstep
+ *
+ * FootDown specifies which foot hit
+ */
+event PlayFootStepSound(int FootDown){
+	local Vector socketLocation;
+	local Rotator socketRotation;
+	if(FootDown == 0){  //Left Footstep
+		PlaySound(LeftFootStepCue);
+		Mesh.GetSocketWorldLocationAndRotation('FootRight',socketLocation, socketRotation);
+		WorldInfo.MyEmitterPool.SpawnEmitter(FootstepPS, socketLocation);
+	}else{              //Right Footstep
+		PlaySound(RightFootStepCue);
+		Mesh.GetSocketWorldLocationAndRotation('FootLeft',socketLocation, socketRotation);
+		WorldInfo.MyEmitterPool.SpawnEmitter(FootstepPS, socketLocation);
+	}
+	MakeNoise(1.0);
+}
 
 
 state ChasePlayer{
@@ -225,7 +253,10 @@ DefaultProperties
 	Mesh=InitialPawnSkeletalMesh
     Components.Add(InitialPawnSkeletalMesh)
 
-	
+	FootstepPS = ParticleSystem'Betty_Particles.PSWalkingGround'
+
+	RightFootStepCue=SoundCue'Betty_rhino.Sounds.FxRhinoPaw0_Cue'
+	LeftFootStepCue=SoundCue'Betty_rhino.Sounds.FxRhinoPaw1_Cue'
 
 	bJumpCapable=false
     bCanJump=false
