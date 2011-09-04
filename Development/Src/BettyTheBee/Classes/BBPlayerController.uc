@@ -901,7 +901,7 @@ State PlayerSlide{
 		}
 		else
 		{
-			speed=slideSpeed;
+			//speed=slideSpeed;
 			if (PlayerInput.aForward > 0){
 				pawn.GroundSpeed = slideSpeed*1.5;
 			}
@@ -1043,6 +1043,7 @@ event BeginState(Name PreviousStateName)
 	event EndState(Name NextStateName)
 	{
 		super.EndState(NextStateName);
+		Pawn.GroundSpeed=speed;
 		Pawn.GotoState('idle');
 		//BBBettyPawn(Pawn).slide(2);
 	}
