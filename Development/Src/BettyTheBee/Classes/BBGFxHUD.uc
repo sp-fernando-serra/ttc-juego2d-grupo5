@@ -142,13 +142,12 @@ function ASvida(String texto1)
 
 function texto_ayuda(String texto1, String texto2, int tamany, int pox_x, int pos_y)
 {
-	`log(texto1);
-     ActionScriptVoid("ayuda_texto");
+	ActionScriptVoid("ayuda_texto");
 }
 
 function texto_ayudaOFF()
 {
-     ActionScriptVoid("ayuda_textoOFF");
+	ActionScriptVoid("ayuda_textoOFF");
 }
 
 

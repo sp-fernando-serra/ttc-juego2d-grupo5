@@ -15,7 +15,7 @@ Defaultproperties
 {
 	bCallHandler = true;
 	HandlerName="DrawText"
-	ObjName="Invocar Texto Ayuda"
+	ObjName="DrawText"
 	ObjCategory="GFx UI"
 
 }
