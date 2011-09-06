@@ -300,10 +300,10 @@ function bool isInvulnerable(){
 
 function SetInvulnerable(bool flag){
 	if(flag){		
-		Mesh.SetMaterial(0,DamageMaterial);
+		//Mesh.SetMaterial(0,DamageMaterial);
 		invulnerableTime = invulnerableMaxTime;
 	}else{
-		Mesh.SetMaterial(0,DefaultMaterial);
+		//Mesh.SetMaterial(0,DefaultMaterial);
 	}
 	bIsInvulnerable = flag;
 }

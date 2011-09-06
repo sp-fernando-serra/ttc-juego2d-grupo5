@@ -47,7 +47,7 @@ function startAnimacioItem(){
 //Called every tick the HUD should be updated
 event PostRender()
 {
-	
+	super.PostRender();
 	if(WorldInfo.GetMapName()!="BettyLevelMenu")  HudMovie.TickHUD();
 }
 
