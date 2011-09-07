@@ -319,7 +319,7 @@ defaultproperties
 	NavMeshGen_MinMergeDotAreaThreshold=2.0
 	NavMeshGen_MinMergeDotSmallArea=0.0
 	NavMeshGen_MinMergeDotLargeArea=0.95
-	NavMeshGen_MaxPolyHeight=160.0
+	NavMeshGen_MaxPolyHeight=260.0
 	NavMeshGen_HeightMergeThreshold=10
 	NavMeshGen_EdgeMaxDelta=2.0
 	NavMeshGen_MinEdgeLength=7.0

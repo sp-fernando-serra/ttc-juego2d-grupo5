@@ -5,17 +5,17 @@ var int ChargeDamage;
 
 var AnimNodeBlendList animStateList;
 
-simulated function PostBeginPlay()
-{
-	super.PostBeginPlay();
+//simulated function PostBeginPlay()
+//{
+//	super.PostBeginPlay();
 
-	if (MyController == none)
-	{
-		MyController = Spawn(class'BettyTheBee.BBControllerAIRhino');
-		MyController.SetPawn(self);
-	}
+//	if (MyController == none)
+//	{
+//		MyController = Spawn(class'BettyTheBee.BBControllerAIRhino');
+//		MyController.SetPawn(self);
+//	}
     
-}
+//}
 
 simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 {
@@ -121,6 +121,8 @@ DefaultProperties
 
 	Mesh=InitialPawnSkeletalMesh
     Components.Add(InitialPawnSkeletalMesh)
+
+	ControllerClass = class'BettyTheBee.BBControllerAIRhino';
 
 	bJumpCapable=false
     bCanJump=false

@@ -1,27 +1,27 @@
 class BBEnemyPawnAnt extends BBEnemyPawn placeable;
 
-simulated function PostBeginPlay()
-{
-	super.PostBeginPlay();
+//simulated function PostBeginPlay()
+//{
+//	super.PostBeginPlay();
 
-	if (MyController == none)
-	{
-		MyController = Spawn(class'BettyTheBee.BBControllerAIAnt');
-		MyController.SetPawn(self);		
-	}
+//	if (MyController == none)
+//	{
+//		MyController = Spawn(class'BettyTheBee.BBControllerAIAnt');
+//		MyController.SetPawn(self);		
+//	}
     
-}
+//}
 
-simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
-{
-	super.PostInitAnimTree(SkelComp);
-	if (SkelComp == Mesh)
-	{
-		//Name of diferent animations for playing in custom node (esta aqui porque en defaultProperties no funciona)
-		attackAnimName = 'Attack_1';
-		dyingAnimName = 'Dying';
-	}
-}
+//simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
+//{
+//	super.PostInitAnimTree(SkelComp);
+//	if (SkelComp == Mesh)
+//	{
+//		//Name of diferent animations for playing in custom node (esta aqui porque en defaultProperties no funciona)
+//		attackAnimName = 'Attack_1';
+//		dyingAnimName = 'Dying';
+//	}
+//}
 
 state Attacking{
 
@@ -47,7 +47,7 @@ state Attacking{
 	
 	simulated event BeginState(name NextStateName){
 		super.BeginState(NextStateName);
-		customAnimSlot.PlayCustomAnim(attackAnimName,1.0f,0.25f,0.25f,true);
+		customAnimSlot.PlayCustomAnim(attackAnimName,1.0f,0.25f,0.25f,true,true);
 	}
 
 	simulated event EndState(name NextStateName){
@@ -81,6 +81,8 @@ DefaultProperties
     End Object
     Mesh=InitialPawnSkeletalMesh
     Components.Add(InitialPawnSkeletalMesh)
+
+	ControllerClass = class'BettyTheBee.BBControllerAIAnt';
     
     bJumpCapable=false
     bCanJump=false
@@ -89,6 +91,9 @@ DefaultProperties
 	PerceptionDistance = 1500;
 	AttackDistance = 60;
 	AttackDamage = 1;
+
+	attackAnimName = "Attack_1";
+	dyingAnimName = "Dying";
 
 }
 

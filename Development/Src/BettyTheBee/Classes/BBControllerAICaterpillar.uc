@@ -11,18 +11,32 @@ var float randomTimeBetweenShots;
 /** This pawn enters in fear state if player is nearer than this distance  */
 var float fearDistance;
 
-function SetPawn(BBEnemyPawn NewPawn){
-	local BBEnemyPawnCaterpillar tempPawn;
+//function SetPawn(BBEnemyPawn NewPawn){
+//	local BBEnemyPawnCaterpillar tempPawn;
 
-	super.SetPawn(NewPawn);
+//	super.SetPawn(NewPawn);
 
-	tempPawn = BBEnemyPawnCaterpillar(NewPawn);
-	if(tempPawn == none){
-		`Warn("Attempting to assign a CaterpillarAI to "@NewPawn.Name);
+//	tempPawn = BBEnemyPawnCaterpillar(NewPawn);
+//	if(tempPawn == none){
+//		`Warn("Attempting to assign a CaterpillarAI to "@NewPawn.Name);
+//	}else{
+//		timeBetweenShots = tempPawn.timeBetweenShots;
+//		randomTimeBetweenShots = tempPawn.randomTimeBetweenShots;
+//		fearDistance = tempPawn.fearDistance;
+//	}
+//}
+
+function Possess(Pawn aPawn, bool bVehicleTransition){
+	local BBEnemyPawnCaterpillar NewPawn;
+
+	super.Possess(aPawn, bVehicleTransition);
+	NewPawn = BBEnemyPawnCaterpillar(aPawn);
+	if(NewPawn != none){
+		timeBetweenShots = NewPawn.timeBetweenShots;
+		randomTimeBetweenShots = NewPawn.randomTimeBetweenShots;
+		fearDistance = NewPawn.fearDistance;
 	}else{
-		timeBetweenShots = tempPawn.timeBetweenShots;
-		randomTimeBetweenShots = tempPawn.randomTimeBetweenShots;
-		fearDistance = tempPawn.fearDistance;
+		`warn(self.GetHumanReadableName() @ "tries to possess" @ aPawn.GetHumanReadableName());
 	}
 }
 

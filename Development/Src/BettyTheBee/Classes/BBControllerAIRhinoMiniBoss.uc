@@ -2,11 +2,51 @@ class BBControllerAIRhinoMiniBoss extends BBControllerAI;
 
 var float attackChargeDistance;
 
+var float attackDistanceNear;
+
+var enum ERhinoAttackType
+{
+	RAT_Normal,
+	RAT_Charge,	
+} AttackType;
 
 
-function SetPawn(BBEnemyPawn NewPawn){
-	super.SetPawn(NewPawn);
-	attackChargeDistance = BBEnemyPawnRhinoMiniBoss(NewPawn).attackChargeDistance;	
+function Possess(Pawn aPawn, bool bVehicleTransition){
+	local BBEnemyPawnRhinoMiniBoss NewPawn;
+
+	super.Possess(aPawn, bVehicleTransition);
+	NewPawn = BBEnemyPawnRhinoMiniBoss(aPawn);
+	if(NewPawn != none){
+		attackChargeDistance = NewPawn.attackChargeDistance;
+		attackDistance = NewPawn.attackDistance;
+	}else{
+		`warn(self.GetHumanReadableName() @ "tries to possess" @ aPawn.GetHumanReadableName());
+	}
+}
+
+function ChangeAttackType(ERhinoAttackType newType){
+	local BBEnemyPawnRhinoMiniBoss tempPawn;
+
+	if(AttackType != newType){
+		tempPawn = BBEnemyPawnRhinoMiniBoss(Pawn);
+		if(newType == RAT_Normal){
+			tempPawn.AttackDistance = tempPawn.attackDistanceNear;			
+		}else if(newType == RAT_Charge){
+			tempPawn.AttackDistance = tempPawn.attackDistanceFar;
+		}
+		attackDistance = tempPawn.AttackDistance;
+		AttackType = newType;
+	}
+}
+
+function bool IsWithinAttackRange(Actor other){
+
+	local Vector temp;
+	local float tempf;
+	temp = Pawn.Location - other.Location;
+	tempf = VSize(temp) - Pawn.GetCollisionRadius() - Pawn(other).GetCollisionRadius();
+	return tempf < attackDistance;
+
 }
 
 function bool IsWithinAttackChargeRange(Actor other){
@@ -18,15 +58,20 @@ function bool IsWithinAttackChargeRange(Actor other){
 	return tempf < attackChargeDistance;	
 }
 
+function NotifyChargeFinished(){
+	
+	//if(IsWithinAttackRange(thePlayer)){
+	//	GotoState('Attacking');
+	//}else{
+	//	GotoState('ChasePlayer');
+	//}
+	ChangeAttackType(RAT_Normal);
+	GotoState('ChasePlayer');
+	
+}
+
 auto state idle{
-	event BeginState(name PreviousStateName){
-		local BBBettyPawn playerPawn;
-		super.BeginState(PreviousStateName);
-		foreach DynamicActors(class'BBBettyPawn',playerPawn){
-			thePlayer = playerPawn;
-		}
-		Enemy = thePlayer;
-	}
+	
 }
 
 state ChasePlayer{
@@ -39,7 +84,7 @@ state ChasePlayer{
 	}
 	//It's here for overwrite the super.BeginState(). We don't want to perform a CheckVisibility in RhinoMiniBoss
 	event BeginState(name PreviousStateName){
-
+		Pawn.GotoState('ChasePlayer');
 	}
 
 Begin:
@@ -59,7 +104,7 @@ Targeting:
 	}
 	//only go somewhere if we have somewhere to go...
 	if(Target != none){
-
+		
 		//only bother moving if we're not in attack range or don't have line-of-sight
 		if(!IsWithinAttackRange(Target) && GeneratePathToActor(Target)){
 			//just in case...
@@ -108,7 +153,10 @@ Targeting:
 			//and if we're STILL within range (since we have lost range when finishing our latent rotation), then actually attack
 			if(IsWithinAttackRange(Target))
 			{
-				GotoState('Charging');
+				if(AttackType == RAT_Normal)
+					GotoState('Attacking');
+				else if(AttackType == RAT_Charge)
+					GotoState('Charging');
 			}
 		}
 	}
@@ -192,32 +240,53 @@ state Stunned{
 		super.BeginState(PreviousStateName);
 		StopLatentExecution();
 		Pawn.ZeroMovementVariables();
+		Pawn.GotoState('Stunned');
 	}
 }
 
 state Attacking
 {
+	ignores SeePlayer,HearNoise;
+
+	event BeginState(name PreviousStateName){
+		super.BeginState(PreviousStateName);
+		Pawn.GotoState('Attacking');
+		Focus = thePlayer;
+	}
+	
+	event EndState(name PreviousStateName){
+		super.EndState(PreviousStateName);
+		ClearTimer('CheckAttackNearRange');
+	}
+
+	function CheckAttackNearRange(){
+		if(!IsWithinAttackRange(thePlayer)){
+			ClearTimer('CheckAttackNearRange');
+			GotoState('ChasePlayer');
+		}
+	}
+
  Begin:
 	Pawn.ZeroMovementVariables();
 	Pawn.GotoState('Attacking');
 	while(thePlayer.Health > 0)
 	{   
-		distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
-        if (distanceToPlayer > attackDistance * 2)
+		if (!IsWithinAttackRange(thePlayer))
         { 
-			Pawn.GotoState('');
-			PopState();
+			Pawn.GotoState('ChasePlayer');
+			GotoState('ChasePlayer');
 			break;
         }
 		Sleep(1);
 	}
-	Pawn.GotoState('');
+	Pawn.GotoState('ChasePlayer');
 	PopState();
 }
 
 
 DefaultProperties
 {
-	MinHitWall = -0.7f;
+	MinHitWall = -0.5f;
+	AttackType = RAT_Charge;
 	
 }

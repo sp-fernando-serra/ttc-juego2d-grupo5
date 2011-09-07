@@ -51,6 +51,10 @@ var ParticleSystemComponent Exclamacion_PSC;
 
 var ParticleSystem DeadPS;
 
+var(Debug) bool bDrawVision;
+var(Debug) bool bDrawHearing;
+var(Debug) bool bDrawAttackRange;
+
 
 simulated function PostBeginPlay()
 {
@@ -85,11 +89,14 @@ event Tick(float DeltaTime){
 		col.R=0.0f;
 		col.A=255.0f;
 		//Blue cone is vision
-		DrawDebugCone(Location,Vector(Rotation),SightRadius,(1-Square(PeripheralVision)),0.15,32,col,false);
+		if(bDrawVision)
+			DrawDebugCone(Location,Vector(Rotation),SightRadius,(1-Square(PeripheralVision)),0.15,32,col,false);
 		//Green sphere attack range
-		DrawDebugSphere(Location,AttackDistance,16,0.0,100.0,25.0,false);
+		if(bDrawAttackRange)
+			DrawDebugSphere(Location,AttackDistance + GetCollisionRadius(),16,0.0,100.0,25.0,false);
 		//Light blue sphere hearing range
-		DrawDebugSphere(Location,HearingThreshold,16,0.0,100.0,150.0,false);
+		if(bDrawHearing)
+			DrawDebugSphere(Location,HearingThreshold,16,0.0,100.0,150.0,false);
 	}
 }
 
@@ -242,7 +249,7 @@ event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector
 		}
 		if(Health <= 0){
 			Health = 0;
-			GotoState('Stunned');
+			Controller.GotoState('Stunned');
 		}
 	}
 }
@@ -262,7 +269,7 @@ function bool isDead(){
 simulated state Stunned{
 	simulated event BeginState(name PreviousStateName){		
 		super.BeginState(PreviousStateName);
-		Controller.GotoState('Stunned');
+		//Controller.GotoState('Stunned');
 		stunnedPSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(stunnedPS, Mesh, 'exclamacion', true, , rot(90,0,0));
 		customAnimSlot.PlayCustomAnim(stunnedAnimName,1.0f,0.25f,0.0f,true,true);		
 	}
@@ -285,7 +292,7 @@ simulated state Stunned{
 Begin:
 	Sleep(timeStunned);
 	Controller.GotoState('Idle');
-	GotoState('');
+	//GotoState('');
 }
 
 simulated state Dying{
