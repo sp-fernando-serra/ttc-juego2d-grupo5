@@ -16,17 +16,17 @@ var () float fearDistance;
 var name attackBeginAnime;
 var name attackEndAnime;
 
-simulated function PostBeginPlay()
-{
-	super.PostBeginPlay();
+//simulated function PostBeginPlay()
+//{
+//	super.PostBeginPlay();
 
-	if (MyController == none)
-	{
-		MyController = Spawn(class'BettyTheBee.BBControllerAICaterpillar');
-		MyController.SetPawn(self);		
-	}
+//	if (MyController == none)
+//	{
+//		MyController = Spawn(class'BettyTheBee.BBControllerAICaterpillar');
+//		MyController.SetPawn(self);		
+//	}
     
-}
+//}
 
 state Attacking{
 	
@@ -120,6 +120,8 @@ DefaultProperties
 	//CollisionComponent=SkMesh
 	Mesh=SkMesh
     Components.Add(SkMesh)
+
+	ControllerClass = class'BettyTheBee.BBControllerAICaterpillar';
     
     bJumpCapable=false
     bCanJump=false

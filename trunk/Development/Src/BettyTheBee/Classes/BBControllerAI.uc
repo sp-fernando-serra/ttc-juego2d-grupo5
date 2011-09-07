@@ -36,37 +36,25 @@ var Vector LastPlayerLocation;
  */
 var Vector StartLocation;
 
-function SetPawn(BBEnemyPawn NewPawn){
-
-	Possess(NewPawn, false);
-	ScriptedRoute = NewPawn.MyRoutePoints;
-	bAggressive = NewPawn.bAggressive;
-	AttackDamage = NewPawn.AttackDamage;
-	AttackDistance = NewPawn.AttackDistance;
-	attackDistanceFactor = NewPawn.AttackDistanceFactor;
-	PerceptionDistance = NewPawn.PerceptionDistance;
-	alertRadius = NewPawn.alertRadius;
-
-	StartLocation = NewPawn.Location;
-}
-
 function Possess(Pawn aPawn, bool bVehicleTransition){
-    if (aPawn.bDeleteMe)
-	{
-		`Warn(self @ GetHumanReadableName() @ "attempted to possess destroyed Pawn" @ aPawn);
-		 ScriptTrace();
-		 GotoState('Dead');
-    }
-	else
-	{
-		Super.Possess(aPawn, bVehicleTransition);
-		Pawn.SetMovementPhysics();
-		
-		if (Pawn.Physics == PHYS_Walking)
-		{
-			Pawn.SetPhysics(PHYS_Falling);
-		}
-    }
+	local BBEnemyPawn NewPawn;
+
+	super.Possess(aPawn, bVehicleTransition);
+	NewPawn = BBEnemyPawn(aPawn);
+
+	if(NewPawn != none){
+		ScriptedRoute = NewPawn.MyRoutePoints;
+		bAggressive = NewPawn.bAggressive;
+		AttackDamage = NewPawn.AttackDamage;
+		AttackDistance = NewPawn.AttackDistance;
+		attackDistanceFactor = NewPawn.AttackDistanceFactor;
+		PerceptionDistance = NewPawn.PerceptionDistance;
+		alertRadius = NewPawn.alertRadius;
+
+		StartLocation = NewPawn.Location;
+	}else{
+		`warn(self.GetHumanReadableName() @ "tries to possess" @ aPawn.GetHumanReadableName());
+	}
 }
 
 function bool IsWithinLineOfSight(Actor other){
@@ -194,14 +182,14 @@ function alertPawnPresence(Pawn SeenPlayer){
 auto state Idle{
 	event BeginState(name PreviousStateName){
 		super.BeginState(PreviousStateName);
+		if(Pawn != none) Pawn.GotoState('');
 		Enemy = none;
 	}
 
 Begin:
     //`log(Pawn.name @ ": Starting Idle state");
 	Pawn.ZeroMovementVariables();
-	Pawn.GotoState('');
-
+	
 	//Sleep(IdleInterval);
 	
 	if(ScriptedRoute != none){
@@ -431,6 +419,7 @@ state Stunned{
 		StopLatentExecution();
 		Focus = none;
 		Pawn.ZeroMovementVariables();
+		Pawn.GotoState('Stunned');
 	}
 }
 

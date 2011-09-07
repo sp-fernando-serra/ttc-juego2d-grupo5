@@ -2,12 +2,16 @@ class BBEnemyPawnRhinoMiniBoss extends BBEnemyPawn placeable;
 
 /** Damage done by Charge Attack */
 var() int ChargeDamage;
-
+/** 750.0 matches with 500.0 chargeDistance and 1.0 chargeSpeedModifier */
 var() float chargeSpeed;
+/** 500.0 matches with 750.0 chargeSpeed and 1.0 chargeSpeedModifier */
 var() float attackChargeDistance;
+/** 1.0 matches with 500.0 chargeDistance and 750.0 chargeSpeed */
 var() float attackChargeSpeedModifier;
-
+/** AttackDistance used in Melee attacks */
 var() float attackDistanceNear;
+/** AttackDistance used in Charge attacks (at what distance start charging, not charge attack) */
+var() float attackDistanceFar;
 /** Used for pushing player when hitted by charge attack */
 var() Vector attackChargeMomentum;
 
@@ -33,25 +37,28 @@ var SoundCue LeftFootStepCue;
 /** Sound for right footstep */
 var SoundCue RightFootStepCue;
 
+var (Debug) bool bDrawChargeRange;
+
 event Tick(float DeltaTime){
 	super.Tick(DeltaTime);
 	if(bDebug && !isDying() && !isDead()){
 		//Red sphere is attackcharge range
-		DrawDebugSphere(Location,attackChargeDistance,16,100.0,0.0,0.0,false);
+		if(bDrawChargeRange)
+			DrawDebugSphere(Location,attackChargeDistance,16,100.0,0.0,0.0,false);			
 	}
 }
 
-simulated function PostBeginPlay()
-{
-	super.PostBeginPlay();
+//simulated function PostBeginPlay()
+//{
+//	super.PostBeginPlay();
 
-	if (MyController == none)
-	{
-		MyController = Spawn(class'BettyTheBee.BBControllerAIRhinoMiniBoss');
-		MyController.SetPawn(self);
-	}
+//	if (MyController == none)
+//	{
+//		MyController = Spawn(class'BettyTheBee.BBControllerAIRhinoMiniBoss');
+//		MyController.SetPawn(self);
+//	}
     
-}
+//}
 
 simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 {
@@ -81,7 +88,6 @@ event PlayFootStepSound(int FootDown){
 		Mesh.GetSocketWorldLocationAndRotation('FootLeft',socketLocation, socketRotation);
 		WorldInfo.MyEmitterPool.SpawnEmitter(FootstepPS, socketLocation);
 	}
-	MakeNoise(1.0);
 }
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	//Do not take damage unless Stunned (overrided in Stunned state)
@@ -126,7 +132,7 @@ state Charging{
 
 	event HitWall( vector HitNormal, actor Wall, PrimitiveComponent WallComp ){
 		super.HitWall(HitNormal, Wall, WallComp);
-		GotoState('Stunned');
+		Controller.GotoState('Stunned');
 	}
 	event Bump(Actor Other, PrimitiveComponent OtherComp, Vector HitNormal){
 		local Vector tempMomentum;
@@ -143,10 +149,10 @@ Begin:
 	customAnimSlot.PlayCustomAnim(chargePrepareAnimName,1.0f,0.25,0.25,false,true);
 	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());
 Running:
-	customAnimSlot.PlayCustomAnim(chargeRunAnimName,2.0f,0.25,0.25,true,true);
+	customAnimSlot.PlayCustomAnim(chargeRunAnimName, chargeSpeed/375.0f, 0.25, 0.25, true, true); //This rate is for match the rate with the bot's speed
 	bDoDamage = true;
 	GroundSpeed = chargeSpeed;
-	Controller.GotoState('Charging','Running');	
+	Controller.GotoState('Charging','Running');
 	Sleep(4.0f);
 Attack:
 	customAnimSlot.PlayCustomAnim(chargeAttackAnimName,1.5f,0.25,0.25,false,true);
@@ -163,14 +169,15 @@ Attack:
 
 	bDoDamage = false;
 
-	
-	Controller.GotoState('ChasePlayer');
-	GotoState('ChasePlayer');
+	BBControllerAIRhinoMiniBoss(Controller).NotifyChargeFinished();
+
+	//Controller.GotoState('ChasePlayer');
+	//GotoState('ChasePlayer');
 }
 
 simulated state Stunned{
 	simulated event BeginState(name PreviousStateName){		
-		Controller.GotoState('Stunned');
+		//Controller.GotoState('Stunned');
 		bDamageTakenInThisStun = false;
 		stunnedPSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(stunnedPS, Mesh, 'exclamacion', true, , rot(90,0,0));
 		customAnimSlot.PlayCustomAnim(chargeHitWallAnimName,1.0f,0.25f,0.0f,false,true);
@@ -233,7 +240,7 @@ Awake:
 	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());	
 
 	Controller.GotoState('ChasePlayer');
-	GotoState('');
+	//GotoState('');
 }
 
 state Attacking{
@@ -252,7 +259,7 @@ state Attacking{
 		
 		if(HitActor != none){
 			//Worldinfo.Game.Broadcast(self, Name $ ": Hit actor "$HitActor.Name);
-			if(HitActor.Class == class'BBBettyPawn'){
+			if(BBBettyPawn(HitActor) != none){
 				BBBettyPawn(HitActor).TakeDamage(AttackDamage,Controller,HitLocation,vect(0,0,0),MyDamageType,,self);
 			}
 		}
@@ -261,7 +268,7 @@ state Attacking{
 	simulated event BeginState(name NextStateName){
 		
 		super.BeginState(NextStateName);
-		customAnimSlot.PlayCustomAnim(attackAnimName,1.0f,0.25f,0.25f,true);
+		customAnimSlot.PlayCustomAnim(attackAnimName,1.0f,0.25f,0.25f,true,true);
 	}
 
 	simulated event EndState(name NextStateName){
@@ -270,23 +277,6 @@ state Attacking{
 		customAnimSlot.StopCustomAnim(0.25f);
 	}
 }
-
-
-//function isAtacked(){
-//PushState('Attacked');
-//nodelistAttack.SetActiveChild(4,0.2f);
-//}
-
-//state Attacked{
-
-
-//	event PoppedState(){
-//		nodeListAttack.SetActiveChild(1,0.4f);
-//	}
-//Begin:	
-//	FinishAnim(AnimNodeSequence(Mesh.FindAnimNode('Attacked')));
-//	PopState();
-//}
 
 DefaultProperties
 {
@@ -317,6 +307,8 @@ DefaultProperties
 	Mesh=InitialPawnSkeletalMesh
     Components.Add(InitialPawnSkeletalMesh)
 
+	ControllerClass = class'BettyTheBee.BBControllerAIRhinoMiniBoss';
+
 	DrawScale = 1.5;
 	FootstepPS = ParticleSystem'Betty_Particles.PSWalkingGround'
 
@@ -325,17 +317,18 @@ DefaultProperties
 
 	bJumpCapable=false
     bCanJump=false
-    GroundSpeed=80.0 //Making the bot slower than the player
+    GroundSpeed=160.0
 
 	PerceptionDistance = 2500;
 	AttackDistance = 2000;
-	AttackDistanceNear = 75;
+	AttackDistanceFar = 2000;
+	AttackDistanceNear = 70;
 	AttackDamage = 3;
 	ChargeDamage = 3;
-	chargeSpeed = 750;
-	attackChargeDistance = 500.0f;
-	attackChargeSpeedModifier = 1.0f;
-	attackChargeMomentum = (X = -1500.0, Y = -1500.0, Z = 1000.0);
+	chargeSpeed = 900;                      //750.0 matches with 500.0 chargeDistance and 1.0 chargeSpeedModifier
+	attackChargeDistance = 600.0f;          //500.0 matches with 750.0 of chargeSpeed and 1.0 chargeSpeedModifier
+	attackChargeSpeedModifier = 1.2f;       //1.0 matches with 500.0 ChargeDistance, and 750.0 of chargeSpeed
+	attackChargeMomentum = (X = -1800.0, Y = -1800.0, Z = 1000.0);
 
 	timeStunned = 3.0f;
 

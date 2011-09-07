@@ -2,26 +2,6 @@ class BBEnemyPawnAnt2 extends BBEnemyPawn placeable;
 
 var SoundCue damagedSound;
 
-simulated function PostBeginPlay()
-{
-	super.PostBeginPlay();
-
-	if (MyController == none)
-	{
-		MyController = Spawn(class'BettyTheBee.BBControllerAIAnt2');
-		MyController.SetPawn(self);
-	}
-    
-}
-
-//simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
-//{
-//	super.PostInitAnimTree(SkelComp);
-//	if (SkelComp == Mesh)
-//	{
-		
-//	}
-//}
 
 state Attacking{
 
@@ -46,7 +26,7 @@ state Attacking{
 	
 	simulated event BeginState(name NextStateName){
 		super.BeginState(NextStateName);
-		customAnimSlot.PlayCustomAnim(attackAnimName,1.0f,0.25f,0.25f,true);
+		customAnimSlot.PlayCustomAnim(attackAnimName,1.0f,0.25f,0.25f,true,true);
 	}
 
 	simulated event EndState(name NextStateName){
@@ -86,6 +66,8 @@ DefaultProperties
     End Object
     Mesh=InitialPawnSkeletalMesh
     Components.Add(InitialPawnSkeletalMesh)
+
+	ControllerClass = class'BettyTheBee.BBControllerAIAnt2';
     
     bJumpCapable=false
     bCanJump=false
