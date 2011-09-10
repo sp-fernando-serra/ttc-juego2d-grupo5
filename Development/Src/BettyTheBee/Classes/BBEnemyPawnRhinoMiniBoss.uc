@@ -151,8 +151,8 @@ state Charging{
 		local Vector tempMomentum;
 		super.Bump(Other, OtherComp, HitNormal);
 		if(bDoDamage && BBBettyPawn(Other) != none){
-			HitNormal.Z = 1.0;
-			tempMomentum = attackChargeMomentum * HitNormal;			
+			HitNormal.Z = 1.0;			
+			tempMomentum = attackChargeMomentum * HitNormal;		
 			Other.TakeDamage(ChargeDamage, Controller, Location, tempMomentum, myChargeDamageType, , self);
 			bDoDamage = false;
 		}
