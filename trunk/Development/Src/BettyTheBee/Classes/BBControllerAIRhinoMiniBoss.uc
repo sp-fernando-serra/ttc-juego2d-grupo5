@@ -2,7 +2,18 @@ class BBControllerAIRhinoMiniBoss extends BBControllerAI;
 
 var float attackChargeDistance;
 
+/** AttackDistance used in Melee attacks */
 var float attackDistanceNear;
+/** AttackDistance used in Charge attacks (at what distance start charging, not charge attack) */
+var float attackDistanceFar;
+/** Array with points to start a Charge Attack */
+var array<PathTargetPoint> chargePoints;
+/** Chosen point to start the next Charge Attack */
+var PathTargetPoint chosenChargePoint;
+/** Used to know how many attacks this pawn has done in Attacking state */
+var int attackCount;
+/** Max value for attackCount. If reached, Rhino goes to Charge */
+var int maxAttackCount;
 
 var enum ERhinoAttackType
 {
@@ -19,6 +30,10 @@ function Possess(Pawn aPawn, bool bVehicleTransition){
 	if(NewPawn != none){
 		attackChargeDistance = NewPawn.attackChargeDistance;
 		attackDistance = NewPawn.attackDistance;
+		attackDistanceNear = NewPawn.attackDistanceNear;
+		attackDistanceFar = NewPawn.attackDistanceFar;
+		ChargePoints = NewPawn.ChargePoints;
+		bDebug = NewPawn.bDebug;
 	}else{
 		`warn(self.GetHumanReadableName() @ "tries to possess" @ aPawn.GetHumanReadableName());
 	}
@@ -30,6 +45,7 @@ function ChangeAttackType(ERhinoAttackType newType){
 	if(AttackType != newType){
 		tempPawn = BBEnemyPawnRhinoMiniBoss(Pawn);
 		if(newType == RAT_Normal){
+			attackCount = 0;
 			tempPawn.AttackDistance = tempPawn.attackDistanceNear;			
 		}else if(newType == RAT_Charge){
 			tempPawn.AttackDistance = tempPawn.attackDistanceFar;
@@ -37,6 +53,70 @@ function ChangeAttackType(ERhinoAttackType newType){
 		attackDistance = tempPawn.AttackDistance;
 		AttackType = newType;
 	}
+}
+
+/**Used to find the next chargePoint in all chargePoints array
+ * Closer points have more chances to be selected
+ * @return true if point has found
+ */ 
+function bool ChooseChargePoint(){
+	local PathTargetPoint tempPoint;
+	local float totalDistance;
+	local float tempDistance, debugDistance;
+	local string debugText;
+	local int debugIndex;
+
+	if(chargePoints.Length < 1){
+		`warn(GetHumanReadableName() @ "Error finding correct ChargePoint, chargePoints is empty!!");
+		return false;
+	}
+	debugIndex = 0;
+	debugText = "DistanceDactors: ";
+	foreach chargePoints(tempPoint){
+		tempDistance = CheckDistanceTo(tempPoint);
+		// Invert (1/tempDistance) the distances to use inverse probability instead of direct probability
+		// with the distance. Factor 4000 is for avoid errors with very small numbers
+		tempDistance = 4000/tempDistance;
+		totalDistance += tempDistance;
+		if(bDebug){
+			debugText @= debugIndex$": "$tempDistance$" - ";
+			debugIndex++;
+		}
+	}
+	
+	tempDistance = FRand()*totalDistance;
+	if(bDebug){
+		WorldInfo.Game.Broadcast(self, debugText);
+		debugText = "Probabilities: ";
+		debugIndex = 0;
+		foreach chargePoints(tempPoint){
+			debugDistance = CheckDistanceTo(tempPoint);
+			// Invert (1/tempDistance) the distances to use inverse probability instead of direct probability
+			// with the distance. Factor 4000 is for avoid errors with very small numbers
+			debugDistance = (4000/debugDistance)/totalDistance;
+			debugText @= debugIndex$": "$debugDistance$" - ";
+			debugIndex++;			
+		}
+		WorldInfo.Game.Broadcast(self, debugText);
+		debugIndex = 0;
+	}
+
+	
+	
+	foreach chargePoints(tempPoint){
+		
+		if(tempDistance < (4000/CheckDistanceTo(tempPoint)) ){
+			chosenChargePoint = tempPoint;
+			return true;
+		}else{
+			tempDistance -= (4000/CheckDistanceTo(tempPoint));
+		}
+	}
+	//Si llegamos a este punto ha habido un error
+	`warn(GetHumanReadableName() @ "Warning finding correct ChargePoint when interating thru all points");
+	chosenChargePoint = chargePoints[0];
+	return true;
+
 }
 
 function bool IsWithinAttackRange(Actor other){
@@ -58,34 +138,100 @@ function bool IsWithinAttackChargeRange(Actor other){
 	return tempf < attackChargeDistance;	
 }
 
-function NotifyChargeFinished(){
+function float CheckDistanceTo(Actor other){
+
+	local Vector temp;
+	local float tempf;
+	temp = Pawn.Location - other.Location;
+	if(Pawn(other) != none)
+		tempf = VSize(temp) - Pawn.GetCollisionRadius() - Pawn(other).GetCollisionRadius();
+	else
+		tempf = VSize(temp) - Pawn.GetCollisionRadius(); 
+	return tempf;	
+}
+
+function CheckAttackNearRange(){
+	if(!IsWithinAttackRange(thePlayer)){
+		PopState();
+	}
+}
+
+
+/**Called when this pawn ends an attack
+ * @param playerHurt TRUE if the player has been hurt
+ */ 
+event NotifyAttackFinished(bool playerHurt){
+	if(playerHurt){
+		GotoState('FindChargePosition');
+		return;
+	}else{
+		attackCount++;
+		if(attackCount >= maxAttackCount){
+			GotoState('FindChargePosition');
+			return;
+		}
+	}
+	//If out of range, goto ChasePlayer
+	CheckAttackNearRange();
+}
+
+/**Called when this pawn ends an charge Attack
+ * @param playerHurt TRUE if the player has been hurt
+ */ 
+event NotifyChargeFinished(bool playerHurt){
 	
-	//if(IsWithinAttackRange(thePlayer)){
-	//	GotoState('Attacking');
-	//}else{
-	//	GotoState('ChasePlayer');
-	//}
-	ChangeAttackType(RAT_Normal);
-	GotoState('ChasePlayer');
-	
+	//Miramos la distancia con el player;
+	//Cuanto mas cerca lo tengamos mas probabilidad de ir a MeleeAttack.
+	//Si estamos mas lejos que 10 * attackDistanceNear nunca atacamos
+	if(FRand() >= CheckDistanceTo(thePlayer) / (10*attackDistanceNear)){		
+		GotoState('ChasePlayer');
+	}else{
+		GotoState('FindChargePosition');
+	}
+}
+
+event SeePlayer(Pawn SeenPlayer){
+		
+	if(bAggressive){
+		StopLatentExecution();
+		thePlayer = BBPawn(SeenPlayer);
+		distanceToPlayer = CheckDistanceTo(thePlayer);
+		LastPlayerLocation = thePlayer.Location;
+		if (distanceToPlayer < perceptionDistance){ 
+        	//Worldinfo.Game.Broadcast(self, Pawn.name $ ": I can see you!! (followpath)");
+			GotoState('FindChargePosition');
+		}		
+	}
 }
 
 auto state idle{
-	
+
 }
 
 state ChasePlayer{
 
 	ignores SeePlayer,HearNoise;
 
+	//It's here for overwrite the super.BeginState(). We don't want to perform a CheckVisibility in RhinoMiniBoss
+	event BeginState(name PreviousStateName){
+		Pawn.GotoState('ChasePlayer');
+		ChangeAttackType(RAT_Normal);
+	}
+
+	event ContinuedState(){
+		Pawn.GotoState('ChasePlayer');
+	}
+
 	event EndState(name NextStateName){		
 		ClearTimer('CheckIndirectReachability');
 		ClearTimer('CheckDirectReachability');		
 	}
-	//It's here for overwrite the super.BeginState(). We don't want to perform a CheckVisibility in RhinoMiniBoss
-	event BeginState(name PreviousStateName){
-		Pawn.GotoState('ChasePlayer');
+
+	event PausedState(){
+		ClearTimer('CheckIndirectReachability');
+		ClearTimer('CheckDirectReachability');
 	}
+	
 
 Begin:
 	if(thePlayer != none){
@@ -154,7 +300,7 @@ Targeting:
 			if(IsWithinAttackRange(Target))
 			{
 				if(AttackType == RAT_Normal)
-					GotoState('Attacking');
+					PushState('Attacking');
 				else if(AttackType == RAT_Charge)
 					GotoState('Charging');
 			}
@@ -166,6 +312,76 @@ Targeting:
 	goto 'Targeting';
 }
 
+state FindChargePosition{
+
+	ignores SeePlayer, HearNoise;
+
+	event BeginState(name PreviousStateName){
+		Pawn.GotoState('ChasePlayer');
+		//Si devuelve falso, ha habido un error, no hay puntos de carga.
+		if(!ChooseChargePoint()){
+			GotoState('Idle');
+			return;
+		}
+		ChangeAttackType(RAT_Normal);
+		SetTimer(0.20f, true, 'CheckPlayerProximity');
+	}
+
+	event ContinuedState(){
+		Pawn.GotoState('ChasePlayer');
+		ChangeAttackType(RAT_Normal);
+		SetTimer(0.20f, true, 'CheckPlayerProximity');
+	}
+
+	event EndState(name NextStateName){		
+		ClearTimer('CheckPlayerProximity');
+	}
+
+	event PausedState(){
+		ClearTimer('CheckPlayerProximity');
+	}
+
+	event CheckPlayerProximity(){
+		if(IsWithinAttackRange(thePlayer)){
+			PushState('Attacking');
+		}
+	}
+
+	
+Begin:
+	while( Pawn != None && !Pawn.ReachedDestination(chosenChargePoint) ){
+			//If path to point exists
+			if(GeneratePathToActor(chosenChargePoint)){
+				//If Target is directly Reachable
+				CurrentTargetIsReachable = NavigationHandle.ActorReachable(chosenChargePoint);
+				if(CurrentTargetIsReachable){
+					Focus = none;
+					if(chosenChargePoint != none)
+						MoveToward(chosenChargePoint, none);
+					else{
+						`warn(self @ "chosenChargePoint is none. Aborting move:" @ chosenChargePoint);
+						break;
+					}
+				}else{  //Actor is NOT directly reachable
+					Focus = none;
+					//If path exists
+					if(NavigationHandle.GetNextMoveLocation(NextMoveLocation, Pawn.GetCollisionRadius())){
+						MoveTo(NextMoveLocation,none);
+					}else{
+						`log(self @ "Can't find next step in path to Charge Point:" @ chosenChargePoint);
+						break;
+					}
+				}
+			}else{
+				`log(self @ "Can't find path to ChargePoint:" @ chosenChargePoint);
+				break;
+			}
+		}
+		Focus = thePlayer;
+		FinishRotation();		
+		GotoState('Charging');
+}
+
 state Charging{
 
 	ignores SeePlayer, HearNoise;
@@ -174,6 +390,7 @@ state Charging{
 	event BeginState(name PreviousStateName){
 		super.BeginState(PreviousStateName);
 		Pawn.GotoState('Charging');
+		ChangeAttackType(RAT_Charge);
 	}
 	
 	event EndState(name PreviousStateName){
@@ -247,40 +464,33 @@ state Stunned{
 state Attacking
 {
 	ignores SeePlayer,HearNoise;
-
-	event BeginState(name PreviousStateName){
-		super.BeginState(PreviousStateName);
-		Pawn.GotoState('Attacking');
+	
+	event PushedState(){
+		super.PushedState();
+		Pawn.GotoState('Attacking');		
 		Focus = thePlayer;
 	}
 	
-	event EndState(name PreviousStateName){
-		super.EndState(PreviousStateName);
-		ClearTimer('CheckAttackNearRange');
-	}
+	//event PoppedState(){
+	//	super.PoppedState();
+		
+	//}
 
-	function CheckAttackNearRange(){
-		if(!IsWithinAttackRange(thePlayer)){
-			ClearTimer('CheckAttackNearRange');
-			GotoState('ChasePlayer');
-		}
-	}
 
  Begin:
 	Pawn.ZeroMovementVariables();
 	Pawn.GotoState('Attacking');
-	while(thePlayer.Health > 0)
-	{   
-		if (!IsWithinAttackRange(thePlayer))
-        { 
-			Pawn.GotoState('ChasePlayer');
-			GotoState('ChasePlayer');
-			break;
-        }
-		Sleep(1);
-	}
-	Pawn.GotoState('ChasePlayer');
-	PopState();
+	//while(thePlayer.Health > 0)
+	//{   
+	//	if (!IsWithinAttackRange(thePlayer))
+ //       { 
+	//		Pawn.GotoState('ChasePlayer');
+	//		GotoState('ChasePlayer');
+	//		break;
+ //       }
+	//	Sleep(1);
+	//}	
+	//GotoState('Idle');
 }
 
 
@@ -288,5 +498,7 @@ DefaultProperties
 {
 	MinHitWall = -0.5f;
 	AttackType = RAT_Charge;
+
+	maxAttackCount = 5;
 	
 }

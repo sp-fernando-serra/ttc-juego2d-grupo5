@@ -35,6 +35,10 @@ var Vector LastPlayerLocation;
  *  Used to return here if player has been lost
  */
 var Vector StartLocation;
+/** Rotator with the start rotation of the pawn.
+ *  Used to return here if player has been lost
+ */
+var Rotator StartRotation;
 
 function Possess(Pawn aPawn, bool bVehicleTransition){
 	local BBEnemyPawn NewPawn;
@@ -52,6 +56,7 @@ function Possess(Pawn aPawn, bool bVehicleTransition){
 		alertRadius = NewPawn.alertRadius;
 
 		StartLocation = NewPawn.Location;
+		StartRotation = NewPawn.Rotation;
 	}else{
 		`warn(self.GetHumanReadableName() @ "tries to possess" @ aPawn.GetHumanReadableName());
 	}
@@ -143,6 +148,20 @@ function CheckDirectReachability()
 			StopLatentExecution();
 		}
 }
+/** epic ===============================================
+* ::NotifyKilled
+*
+* Notification from game that a pawn has been killed.
+*
+* =====================================================
+*/
+function NotifyKilled(Controller Killer, Controller Killed, pawn KilledPawn, class<DamageType> damageTyp){
+	super.NotifyKilled(Killer, Killed, KilledPawn, damageTyp);
+
+	if(BBBettyPawn(KilledPawn) != none){
+		GotoState('Idle');
+	}
+}
 
 event SeePlayer(Pawn SeenPlayer){
 	local BBEnemyPawn pawnToAlert;
@@ -187,15 +206,12 @@ auto state Idle{
 	}
 
 Begin:
-    //`log(Pawn.name @ ": Starting Idle state");
 	Pawn.ZeroMovementVariables();
-	
-	//Sleep(IdleInterval);
 	
 	if(ScriptedRoute != none){
 		//`log(Pawn.name @ ": Going to follow path");
 		GotoState('ScriptedRouteMove');
-	}else{
+	}else if(StartLocation != Pawn.Location){
 		while( Pawn != None && !Pawn.ReachedPoint(StartLocation,none) ){
 			//If path to point exists
 			if(GeneratePathToLocation(StartLocation)){
@@ -220,6 +236,10 @@ Begin:
 				break;
 			}
 		}
+		Pawn.SetDesiredRotation(StartRotation, false, false, -1.0f ,true);
+		FinishRotation();
+		SetFocalPoint(vect(0,0,0));
+			
 	}
 	//Esperamos 5 segundos antes de volver a comprobar si podemos llegar a la start location
 	Sleep(5.0f);

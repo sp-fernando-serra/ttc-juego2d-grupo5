@@ -15,12 +15,17 @@ var() float attackDistanceFar;
 /** Used for pushing player when hitted by charge attack */
 var() Vector attackChargeMomentum;
 
+/** Array with points to start a Charge Attack */
+var() array<PathTargetPoint> chargePoints;
+
 var class<BBDamageType> myChargeDamageType;
 
 var AnimNodeBlendList animStateList;
 
 var bool bDamageTakenInThisStun;
 var bool bDoDamage;
+
+var bool playerHurt;
 
 var name chargePrepareAnimName;
 var name chargeRunAnimName;
@@ -169,7 +174,7 @@ Attack:
 
 	bDoDamage = false;
 
-	BBControllerAIRhinoMiniBoss(Controller).NotifyChargeFinished();
+	BBControllerAIRhinoMiniBoss(Controller).NotifyChargeFinished(false);
 
 	//Controller.GotoState('ChasePlayer');
 	//GotoState('ChasePlayer');
@@ -261,21 +266,28 @@ state Attacking{
 			//Worldinfo.Game.Broadcast(self, Name $ ": Hit actor "$HitActor.Name);
 			if(BBBettyPawn(HitActor) != none){
 				BBBettyPawn(HitActor).TakeDamage(AttackDamage,Controller,HitLocation,vect(0,0,0),MyDamageType,,self);
+				playerHurt = true;
 			}
 		}
 	}
 	
-	simulated event BeginState(name NextStateName){
+	//simulated event BeginState(name NextStateName){
 		
-		super.BeginState(NextStateName);
-		customAnimSlot.PlayCustomAnim(attackAnimName,1.0f,0.25f,0.25f,true,true);
-	}
+	//	super.BeginState(NextStateName);
+	//	customAnimSlot.PlayCustomAnim(attackAnimName,1.0f,0.25f,0.25f,true,true);
+	//}
 
 	simulated event EndState(name NextStateName){
 		
 		super.EndState(NextStateName);
 		customAnimSlot.StopCustomAnim(0.25f);
 	}
+Begin:
+	playerHurt = false;
+	customAnimSlot.PlayCustomAnim(attackAnimName,1.0f,0.25f,0.25f,false,true);
+	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());
+	BBControllerAIRhinoMiniBoss(Controller).NotifyAttackFinished(playerHurt);
+	goto 'Begin';
 }
 
 DefaultProperties
