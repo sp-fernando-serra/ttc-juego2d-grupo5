@@ -43,6 +43,7 @@ var SoundCue LeftFootStepCue;
 var SoundCue RightFootStepCue;
 
 var (Debug) bool bDrawChargeRange;
+var (Debug) bool bDebugChargeVelocity;
 
 event Tick(float DeltaTime){
 	super.Tick(DeltaTime);
@@ -132,7 +133,14 @@ state Charging{
 		GroundSpeed = default.GroundSpeed;
 		RotationRate = default.RotationRate;
 
-		bDoDamage = false;
+		bDoDamage = false;		
+		ClearTimer('CheckHitWallCollision');
+	}
+
+	
+
+	event printVelocity(){
+		WorldInfo.Game.Broadcast(self, "Velocity:" @ Velocity @ "Size:" @ VSize(Velocity) );
 	}
 
 	event HitWall( vector HitNormal, actor Wall, PrimitiveComponent WallComp ){
@@ -151,6 +159,8 @@ state Charging{
 	}
 	
 Begin:
+	if(bDebugChargeVelocity)
+		SetTimer(0.1f, true, 'printVelocity');
 	customAnimSlot.PlayCustomAnim(chargePrepareAnimName,1.0f,0.25,0.25,false,true);
 	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());
 Running:
@@ -173,11 +183,10 @@ Attack:
 	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());
 
 	bDoDamage = false;
-
+	
+	if(bDebugChargeVelocity)
+		ClearTimer('printVelocity');
 	BBControllerAIRhinoMiniBoss(Controller).NotifyChargeFinished(false);
-
-	//Controller.GotoState('ChasePlayer');
-	//GotoState('ChasePlayer');
 }
 
 simulated state Stunned{
@@ -189,6 +198,8 @@ simulated state Stunned{
 		customAnimSlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Translate,RBA_Translate,RBA_Default);
 
 		Mesh.RootMotionMode = RMM_Translate;
+
+		RotationRate = Rotator(vect(0,0,0));
 	}
 
 	simulated event EndState(name NextStateName){
@@ -302,22 +313,25 @@ DefaultProperties
 		bCastDynamicShadow=true
 		bOwnerNoSee=false
 		LightEnvironment=MyLightEnvironment;
-			bAllowAmbientOcclusion=false
+		bAllowAmbientOcclusion=false
 		BlockRigidBody=true;
 		CollideActors=true;
 		BlockZeroExtent=true;
-			BlockNonZeroExtent = True
-			BlockActors = True
+		BlockNonZeroExtent = True
+		BlockActors = True
 
         AnimSets(0)=AnimSet'Betty_rhino.SkModels.rhinoAnimSet'
 		AnimTreeTemplate=AnimTree'Betty_rhino.SkModels.rhinoAnimTree'
-		SkeletalMesh=SkeletalMesh'Betty_rhino.SkModels.rhino'
+		SkeletalMesh=SkeletalMesh'Betty_rhino.SkModels.rhino'		
 		HiddenGame=FALSE 
 		HiddenEditor=FALSE
     End Object
 
 	Mesh=InitialPawnSkeletalMesh
     Components.Add(InitialPawnSkeletalMesh)
+
+	CylinderComponent=CollisionCylinder
+	CollisionComponent=CollisionCylinder
 
 	ControllerClass = class'BettyTheBee.BBControllerAIRhinoMiniBoss';
 
