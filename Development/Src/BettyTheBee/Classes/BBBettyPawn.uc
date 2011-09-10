@@ -98,7 +98,8 @@ var	SoundCue HealSound;
 /** Sound played when betty gets damage*/
 var SoundCue HitSound;
 /** Sound played when betty slides*/
-var SoundCue SlideSound;
+var AudioComponent SlideSound;
+var SoundCue SlideCue;
 
 var() SkeletalMeshComponent grenadeMesh;
 
@@ -975,7 +976,8 @@ state playerSlide
 		super.BeginState(PreviousStateName);
 		hojaSlide.SetScale(0.65);
 		Mesh.AttachComponentToSocket(hojaSlide, 'HojaSlide');
-		
+		SlideSound = CreateAudioComponent(SlideCue);
+		SlideSound.Play();		
 	}
 
 	event EndState(name NextStateName)
@@ -983,6 +985,7 @@ state playerSlide
 		super.EndState(NextStateName);
 		fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING_END],1.0f,0.0f,0.0f,false,true);
 		Mesh.DetachComponent(hojaSlide);
+		SlideSound.Stop();
 		gotoState('idle');
 	}
 Begin:
@@ -990,7 +993,7 @@ Begin:
 	//FinishAnim(slideAnimNames[SLIDING_START]);
 	FinishAnim(fullBodySlot.GetCustomAnimNodeSeq());
 	fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING],1.0f,0.0f,0.0f,true);
-	PlaySound(SlideSound);
+	//PlaySound(SlideSound);
 
 }
 
@@ -1019,7 +1022,7 @@ DefaultProperties
 		bCastDynamicShadow=true
 		bOwnerNoSee=false
 		LightEnvironment=MyLightEnvironment;
-		SkeletalMesh=SkeletalMesh'Betty_hojaSlide.SkModels.HojaSlide'
+		SkeletalMesh=SkeletalMesh'Betty_slide.SkModels.HojaSlide'
 		End Object
 
 	hojaSlide=MyHojaSlide
@@ -1126,7 +1129,12 @@ DefaultProperties
 
 	HitSound=SoundCue'Betty_Player.Sounds.FxGolpeBetty_Cue'
 
-	SlideSound=SoundCue'Betty_slide.Sounds.FxSlide2_Cue'
+	//Begin Object Class=AudioComponent Name=MySlideSound
+	SlideCue=SoundCue'Betty_slide.Sounds.FxSlide2_Cue'
+	//End Object
+	//SlideSound=MySlideSound
+	//Components.Add(MySlideSound)
+	
 	
 	Begin Object Class=SkeletalMeshComponent Name=grenade
 		SkeletalMesh=SkeletalMesh'Betty_Player.SkModels.GrenadeSk'
