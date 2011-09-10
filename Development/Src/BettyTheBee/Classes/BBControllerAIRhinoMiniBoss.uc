@@ -150,7 +150,7 @@ function float CheckDistanceTo(Actor other){
 		tempf = VSize(temp) - Pawn.GetCollisionRadius() - Pawn(other).GetCollisionRadius();
 	else
 		tempf = VSize(temp); 
-	return tempf;	
+	return tempf;
 }
 
 function CheckAttackNearRange(){
