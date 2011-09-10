@@ -82,7 +82,7 @@ function bool ChooseChargePoint(){
 		tempDistance = 4000/tempDistance;
 		totalDistance += tempDistance;
 		if(bDebug){
-			debugText @= debugIndex$": "$tempDistance$" - ";
+			debugText @= debugIndex$": "$tempDistance$" || ";
 			debugIndex++;
 		}
 	}
@@ -97,7 +97,7 @@ function bool ChooseChargePoint(){
 			// Invert (1/tempDistance) the distances to use inverse probability instead of direct probability
 			// with the distance. Factor 4000 is for avoid errors with very small numbers
 			debugDistance = (4000/debugDistance)/totalDistance;
-			debugText @= debugIndex$": "$debugDistance$" - ";
+			debugText @= debugIndex$": "$debugDistance$" || ";
 			debugIndex++;			
 		}
 		WorldInfo.Game.Broadcast(self, debugText);
@@ -149,7 +149,7 @@ function float CheckDistanceTo(Actor other){
 	if(Pawn(other) != none)
 		tempf = VSize(temp) - Pawn.GetCollisionRadius() - Pawn(other).GetCollisionRadius();
 	else
-		tempf = VSize(temp) - Pawn.GetCollisionRadius(); 
+		tempf = VSize(temp); 
 	return tempf;	
 }
 
@@ -413,6 +413,16 @@ state Charging{
 		else{
 			lastChargeVelocity = VSize(Pawn.Velocity);
 		}
+	}
+	/**Called when our pawn has collided with a blocking player,
+	 * return true to prevent Bump() notification on the pawn.
+	 * Used here to desactivate HitWallCollision (avoid stunned when bumping Player)
+	 * @return TRUE to prevent event Bump() on Pawn
+	 */
+	function bool NotifyBump(Actor Other, Vector HitNormal){
+		super.NotifyBump(Other, HitNormal);
+		ClearTimer('CheckHitWallCollision');
+		return false;
 	}
 
 Begin:
