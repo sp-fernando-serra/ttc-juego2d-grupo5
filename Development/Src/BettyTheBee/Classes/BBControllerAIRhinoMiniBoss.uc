@@ -281,21 +281,10 @@ Targeting:
 
 		//if the target is now directly reachable AND within line of sight, then let's attack baby attack!
 		if(IsWithinAttackRange(Target)){
-			// if we're within range, attempt to finish rotating towards target...
-			//`log("Within attack range, finishing rotation...");
-			//if(RotDegreesBetweenYaw(Rotator(Target.Location-Pawn.Location),Rotation) > 14)
-			//{
-				MoveToward(Target,Target,attackDistance * attackDistanceFactor ,false,false);
-				FinishRotation();
-			//}
 			
-			////reset this timer since we have just reached our target, we don't want to time-out on reaching it
-			//if(Target != none && !HasReachedNewTarget)
-			//{
-			//	HasReachedNewTarget=true;
-			//	LastReachedNewTargetTime=WorldInfo.TimeSeconds;
-			//}
-
+			MoveToward(Target,Target,attackDistance * attackDistanceFactor ,false,false);
+			FinishRotation();
+			
 			//and if we're STILL within range (since we have lost range when finishing our latent rotation), then actually attack
 			if(IsWithinAttackRange(Target))
 			{

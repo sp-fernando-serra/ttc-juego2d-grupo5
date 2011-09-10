@@ -10,9 +10,7 @@ state Attacking
 	Pawn.GotoState('Attacking');
 	while(thePlayer.Health > 0)
 	{   
-		distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);
-        if (distanceToPlayer > attackDistance * 2)
-        { 
+		if (!IsWithinAttackRange(thePlayer)){ 
 			Pawn.GotoState('');
             GotoState('Chaseplayer');
 			break;

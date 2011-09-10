@@ -196,6 +196,8 @@ DefaultProperties
 
 	over=SoundCue'BettyInterface.sonidos.selec1';
 
+	bDisplayWithHudOff = false;
+
 	/*
 	SoundCue'BettyInterface.sonidos.selec0'
 	SoundCue'BettyInterface.sonidos.selec2'

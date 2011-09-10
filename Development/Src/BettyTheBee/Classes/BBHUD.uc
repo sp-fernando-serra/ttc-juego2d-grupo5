@@ -48,15 +48,13 @@ function startAnimacioItem(){
 event PostRender()
 {
 	super.PostRender();
-	if(WorldInfo.GetMapName()!="BettyLevelMenu")  HudMovie.TickHUD();
+	if(WorldInfo.GetMapName()!="BettyLevelMenu")  HudMovie.TickHUD();	
 }
 
 
 function ASvida(String texto1){
 HudMovie.ASvida(texto1);
 }
-
-
 
 function texto_ayuda(String texto1, String texto2, int tamany, int pox_x, int pos_y)
 {
