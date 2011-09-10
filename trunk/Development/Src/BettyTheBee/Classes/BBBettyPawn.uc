@@ -97,6 +97,8 @@ var SoundCue DoubleJumpCue;
 var	SoundCue HealSound;
 /** Sound played when betty gets damage*/
 var SoundCue HitSound;
+/** Sound played when betty slides*/
+var SoundCue SlideSound;
 
 var() SkeletalMeshComponent grenadeMesh;
 
@@ -988,6 +990,7 @@ Begin:
 	//FinishAnim(slideAnimNames[SLIDING_START]);
 	FinishAnim(fullBodySlot.GetCustomAnimNodeSeq());
 	fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING],1.0f,0.0f,0.0f,true);
+	PlaySound(SlideSound);
 
 }
 
@@ -1122,6 +1125,8 @@ DefaultProperties
 	HealSound=SoundCue'Betty_Player.Sounds.FxHechizoCura_Cue'
 
 	HitSound=SoundCue'Betty_Player.Sounds.FxGolpeBetty_Cue'
+
+	SlideSound=SoundCue'Betty_slide.Sounds.FxSlide2_Cue'
 	
 	Begin Object Class=SkeletalMeshComponent Name=grenade
 		SkeletalMesh=SkeletalMesh'Betty_Player.SkModels.GrenadeSk'
