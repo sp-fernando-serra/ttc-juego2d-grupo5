@@ -14,6 +14,9 @@ var PathTargetPoint chosenChargePoint;
 var int attackCount;
 /** Max value for attackCount. If reached, Rhino goes to Charge */
 var int maxAttackCount;
+/** Last velocity check for determine if pawn has reached a Wall in Charge state */
+var float lastChargeVelocity;
+
 
 var enum ERhinoAttackType
 {
@@ -384,7 +387,10 @@ state Charging{
 	
 	event EndState(name PreviousStateName){
 		super.EndState(PreviousStateName);
+
+		lastChargeVelocity = -1.0;
 		ClearTimer('CheckChargeAttackRange');
+		ClearTimer('CheckHitWallCollision');
 	}
 
 	function CheckChargeAttackRange(){
@@ -392,6 +398,20 @@ state Charging{
 			Pawn.GotoState('Charging','Attack');
 			ClearTimer('CheckChargeAttackRange');
 			GotoState('Charging','Attacking');
+		}
+	}
+
+	/**Timer programmed each 0.1 to perform a velocity check.
+	 * If velocity is lesser tahn 25% of last Check go to Stunned
+	 */
+	function CheckHitWallCollision(){
+		if(VSize(Pawn.Velocity) < lastChargeVelocity * 0.25f){
+			lastChargeVelocity = -1.0;
+			ClearTimer('CheckHitWallCollision');
+			GotoState('Stunned');
+		}
+		else{
+			lastChargeVelocity = VSize(Pawn.Velocity);
 		}
 	}
 
@@ -409,6 +429,7 @@ Begin:
 
 Running:
 	SetTimer(0.25f, true, 'CheckChargeAttackRange');
+	SetTimer(0.1f, true, 'CheckHitWallCollision');
 	while(true){
 		//If path to point exists
 		if(GeneratePathToActor(Target)){
@@ -444,10 +465,17 @@ state Stunned{
 
 	simulated event BeginState(name PreviousStateName){
 		super.BeginState(PreviousStateName);
-		StopLatentExecution();
-		Pawn.ZeroMovementVariables();
-		Pawn.GotoState('Stunned');
+		
+		//Hack: Used to avid strange rotation in stunned state
+		Pawn.RotationRate = Rotator(vect(0,0,0));
 	}
+
+	event EndState(name PreviousStateName){
+		super.EndState(PreviousStateName);
+		Pawn.RotationRate = default.RotationRate;
+	}
+
+
 }
 
 state Attacking
