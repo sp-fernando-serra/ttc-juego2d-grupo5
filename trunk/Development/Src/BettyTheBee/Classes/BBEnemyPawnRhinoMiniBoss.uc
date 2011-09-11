@@ -275,7 +275,7 @@ state Attacking{
 		
 		if(HitActor != none){
 			//Worldinfo.Game.Broadcast(self, Name $ ": Hit actor "$HitActor.Name);
-			if(BBBettyPawn(HitActor) != none){
+			if(BBBettyPawn(HitActor) != none && !playerHurt){
 				BBBettyPawn(HitActor).TakeDamage(AttackDamage,Controller,HitLocation,vect(0,0,0),MyDamageType,,self);
 				playerHurt = true;
 			}
@@ -295,7 +295,7 @@ state Attacking{
 	}
 Begin:
 	playerHurt = false;
-	customAnimSlot.PlayCustomAnim(attackAnimName,1.0f,0.25f,0.25f,false,true);
+	customAnimSlot.PlayCustomAnim(attackAnimName,2.0f,0.25f,0.25f,false,true);
 	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());
 	BBControllerAIRhinoMiniBoss(Controller).NotifyAttackFinished(playerHurt);
 	goto 'Begin';
@@ -343,7 +343,7 @@ DefaultProperties
 
 	bJumpCapable=false
     bCanJump=false
-    GroundSpeed=160.0
+    GroundSpeed=350.0
 
 	PerceptionDistance = 2500;
 	AttackDistance = 2000;

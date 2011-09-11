@@ -14,6 +14,8 @@ var PathTargetPoint chosenChargePoint;
 var int attackCount;
 /** Max value for attackCount. If reached, Rhino goes to Charge */
 var int maxAttackCount;
+/** Max time in seconds this pawn can stay in Attacking state */
+var float maxAttackTime;
 /** Last velocity check for determine if pawn has reached a Wall in Charge state */
 var float lastChargeVelocity;
 
@@ -116,7 +118,7 @@ function bool ChooseChargePoint(){
 		}
 	}
 	//Si llegamos a este punto ha habido un error
-	`warn(GetHumanReadableName() @ "Warning finding correct ChargePoint when interating thru all points");
+	`warn(GetHumanReadableName() @ "Error finding correct ChargePoint when iterating thru all points");
 	chosenChargePoint = chargePoints[0];
 	return true;
 
@@ -157,6 +159,12 @@ function CheckAttackNearRange(){
 	if(!IsWithinAttackRange(thePlayer)){
 		PopState();
 	}
+}
+/**Event called with a Timer in ChasePlayer.
+ * When this timer expires the pawn goes to chargeAttack
+ */
+event AttackTimeFinished(){
+	GotoState('FindChargePosition');
 }
 
 
@@ -219,6 +227,7 @@ state ChasePlayer{
 	event BeginState(name PreviousStateName){
 		Pawn.GotoState('ChasePlayer');
 		ChangeAttackType(RAT_Normal);
+		SetTimer(maxAttackTime, false, 'AttackTimeFinished');
 	}
 
 	event ContinuedState(){
@@ -227,7 +236,8 @@ state ChasePlayer{
 
 	event EndState(name NextStateName){		
 		ClearTimer('CheckIndirectReachability');
-		ClearTimer('CheckDirectReachability');		
+		ClearTimer('CheckDirectReachability');
+		ClearTimer('AttackTimeFinished');
 	}
 
 	event PausedState(){
@@ -495,14 +505,12 @@ state Attacking
 	event PushedState(){
 		super.PushedState();
 		Pawn.GotoState('Attacking');		
-		Focus = thePlayer;
+		Focus = thePlayer;		
 	}
 	
 	//event PoppedState(){
-	//	super.PoppedState();
-		
+	//	super.PoppedState();		
 	//}
-
 
  Begin:
 	Pawn.ZeroMovementVariables();
@@ -527,5 +535,6 @@ DefaultProperties
 	AttackType = RAT_Charge;
 
 	maxAttackCount = 5;
+	maxAttackTime = 10;
 	
 }
