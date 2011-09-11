@@ -611,7 +611,8 @@ simulated event StartJump(){
 
 simulated event EndRoll(){
 	bIsRolling = false;
-
+	
+	if(fullBodySlot.bIsPlayingCustomAnim) fullBodySlot.StopCustomAnim(0.15f);
 	// Discard root motion. So mesh stays locked in place.
 	// We need this to properly blend out to another animation
 	fullBodySlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Discard,RBA_Discard,RBA_Discard);
@@ -639,6 +640,8 @@ function AnimNodeSequence getAttackAnimNode()
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 	
 	if(!isInvulnerable()){
+		if(bIsRolling)
+			EndRoll();
 		super.TakeDamage(Damage, InstigatedBy, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
 		SetInvulnerable(true);
 		Worldinfo.Game.Broadcast(self,Name$": "$Damage$ " done by "$DamageCauser.Name $ " Life: "$Health);
