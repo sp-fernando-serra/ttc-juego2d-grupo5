@@ -6,8 +6,10 @@ var() int ChargeDamage;
 var() float chargeSpeed;
 /** 500.0 matches with 750.0 chargeSpeed and 1.0 chargeSpeedModifier */
 var() float attackChargeDistance;
-/** 1.0 matches with 500.0 chargeDistance and 750.0 chargeSpeed */
+/** 1.5 matches with 500.0 chargeDistance and 750.0 chargeSpeed */
 var() float attackChargeSpeedModifier;
+/** 1.0 matches with 500.0 chargeDistance and 750.0 chargeSpeed */
+var() float attackChargeLengthModifier;
 /** AttackDistance used in Melee attacks */
 var() float attackDistanceNear;
 /** AttackDistance used in Charge attacks (at what distance start charging, not charge attack) */
@@ -120,6 +122,49 @@ state ChasePlayer{
 	}
 }
 
+
+state Attacking{
+
+	simulated event doDamage(){
+		local Vector CuernoDown, CuernoUp;
+		local Vector HitLocation, HitNormal;
+		local Actor HitActor;
+
+		//Worldinfo.Game.Broadcast(self, Name $ ": Calculating Attack Collision");
+
+		
+		Mesh.GetSocketWorldLocationAndRotation('CuernoDown' , CuernoDown);
+		Mesh.GetSocketWorldLocationAndRotation('CuernoUp', CuernoUp);
+		HitActor = Trace(HitLocation, HitNormal, CuernoUp, CuernoDown, true);
+		
+		if(HitActor != none){
+			//Worldinfo.Game.Broadcast(self, Name $ ": Hit actor "$HitActor.Name);
+			if(BBBettyPawn(HitActor) != none && !playerHurt){
+				BBBettyPawn(HitActor).TakeDamage(AttackDamage,Controller,HitLocation,vect(0,0,0),MyDamageType,,self);
+				playerHurt = true;
+			}
+		}
+	}
+	
+	//simulated event BeginState(name NextStateName){
+		
+	//	super.BeginState(NextStateName);
+	//	customAnimSlot.PlayCustomAnim(attackAnimName,1.0f,0.25f,0.25f,true,true);
+	//}
+
+	simulated event EndState(name NextStateName){
+		
+		super.EndState(NextStateName);
+		customAnimSlot.StopCustomAnim(0.25f);
+	}
+Begin:
+	playerHurt = false;
+	customAnimSlot.PlayCustomAnim(attackAnimName,2.0f,0.25f,0.25f,false,true);
+	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());
+	BBControllerAIRhinoMiniBoss(Controller).NotifyAttackFinished(playerHurt);
+	goto 'Begin';
+}
+
 state Charging{
 
 	simulated event EndState(name NextStateName){
@@ -170,13 +215,13 @@ Running:
 	Controller.GotoState('Charging','Running');
 	Sleep(4.0f);
 Attack:
-	customAnimSlot.PlayCustomAnim(chargeAttackAnimName,1.5f,0.25,0.25,false,true);
+	customAnimSlot.PlayCustomAnim(chargeAttackAnimName,attackChargeSpeedModifier,0.25,0.25,false,true);
 	customAnimSlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Translate,RBA_Translate,RBA_Default);
 
 	Mesh.RootMotionMode = RMM_Accel;	
-	Mesh.RootMotionAccelScale.X = attackChargeSpeedModifier;
-	Mesh.RootMotionAccelScale.Y = attackChargeSpeedModifier;
-	Mesh.RootMotionAccelScale.Z = attackChargeSpeedModifier;
+	Mesh.RootMotionAccelScale.X = attackChargeLengthModifier;
+	Mesh.RootMotionAccelScale.Y = attackChargeLengthModifier;
+	Mesh.RootMotionAccelScale.Z = attackChargeLengthModifier;
 
 	GroundSpeed = chargeSpeed;
 	RotationRate = Rotator(vect(0,0,0));
@@ -259,48 +304,6 @@ Awake:
 	//GotoState('');
 }
 
-state Attacking{
-
-	simulated event doDamage(){
-		local Vector CuernoDown, CuernoUp;
-		local Vector HitLocation, HitNormal;
-		local Actor HitActor;
-
-		//Worldinfo.Game.Broadcast(self, Name $ ": Calculating Attack Collision");
-
-		
-		Mesh.GetSocketWorldLocationAndRotation('CuernoDown' , CuernoDown);
-		Mesh.GetSocketWorldLocationAndRotation('CuernoUp', CuernoUp);
-		HitActor = Trace(HitLocation, HitNormal, CuernoUp, CuernoDown, true);
-		
-		if(HitActor != none){
-			//Worldinfo.Game.Broadcast(self, Name $ ": Hit actor "$HitActor.Name);
-			if(BBBettyPawn(HitActor) != none && !playerHurt){
-				BBBettyPawn(HitActor).TakeDamage(AttackDamage,Controller,HitLocation,vect(0,0,0),MyDamageType,,self);
-				playerHurt = true;
-			}
-		}
-	}
-	
-	//simulated event BeginState(name NextStateName){
-		
-	//	super.BeginState(NextStateName);
-	//	customAnimSlot.PlayCustomAnim(attackAnimName,1.0f,0.25f,0.25f,true,true);
-	//}
-
-	simulated event EndState(name NextStateName){
-		
-		super.EndState(NextStateName);
-		customAnimSlot.StopCustomAnim(0.25f);
-	}
-Begin:
-	playerHurt = false;
-	customAnimSlot.PlayCustomAnim(attackAnimName,2.0f,0.25f,0.25f,false,true);
-	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());
-	BBControllerAIRhinoMiniBoss(Controller).NotifyAttackFinished(playerHurt);
-	goto 'Begin';
-}
-
 DefaultProperties
 {
 	Begin Object Name=CollisionCylinder
@@ -345,15 +348,19 @@ DefaultProperties
     bCanJump=false
     GroundSpeed=350.0
 
+	HealthMax = 25;
+	Health = 25;
+
 	PerceptionDistance = 2500;
 	AttackDistance = 2000;
 	AttackDistanceFar = 2000;
 	AttackDistanceNear = 70;
 	AttackDamage = 3;
 	ChargeDamage = 3;
-	chargeSpeed = 900;                      //750.0 matches with 500.0 chargeDistance and 1.0 chargeSpeedModifier
-	attackChargeDistance = 600.0f;          //500.0 matches with 750.0 of chargeSpeed and 1.0 chargeSpeedModifier
-	attackChargeSpeedModifier = 1.2f;       //1.0 matches with 500.0 ChargeDistance, and 750.0 of chargeSpeed
+	chargeSpeed = 1125.0f;                      //750.0 matches with 500.0 chargeDistance and 1.0 chargeSpeedModifier
+	attackChargeDistance = 750.0f;          //500.0 matches with 750.0 of chargeSpeed and 1.0 chargeSpeedModifier
+	attackChargeSpeedModifier = 2.25f;       //1.5 matches with 500.0 ChargeDistance, and 750.0 of chargeSpeed
+	attackChargeLengthModifier = 1.5f;      //1.0 matches with 500.0 ChargeDistance, and 750.0 of chargeSpeed
 	attackChargeMomentum = (X = -1800.0, Y = -1800.0, Z = 1000.0);
 
 	timeStunned = 3.0f;

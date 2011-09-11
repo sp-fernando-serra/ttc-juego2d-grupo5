@@ -314,6 +314,37 @@ Targeting:
 	goto 'Targeting';
 }
 
+
+state Attacking
+{
+	ignores SeePlayer,HearNoise;
+	
+	event PushedState(){
+		super.PushedState();
+		Pawn.GotoState('Attacking');		
+		Focus = thePlayer;		
+	}
+	
+	//event PoppedState(){
+	//	super.PoppedState();		
+	//}
+
+ Begin:
+	Pawn.ZeroMovementVariables();
+	Pawn.GotoState('Attacking');
+	//while(thePlayer.Health > 0)
+	//{   
+	//	if (!IsWithinAttackRange(thePlayer))
+ //       { 
+	//		Pawn.GotoState('ChasePlayer');
+	//		GotoState('ChasePlayer');
+	//		break;
+ //       }
+	//	Sleep(1);
+	//}	
+	//GotoState('Idle');
+}
+
 state FindChargePosition{
 
 	ignores SeePlayer, HearNoise;
@@ -497,37 +528,6 @@ state Stunned{
 
 
 }
-
-state Attacking
-{
-	ignores SeePlayer,HearNoise;
-	
-	event PushedState(){
-		super.PushedState();
-		Pawn.GotoState('Attacking');		
-		Focus = thePlayer;		
-	}
-	
-	//event PoppedState(){
-	//	super.PoppedState();		
-	//}
-
- Begin:
-	Pawn.ZeroMovementVariables();
-	Pawn.GotoState('Attacking');
-	//while(thePlayer.Health > 0)
-	//{   
-	//	if (!IsWithinAttackRange(thePlayer))
- //       { 
-	//		Pawn.GotoState('ChasePlayer');
-	//		GotoState('ChasePlayer');
-	//		break;
- //       }
-	//	Sleep(1);
-	//}	
-	//GotoState('Idle');
-}
-
 
 DefaultProperties
 {
