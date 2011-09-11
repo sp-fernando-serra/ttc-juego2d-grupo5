@@ -29,6 +29,11 @@ var bool bMushroomJump;
 var float mushroomJumpZModifier;
 
 
+var Vector myVector;
+var Vector myVector2;
+var Rotator myRotator;
+var Rotator myRotator2;
+
 
 /** AnimNode used to play custom fullbody anims */
 var AnimNodeSlot fullBodySlot;
@@ -972,10 +977,46 @@ Landing:
 state playerSlide
 {
 
+	event Tick(float DeltaTime)
+	{
+		hojaSlideRotate();		
+	}
+
+	function hojaSlideRotate()
+	{
+		myVector = Floor;
+		//myRotator = Rotator(myVector);
+		myVector2 = myVector << Rotation;
+
+		myRotator=rotator(myVector2);
+
+		myRotator2.Roll = myRotator.Pitch-16221;
+		//if(myRotator.Yaw>0){
+		//	myRotator2.Roll = myRotator.Pitch-16221;
+		//}
+		//else{
+		//	myRotator2.Roll = myRotator.Pitch;
+		//}
+		
+		//myRotator2.Yaw = myRotator.Yaw;
+		//myRotator2.Pitch= myRotator.Yaw+16221;
+		//myRotator.Roll= Rotator(myVector).Roll;
+		//myRotator.Yaw= Rotator(myVector).Yaw;
+		hojaSlide.SetRotation(myRotator2);
+		//myRotator = hojaSlide.GetRotation();
+		
+		//WorldInfo.Game.Broadcast(self, myRotator);
+	}
+	
 	event BeginState(name PreviousStateName){
 		super.BeginState(PreviousStateName);
 		hojaSlide.SetScale(0.65);
 		Mesh.AttachComponentToSocket(hojaSlide, 'HojaSlide');
+		Mesh.GetSocketWorldLocationAndRotation('HojaSlide',myVector,myRotator);
+		
+		
+
+
 		SlideSound = CreateAudioComponent(SlideCue);
 		SlideSound.Play();		
 	}
