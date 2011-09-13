@@ -33,7 +33,7 @@ event PostLogin( PlayerController NewPlayer ){
 }
 
 /** FindPlayerStart()
-* Return the 'best' player start for this player to start from.  PlayerStarts are rated by RatePlayerStart().
+* Return the 'best' player start for this player to start from.
 * @param Player is the controller for whom we are choosing a playerstart
 * @param InTeam specifies the Player's team (if the player hasn't joined a team yet)
 * @param IncomingName specifies the tag of a teleporter to use as the Playerstart
@@ -81,7 +81,9 @@ function NavigationPoint FindPlayerStart( Controller Player, optional byte InTea
 exec function bool SaveGameCheckpoint(){
 	//@FIXME: Hack. Only save checkpoint if local player is fully loaded. To prevent Checkpoint save at player Spawning
 	if(WorldInfo.GetALocalPlayerController().Pawn != none)
-		return SaveGame("CheckPointSave");	
+		return SaveGame("CheckPointSave");
+	else
+		return false;
 }
 
 /**Saves map state to a file.
