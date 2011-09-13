@@ -28,13 +28,6 @@ var bool bMushroomJump;
 /** Amount to modify the normal height jump in a mushroom jump if mushroomJumpZ in mushroom class is 0.0 */
 var float mushroomJumpZModifier;
 
-
-var Vector myVector;
-var Vector myVector2;
-var Rotator myRotator;
-var Rotator myRotator2;
-
-
 /** AnimNode used to play custom fullbody anims */
 var AnimNodeSlot fullBodySlot;
 /** AnimNode used to play custom upperbody anims */
@@ -987,39 +980,46 @@ state playerSlide
 
 	function hojaSlideRotate()
 	{
-		myVector = Floor;
-		//myRotator = Rotator(myVector);
-		myVector2 = myVector << Rotation;
 
-		myRotator=rotator(myVector2);
+		local Vector localForward,localFloor;
+		local Rotator desiredHojaRotation,floorRotation;
+		
+		localForward=vect(1,0,0);
+		
+		localFloor = Floor << Rotation; //normal del suelo, en sistema de referencia betty
+		floorRotation = Rotator(localFloor);
 
-		myRotator2.Roll = myRotator.Pitch-16221;
-		//if(myRotator.Yaw>0){
-		//	myRotator2.Roll = myRotator.Pitch-16221;
-		//}
-		//else{
-		//	myRotator2.Roll = myRotator.Pitch;
-		//}
-		
-		//myRotator2.Yaw = myRotator.Yaw;
-		//myRotator2.Pitch= myRotator.Yaw+16221;
-		//myRotator.Roll= Rotator(myVector).Roll;
-		//myRotator.Yaw= Rotator(myVector).Yaw;
-		hojaSlide.SetRotation(myRotator2);
-		//myRotator = hojaSlide.GetRotation();
-		
-		//WorldInfo.Game.Broadcast(self, myRotator);
+		//angle = localFloor dot localForward;
+
+		if(localFloor dot localForward >0)	//bajando	
+		{
+			desiredHojaRotation.Roll=-floorRotation.Pitch+16384;
+		}
+		else                    // subiendo
+		{
+			desiredHojaRotation.Roll=floorRotation.Pitch-16384;
+		}
+
+		//desiredHojaRotation.Pitch=floorRotation.Yaw;	// otra orientacion de la hoja, pero no está hecho
+
+		hojaSlide.SetRotation(desiredHojaRotation); //rotar hoja
+		if(abs(localFloor dot localForward) >0.3)	//bajando
+		{
+			hojaSlide.SetTranslation(vect(0,0,-5)); //trasladar hoja
+		}
+		else
+		{
+			hojaSlide.SetTranslation(vect(0,0,0)); //trasladar hoja
+		}
+						
+		//WorldInfo.Game.Broadcast(self, floorRotation);
+
 	}
 	
 	event BeginState(name PreviousStateName){
 		super.BeginState(PreviousStateName);
 		hojaSlide.SetScale(0.65);
 		Mesh.AttachComponentToSocket(hojaSlide, 'HojaSlide');
-		Mesh.GetSocketWorldLocationAndRotation('HojaSlide',myVector,myRotator);
-		
-		
-
-
 		SlideSound = CreateAudioComponent(SlideCue);
 		SlideSound.Play();		
 	}
