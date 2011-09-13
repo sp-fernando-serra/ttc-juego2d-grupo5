@@ -2,16 +2,19 @@ class BBCheckPoint extends PlayerStart placeable
 	classGroup(BBActor);
 
 event Touch(Actor Other, PrimitiveComponent OtherComp, Vector HitLocation, Vector HitNormal){
-	local BBCheckPoint tempCheckPoint;
-	if(BBBettyPawn(Other) != none){
-		foreach AllActors(class'BBCheckPoint', tempCheckPoint){
-			tempCheckPoint.bEnabled = false;
-			tempCheckPoint.bPrimaryStart = false;
-		}
+	//local BBCheckPoint tempCheckPoint;
+	//if(BBBettyPawn(Other) != none){
+	//	foreach AllActors(class'BBCheckPoint', tempCheckPoint){
+	//		tempCheckPoint.bEnabled = false;
+	//		tempCheckPoint.bPrimaryStart = false;
+	//	}
 
-		bEnabled = true;
-		bPrimaryStart = true;
-	}
+	//	bEnabled = true;
+	//	bPrimaryStart = true;
+	//}
+
+	BBGameInfo(WorldInfo.Game).currentCheckPoint = self;
+	BBGameInfo(WorldInfo.Game).SaveGameCheckpoint();
 }
 
 
