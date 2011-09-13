@@ -97,7 +97,7 @@ exec function bool SaveGame(string fileName){
 }
 
 exec function bool LoadGameCheckpoint(){
-	return LoadMapFromFile("CheckPointSave");
+	return LoadGameFromFile("CheckPointSave");
 }
 
 /**Changes current level and schedule a InitMapFromFile() when the level has been loaded
@@ -107,8 +107,12 @@ exec function bool LoadGameFromFile(string fileName){
 	local BBSaveGame tempSave;
 	local bool tempResult;
 	local string tempMapName;
+	if(fileName ~= "CheckPointSave")
+		return false;
 	tempSave = new class'BBSaveGame';
 	tempResult = class'Engine'.static.BasicLoadObject(tempSave, `saveFolder $ fileName $ `saveExtension, true, 0);
+	if(tempResult == false)
+		`warn("Error");
 	tempMapName = tempSave.GetMapName();
 	WorldInfo.GetALocalPlayerController().ClientTravel( tempMapName $ "?LoadPreviousGame=" $ fileName, TRAVEL_Partial );
 
