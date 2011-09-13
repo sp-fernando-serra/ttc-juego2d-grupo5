@@ -656,12 +656,12 @@ simulated function bool canThrowGrenade(){
 }
 
 simulated function bool canUseHeal(){
-	if(reactivateTime[HN_Heal] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && !bStoppedByHit &&  Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costHeal) return true;
+	if(reactivateTime[HN_Heal] == 0 && (IsInState('PlayerWalking') || IsInState('PlayerSlide') || IsInState('CombatStance')) && !bStoppedByHit &&  Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costHeal) return true;
 	else return false;
 }
 
 simulated function bool canUseFrenesi(){
-	if(reactivateTime[HN_Frenesi] == 0 && frenesiDuration == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && !bStoppedByHit &&  Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costFrenesi) return true;
+	if(reactivateTime[HN_Frenesi] == 0 && frenesiDuration == 0 && (IsInState('PlayerWalking') || IsInState('PlayerSlide')  || IsInState('CombatStance')) && !bStoppedByHit &&  Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costFrenesi) return true;
 	else return false;
 }
 
@@ -964,7 +964,7 @@ State PlayerSlide{
 						BBBettyPawn(Pawn).animRollLeft();
 						reactivateTime[HN_Roll] = coldDowns[HN_Roll];
 					}
-					ProcessMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);
+					ProcessMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);					
 				}				
 			}
 			bPressedJump = bSaveJump;
@@ -1042,6 +1042,23 @@ State PlayerSlide{
 	}
 	
 }
+
+	function ProcessMove(float DeltaTime, vector NewAccel, eDoubleClickDir DoubleClickMove, rotator DeltaRot)
+	{
+		if( Pawn == None )
+		{
+			return;
+		}
+
+		if (Role == ROLE_Authority)
+		{
+			// Update ViewPitch for remote clients
+			Pawn.SetRemoteViewPitch( Rotation.Pitch );
+		}
+		Pawn.Acceleration = NewAccel;
+		
+		CheckJumpOrDuck();
+	}
 
 event BeginState(Name PreviousStateName)
 	{
