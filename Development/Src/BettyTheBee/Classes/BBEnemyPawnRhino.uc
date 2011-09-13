@@ -1,7 +1,7 @@
 class BBEnemyPawnRhino extends BBEnemyPawn placeable;
 
 /** Damage done by Charge Attack */
-var int ChargeDamage;
+var() int ChargeDamage;
 
 var AnimNodeBlendList animStateList;
 
