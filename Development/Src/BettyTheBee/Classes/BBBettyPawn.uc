@@ -25,6 +25,10 @@ var		float	DoubleJumpThreshold;
  *  Mushroom jump is higher than normal jump. Using mushroomJumpZModifier
  */
 var bool bMushroomJump;
+
+var bool bSlideJump;
+var int tickcount;
+
 /** Amount to modify the normal height jump in a mushroom jump if mushroomJumpZ in mushroom class is 0.0 */
 var float mushroomJumpZModifier;
 
@@ -975,15 +979,31 @@ state playerSlide
 
 	event Tick(float DeltaTime)
 	{
-		hojaSlideRotate();		
+		hojaSlideAdjust();
 	}
 
-	function hojaSlideRotate()
+	simulated event StartJump()
+	{
+		Super.StartJump();
+		bSlideJump=true;
+		tickcount=0;
+	}
+
+	event Landed(vector HitNormal, actor FloorActor)
+	{
+		Super.Landed(HitNormal, FloorActor);
+		bSlideJump=false;
+		GotoState('PlayerSlide');
+	}
+
+	function hojaSlideAdjust()
 	{
 
 		local Vector localForward,localFloor;
 		local Rotator desiredHojaRotation,floorRotation;
+		local Vector hojaTranslation;
 		
+		hojaTranslation=vect(0,0,-5);
 		localForward=vect(1,0,0);
 		
 		localFloor = Floor << Rotation; //normal del suelo, en sistema de referencia betty
@@ -1002,15 +1022,18 @@ state playerSlide
 
 		//desiredHojaRotation.Pitch=floorRotation.Yaw;	// otra orientacion de la hoja, pero no está hecho
 
+		
+		
+		if(bSlideJump){
+			tickcount++;
+			hojaTranslation.Z=-40;
+			desiredHojaRotation.Pitch=tickcount*2000;  // dar una vuelta en el aire
+		}
+		
+
 		hojaSlide.SetRotation(desiredHojaRotation); //rotar hoja
-		if(abs(localFloor dot localForward) >0.3)	//bajando
-		{
-			hojaSlide.SetTranslation(vect(0,0,-5)); //trasladar hoja
-		}
-		else
-		{
-			hojaSlide.SetTranslation(vect(0,0,0)); //trasladar hoja
-		}
+		hojaSlide.SetTranslation(hojaTranslation); //trasladar hoja
+		
 						
 		//WorldInfo.Game.Broadcast(self, floorRotation);
 
@@ -1021,7 +1044,8 @@ state playerSlide
 		hojaSlide.SetScale(0.65);
 		Mesh.AttachComponentToSocket(hojaSlide, 'HojaSlide');
 		SlideSound = CreateAudioComponent(SlideCue);
-		SlideSound.Play();		
+		SlideSound.Play();
+		fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING_START],1.0f,0.0f,0.0f,false,true);
 	}
 
 	event EndState(name NextStateName)
@@ -1032,8 +1056,10 @@ state playerSlide
 		SlideSound.Stop();
 		gotoState('idle');
 	}
+
+
 Begin:
-	fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING_START],1.0f,0.0f,0.0f,false,true);
+	
 	//FinishAnim(slideAnimNames[SLIDING_START]);
 	FinishAnim(fullBodySlot.GetCustomAnimNodeSeq());
 	fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING],1.0f,0.0f,0.0f,true);
