@@ -46,13 +46,9 @@ function NavigationPoint FindPlayerStart( Controller Player, optional byte InTea
 	local PlayerStart P;
 
 	// if incoming start is specified, then just use it
-	`log("Incoming name:" @ IncomingName);
 	if( incomingName!="" ){
-		`log("SearchingTeleport named" @ IncomingName);
 		ForEach WorldInfo.AllNavigationPoints( class 'Teleporter', Tel ){
-			`log("Found teleport:" @ Tel.Tag);
 			if( string(Tel.Tag)~=incomingName ){
-				`log("Starting at:" @ Tel.Tag);
 				return Tel;
 			}
 		}
