@@ -1003,7 +1003,7 @@ state playerSlide
 	{
 
 		local Vector localForward,localFloor;
-		local Rotator desiredHojaRotation,desiredHojaRotation2,floorRotation;
+		local Rotator desiredHojaRotation,floorRotation;
 		local Vector hojaTranslation;
 		local int RotSpeed;
 		
