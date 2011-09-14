@@ -18,6 +18,6 @@ simulated event UnTouch( Actor Other )
 
 DefaultProperties
 {
-	GroundFriction=-5; 
+	GroundFriction=0.8; 
 	bPhysicsOnContact=true;
 }
