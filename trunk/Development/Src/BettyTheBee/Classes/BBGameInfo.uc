@@ -118,8 +118,8 @@ exec function bool LoadGameFromFile(string fileName){
 	local BBSaveGame tempSave;
 	local bool tempResult;
 	local string tempMapName;
-	if(fileName ~= "CheckPointSave")
-		return false;
+	//if(fileName ~= "CheckPointSave")
+	//	return false;
 	tempSave = new class'BBSaveGame';
 	tempResult = class'Engine'.static.BasicLoadObject(tempSave, `saveFolder $ fileName $ `saveExtension, true, 0);
 	if(tempResult == false)
