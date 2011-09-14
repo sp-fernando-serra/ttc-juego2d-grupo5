@@ -27,7 +27,6 @@ var		float	DoubleJumpThreshold;
 var bool bMushroomJump;
 
 var bool bSlideJump;
-var int tickcount;
 
 /** Amount to modify the normal height jump in a mushroom jump if mushroomJumpZ in mushroom class is 0.0 */
 var float mushroomJumpZModifier;
@@ -65,7 +64,10 @@ var name rollAnimNames[2];
 const SLIDING_START = 0;
 const SLIDING       = 1;
 const SLIDING_END   = 2;
-var name slideAnimNames[3];
+const SLIDING_LEFT  = 3;
+const SLIDING_RIGHT = 4;
+const SLIDING_JUMP  = 5;
+var name slideAnimNames[6];
 
 //Particle Systems
 /** ParticleSystem que aparece al equipar la espada */
@@ -979,31 +981,33 @@ state playerSlide
 
 	event Tick(float DeltaTime)
 	{
-		hojaSlideAdjust();
+		hojaSlideAdjust(DeltaTime);
 	}
 
 	simulated event StartJump()
 	{
 		Super.StartJump();
+		SlideSound.Stop();
 		bSlideJump=true;
-		tickcount=0;
 	}
 
 	event Landed(vector HitNormal, actor FloorActor)
 	{
 		Super.Landed(HitNormal, FloorActor);
 		bSlideJump=false;
+		SlideSound.Play();
 		GotoState('PlayerSlide');
 	}
 
-	function hojaSlideAdjust()
+	function hojaSlideAdjust(float DeltaTime)
 	{
 
 		local Vector localForward,localFloor;
-		local Rotator desiredHojaRotation,floorRotation;
+		local Rotator desiredHojaRotation,desiredHojaRotation2,floorRotation;
 		local Vector hojaTranslation;
+		local int RotSpeed;
 		
-		hojaTranslation=vect(0,0,-5);
+		hojaTranslation=vect(0,0,0);
 		localForward=vect(1,0,0);
 		
 		localFloor = Floor << Rotation; //normal del suelo, en sistema de referencia betty
@@ -1021,18 +1025,18 @@ state playerSlide
 		}
 
 		//desiredHojaRotation.Pitch=floorRotation.Yaw;	// otra orientacion de la hoja, pero no está hecho
-
 		
-		
+		RotSpeed=20000;
 		if(bSlideJump){
-			tickcount++;
 			hojaTranslation.Z=-40;
-			desiredHojaRotation.Pitch=tickcount*2000;  // dar una vuelta en el aire
+			desiredHojaRotation.Pitch= hojaSlide.Rotation.Pitch + DeltaTime*100000;  // dar una vuelta en el aire
+			RotSpeed=2000000;
 		}
 		
 
-		hojaSlide.SetRotation(desiredHojaRotation); //rotar hoja
+		//hojaSlide.SetRotation(desiredHojaRotation); //rotar hoja
 		hojaSlide.SetTranslation(hojaTranslation); //trasladar hoja
+		hojaSlide.SetRotation(RInterpTo(  hojaSlide.Rotation,desiredHojaRotation,DeltaTime,RotSpeed,true));
 		
 						
 		//WorldInfo.Game.Broadcast(self, floorRotation);
@@ -1063,6 +1067,18 @@ Begin:
 	
 	//FinishAnim(slideAnimNames[SLIDING_START]);
 	FinishAnim(fullBodySlot.GetCustomAnimNodeSeq());
+
+	//if(PlayerController.PlayerInput.aStrafe > 0)
+	//{
+	//	fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING_LEFT],1.0f,0.0f,0.0f,false);
+	//}
+	//else if (PlayerController.PlayerInput.aStraf<0)
+	//{
+	//	fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING_RIGHT],1.0f,0.0f,0.0f,false);
+	//}
+	//if(bSlideJump) fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING_JUMP],1.0f,0.0f,0.0f,true);
+	
+
 	fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING],1.0f,0.0f,0.0f,true);
 	//PlaySound(SlideSound);
 
@@ -1181,6 +1197,9 @@ DefaultProperties
 	slideAnimNames[SLIDING_START] = "Betty_Slide_Start";
 	slideAnimNames[SLIDING] = "Betty_Slide_Loop";
 	slideAnimNames[SLIDING_END] = "Betty_Slide_End";
+	slideAnimNames[SLIDING_LEFT] = "Betty_Slide_Left";
+	slideAnimNames[SLIDING_RIGHT] = "Betty_Slide_Right";
+	slideAnimNames[SLIDING_JUMP] = "Betty_Slide_Jump";
 
 	airAttackAnimName = "Betty_Attack_4_start_seq";
 	airAttackEndAnimName = "Betty_Attack_4_end_seq";

@@ -1,7 +1,7 @@
 class BBPlayerController extends UDKPlayerController;
 
 var bool bBettyMovement;
-var float speed, sideSpeed, backSpeed, slideSpeed;
+var float speed, sideSpeed, backSpeed, slideSpeed, maxSlideSpeed;
 var BBEnemyPawn targetedPawn;
 var bool bCombatStance;
 
@@ -901,10 +901,33 @@ exec function gotoSlide()
 State PlayerSlide{
 	function PlayerMove( float DeltaTime ){
 
-	local vector	 X,Y,Z, NewAccel;
+	local vector	 X,Y,Z, NewAccel, localFloor,localVelocity, localFloorProj;
 	local eDoubleClickDir	DoubleClickMove;
 	local bool	 bSaveJump;
 	local Rotator DeltaRot, ViewRotation, OldRotation, NewRot;
+	
+	localFloor= Pawn.Floor << Pawn.Rotation;
+	localFloorProj = Normal(vect(0,1,0) cross ( localFloor cross vect(0,1,0) ));
+	//localFloorProj= localFloorProj*VSize(localFloor)*sin(localFloor dot vect(0,1,0);
+
+	localVelocity = Pawn.Velocity << Pawn.Rotation;
+
+	WorldInfo.Game.Broadcast(self, localFloorProj dot localVelocity);
+	if ( localFloorProj dot localVelocity < -0.2 ) //subiendo
+	{
+		if(slideSpeed>10) slideSpeed=slideSpeed-10;
+		
+	}
+	else
+	{
+		slideSpeed=maxslideSpeed;
+	}
+	
+	if(slideSpeed==0){ //hacer que betty de media vuelta!
+		//NewRot.Pitch=35000;
+		//Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRot, DeltaTime, RotationSpeed, true), DeltaTime);
+	}
+
 
 	if(bBettyMovement){
 		if( Pawn == None )
@@ -922,6 +945,15 @@ State PlayerSlide{
 			else 
 				pawn.GroundSpeed = slideSpeed*0.8;
 			
+			//if(PlayerInput.aStrafe > 0)
+			//{
+				
+			//}
+			//else if(PlayerInput.aStrafe < 0)
+			//{
+
+			//}
+
 			GetAxes(Pawn.Rotation,X,Y,Z);
 
 			//NewAccel = PlayerInput.aForward*X + PlayerInput.aStrafe*Y;
@@ -1060,7 +1092,7 @@ State PlayerSlide{
 		CheckJumpOrDuck();
 	}
 
-event BeginState(Name PreviousStateName)
+	event BeginState(Name PreviousStateName)
 	{
 		super.BeginState(PreviousStateName);
 		//BBBettyPawn(Pawn).slide(0);
@@ -1254,6 +1286,7 @@ DefaultProperties
 	sideSpeed = 300;
 	backSpeed = 250;
 	slideSpeed = 600;
+	maxSlideSpeed = 600;
 
 	radioLockon=1000.0;
 
