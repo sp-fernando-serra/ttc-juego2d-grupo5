@@ -1052,6 +1052,7 @@ state playerSlide
 	{
 		super.EndState(NextStateName);
 		fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING_END],1.0f,0.0f,0.0f,false,true);
+		bPreparingJump=false;
 		Mesh.DetachComponent(hojaSlide);
 		SlideSound.Stop();
 		gotoState('idle');
