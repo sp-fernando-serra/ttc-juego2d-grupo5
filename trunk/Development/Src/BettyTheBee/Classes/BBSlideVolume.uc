@@ -1,55 +1,23 @@
-class BBSlideVolume extends TriggerVolume placeable classGroup(BBActor);
-
-var BBBettyPawn tempPawn;
+class BBSlideVolume extends PhysicsVolume placeable classGroup(BBActor);
 
 simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 {
 	
 }
 
-state playerInside
-{
-	event UnTouch( Actor Other )
+simulated event Touch( Actor Other, PrimitiveComponent OtherComp, vector HitLocation, vector HitNormal )
 	{
-		gotoState('idle');
-		tempPawn.GotoState('idle');
-		tempPawn.Controller.GotoState('PlayerWalking');
+		BBBettyPawn(Other).Controller.GotoState('PlayerSlide');
 	}
 
-	event BeginState(Name PreviousStateName)
+simulated event UnTouch( Actor Other )
 	{
-		super.BeginState(PreviousStateName);
-		tempPawn.Controller.GotoState('PlayerSlide');
-		
+		if(BBBettyPawn(Other)!=none)
+			BBBettyPawn(Other).Controller.GotoState('PlayerWalking');
 	}
-
-	event EndState(Name NextStateName)
-	{
-		super.EndState(NextStateName);
-		tempPawn.GotoState('idle');
-		tempPawn.Controller.GotoState('PlayerWalking');
-	}
-
-Begin:
-	
-
-
-}
-
-auto state idle
-{
-	event Touch( Actor Other, PrimitiveComponent OtherComp, vector HitLocation, vector HitNormal )
-	{
-		tempPawn = BBBettyPawn(Other);
-		gotoState('playerInside');
-		
-	}
-	
-Begin:
-
-}
 
 DefaultProperties
 {
-
+	GroundFriction=-5; 
+	bPhysicsOnContact=true;
 }

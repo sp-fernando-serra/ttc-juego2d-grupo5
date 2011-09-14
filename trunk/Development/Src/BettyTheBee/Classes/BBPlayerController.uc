@@ -1065,6 +1065,7 @@ event BeginState(Name PreviousStateName)
 		super.BeginState(PreviousStateName);
 		//BBBettyPawn(Pawn).slide(0);
 		//Pawn.SetPhysics(PHYS_Flying);
+		bSliding=true;
 		Pawn.GotoState('PlayerSlide');
 		
 	}
@@ -1074,6 +1075,7 @@ event BeginState(Name PreviousStateName)
 		super.EndState(NextStateName);
 		Pawn.GroundSpeed=speed;
 		Pawn.GotoState('idle');
+		bSliding=false;
 		//BBBettyPawn(Pawn).slide(2);
 	}
 
