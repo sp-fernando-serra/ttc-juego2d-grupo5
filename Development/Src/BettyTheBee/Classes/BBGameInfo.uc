@@ -16,12 +16,12 @@ var BBCheckPoint currentCheckPoint;
  */
 event InitGame(string Options, out string ErrorMessage){
 	local string loadGameFileName;
+
 	super.InitGame(Options, ErrorMessage);
 	if(HasOption(Options, "LoadPreviousGame")){
 		loadGameFileName = ParseOption(Options, "LoadPreviousGame");	
 		InitMapFromFile(loadGameFileName);
 	}
-
 }
 
 event PostLogin( PlayerController NewPlayer ){
@@ -46,11 +46,24 @@ function NavigationPoint FindPlayerStart( Controller Player, optional byte InTea
 	local PlayerStart P;
 
 	// if incoming start is specified, then just use it
+	`log("Incoming name:" @ IncomingName);
 	if( incomingName!="" ){
-		ForEach WorldInfo.AllNavigationPoints( class 'Teleporter', Tel )
-			if( string(Tel.Tag)~=incomingName )
+		`log("SearchingTeleport named" @ IncomingName);
+		ForEach WorldInfo.AllNavigationPoints( class 'Teleporter', Tel ){
+			`log("Found teleport:" @ Tel.Tag);
+			if( string(Tel.Tag)~=incomingName ){
+				`log("Starting at:" @ Tel.Tag);
 				return Tel;
+			}
+		}
 	}
+	// always pick StartSpot at start of match
+	if ( ShouldSpawnAtStartSpot(Player) &&
+		(PlayerStart(Player.StartSpot) == None || RatePlayerStart(PlayerStart(Player.StartSpot), InTeam, Player) >= 0.0) )
+	{
+		return Player.StartSpot;
+	}
+
 
 	if(currentCheckPoint != none)
 		BestStart = currentCheckPoint;
