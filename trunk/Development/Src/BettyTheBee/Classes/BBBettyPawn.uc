@@ -1007,7 +1007,7 @@ state playerSlide
 		local Vector hojaTranslation;
 		local int RotSpeed;
 		
-		hojaTranslation=vect(0,0,0);
+		hojaTranslation=vect(0,0,-5);
 		localForward=vect(1,0,0);
 		
 		localFloor = Floor << Rotation; //normal del suelo, en sistema de referencia betty
@@ -1026,7 +1026,7 @@ state playerSlide
 
 		//desiredHojaRotation.Pitch=floorRotation.Yaw;	// otra orientacion de la hoja, pero no está hecho
 		
-		RotSpeed=20000;
+		RotSpeed=40000;
 		if(bSlideJump){
 			hojaTranslation.Z=-40;
 			desiredHojaRotation.Pitch= hojaSlide.Rotation.Pitch + DeltaTime*100000;  // dar una vuelta en el aire
@@ -1039,7 +1039,7 @@ state playerSlide
 		hojaSlide.SetRotation(RInterpTo(  hojaSlide.Rotation,desiredHojaRotation,DeltaTime,RotSpeed,true));
 		
 						
-		//WorldInfo.Game.Broadcast(self, floorRotation);
+//		WorldInfo.Game.Broadcast(self, floorRotation);
 
 	}
 	
@@ -1231,7 +1231,5 @@ DefaultProperties
 	End Object
 	grenadeMesh=grenade
 
-
-	
 }
 

@@ -901,32 +901,52 @@ exec function gotoSlide()
 State PlayerSlide{
 	function PlayerMove( float DeltaTime ){
 
-	local vector	 X,Y,Z, NewAccel, localFloor,localVelocity, localFloorProj;
+	local vector	 X,Y,Z, NewAccel, localFloor,/*localVelocity,*/localVelocityNormal, localFloorProj;
 	local eDoubleClickDir	DoubleClickMove;
 	local bool	 bSaveJump;
 	local Rotator DeltaRot, ViewRotation, OldRotation, NewRot;
+	local float inclination;
 	
 	localFloor= Pawn.Floor << Pawn.Rotation;
 	localFloorProj = Normal(vect(0,1,0) cross ( localFloor cross vect(0,1,0) ));
 	//localFloorProj= localFloorProj*VSize(localFloor)*sin(localFloor dot vect(0,1,0);
 
-	localVelocity = Pawn.Velocity << Pawn.Rotation;
+	//localVelocity = Pawn.Velocity << Pawn.Rotation;
+	//localVelocityNormal = Normal(localVelocity);
+	localVelocityNormal = vect(1,0,0);
 
-	WorldInfo.Game.Broadcast(self, localFloorProj dot localVelocity);
-	if ( localFloorProj dot localVelocity < -0.2 ) //subiendo
+	inclination=localFloorProj dot localVelocityNormal;
+	//WorldInfo.Game.Broadcast(self,inclination );
+
+	if ( inclination < 0 ) //subiendo
 	{
-		if(slideSpeed>10) slideSpeed=slideSpeed-10;
+		if(slideSpeed>0) slideSpeed=slideSpeed-20*abs(inclination);
+		else slideSpeed=0;
 		
 	}
 	else
 	{
-		slideSpeed=maxslideSpeed;
+  		if(slideSpeed<maxSlideSpeed)
+  		{
+  			slideSpeed=slideSpeed+30*abs(inclination);
+  		}
 	}
+
 	
-	if(slideSpeed==0){ //hacer que betty de media vuelta!
-		//NewRot.Pitch=35000;
-		//Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRot, DeltaTime, RotationSpeed, true), DeltaTime);
+	
+	if(slideSpeed==0){ //PENDIENTE: hacer que betty de media vuelta!
+		NewRot.Yaw=32768; // 180º
+		NewRot.Pitch=0;
+		NewRot.Roll=0;
+		
+		//NINGUNA FUNCIONA
+		//Pawn.SetDesiredRotation(RInterpTo(Pawn.Rotation,NewRot,Deltatime,1000,true),false,false,Deltatime,true);		
+		//Pawn.FaceRotation(RInterpTo(Pawn.Rotation,NewRot,Deltatime,1,true),Deltatime);
+		//SetRotation(RInterpTo(Pawn.Rotation,NewRot,Deltatime,1000,true));		
+		//WorldInfo.Game.Broadcast(self,NewRot );
+	
 	}
+
 
 
 	if(bBettyMovement){
@@ -1285,8 +1305,8 @@ DefaultProperties
 	speed = 400;
 	sideSpeed = 300;
 	backSpeed = 250;
-	slideSpeed = 600;
-	maxSlideSpeed = 600;
+	slideSpeed = 800;
+	maxSlideSpeed = 800;
 
 	radioLockon=1000.0;
 
