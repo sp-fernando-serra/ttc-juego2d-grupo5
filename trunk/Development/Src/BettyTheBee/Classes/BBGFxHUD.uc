@@ -1,5 +1,6 @@
 class BBGFxHUD extends GFxMoviePlayer;
 
+
 //Create a Health Cache variable
 var float LastHealthpc;
 
@@ -12,6 +13,7 @@ var GFxObject txt1,txt2,txt3;
 var GFxAction_GetVariable pausa;
 
 var SoundCue over;
+
 
 
 //var BettyGamePlayerController PlayerOwner;
@@ -177,6 +179,9 @@ function sonido(String sonido)
 	
 }
 
+function playFromCheckpoint(){
+	BBHUD(GetPC().myHUD).playFromCheckpoint();	
+}
 DefaultProperties
 {
 
