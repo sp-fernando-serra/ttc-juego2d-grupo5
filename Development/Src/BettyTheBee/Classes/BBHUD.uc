@@ -66,6 +66,10 @@ function texto_ayudaOFF()
     HudMovie.texto_ayudaOFF();
 }
 
+function playFromCheckpoint(){
+	BBGameInfo(WorldInfo.Game).LoadGameCheckpoint();
+}
+
 DefaultProperties
 {
 }

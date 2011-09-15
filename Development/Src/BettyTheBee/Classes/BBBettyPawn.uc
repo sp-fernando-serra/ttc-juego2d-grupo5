@@ -105,6 +105,7 @@ var SoundCue HitSound;
 var AudioComponent SlideSound;
 var SoundCue SlideCue;
 
+
 var() SkeletalMeshComponent grenadeMesh;
 
 var() SkeletalMeshComponent hojaSlide;
@@ -189,6 +190,7 @@ event Tick(float DeltaTime){
 			SetInvulnerable(false);
 		}
 	}
+
 }
 
 //event PostBeginPlay()
@@ -486,8 +488,17 @@ function DrawText(BBSeqAct_DrawText myActionDrawText){
 															myActionDrawText.posY * 768);
 }
 
+
+/*
+ * This function is called from Kismet. per cridar a la funcio LoadGameCheckpoint desde el menu principal del joc
+ */
+function playFromCheckpoint(BBSeqAct_Continue myActionContinue){
+	BBGameInfo(WorldInfo.Game).LoadGameCheckpoint();
+}
+
 simulated function StartFire(byte FireModeNum)
 {
+	
 
 		if(BBWeapon(Weapon).getAnimacioFlag()==false){
 			
@@ -1109,7 +1120,7 @@ DefaultProperties
 		bCastDynamicShadow=true
 		bOwnerNoSee=false
 		LightEnvironment=MyLightEnvironment;
-		SkeletalMesh=SkeletalMesh'Betty_slide.SkModels.HojaSlide'
+		SkeletalMesh=SkeletalMesh'Betty_slide.SkModels.hojaSlide'
 		End Object
 
 	hojaSlide=MyHojaSlide
