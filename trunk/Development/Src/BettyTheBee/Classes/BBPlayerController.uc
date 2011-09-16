@@ -70,9 +70,15 @@ var float coldDowns[EHabilityNames];
 /** Time until coldown refresh */
 var float reactivateTime[EHabilityNames];
 
+/** cached result of GetPlayerViewPoint() */
+var Actor CalcViewActor;
+
 simulated event PostBeginPlay() //This event is triggered when play begins
 {
+	//local BBGamePlayerCamera tempCamera;
 	super.PostBeginPlay();
+	//tempCamera = BBGamePlayerCamera(PlayerCamera);
+	//BBGameThirdPersonCamera(tempCamera.CurrentCamera).SetFocusOnActor(Pawn, '', vect2d(90,90), vect2d(100, 100),,,,, 5000);
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -684,10 +690,12 @@ function CheckJumpOrDuck()
 	//if ( bDoubleJump && (bUpdating || ((BBBettyPawn(Pawn) != None) && BBBettyPawn(Pawn).CanDoubleJump())) )
 	//{
 	//	BBBettyPawn(Pawn).DoDoubleJump( bUpdating );
+	//	BBBettyPawn(Pawn).MultiJumpRemaining -= 1;
 	//}
     if ( bPressedJump && canJump() )
 	{
-  		BBBettyPawn(Pawn).prepareJump(bUpdating);
+   		BBBettyPawn(Pawn).prepareJump(bUpdating);
+		//Pawn.DoJump(bUpdating);
 	}
 	//if ( Pawn.Physics != PHYS_Falling && Pawn.bCanCrouch )
 	//{
@@ -1312,6 +1320,7 @@ DefaultProperties
 
 	broll=false;
 	bSliding=false;
+	bDoubleJump = true;
 	//bPlay_humo_correr=true;
 
 	RotationSpeed=150000;

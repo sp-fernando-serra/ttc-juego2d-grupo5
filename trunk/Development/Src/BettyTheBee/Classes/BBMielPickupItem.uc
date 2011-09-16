@@ -1,5 +1,8 @@
 class BBMielPickupItem extends PickupFactory placeable; 
 
+/** Amount of Honey this item have. The item will be larger if Honey is bigger */
+var() int honey<ClampMin=1 | ClampMax=15>;
+
 var		SoundCue			PickupSound;
 
 /** Degrees to rotate every second */
@@ -8,11 +11,19 @@ var float rotationPerSec;
 var ParticleSystem destellos_PS;
 var ParticleSystemComponent destellos_PSC;
 
+event postBeginPlay(){
+	super.PostBeginPlay();
+	
+	//El item es mas grande cuanta mas miel da
+	SetDrawScale(1.0 + honey/10.0);
+}
+
 function SpawnCopyFor( Pawn Recipient )
 {
 	// Give health to recipient
-	if((BBBettyPawn(Recipient).itemsMiel + 10)>999) BBBettyPawn(Recipient).itemsMiel=999;
-	else BBBettyPawn(Recipient).itemsMiel += 10;	
+	BBBettyPawn(Recipient).itemsMiel += honey;
+	if((BBBettyPawn(Recipient).itemsMiel) > 999) BBBettyPawn(Recipient).itemsMiel=999;
+		
 
 	BBHUD(BBPlayerController(Recipient.Controller).myHUD).startAnimacioItem();
 	PlaySound( PickupSound );
@@ -28,16 +39,16 @@ function SpawnCopyFor( Pawn Recipient )
 
 
 
-function Tick( float DeltaTime ){
-	local Rotator newRot;
+//function Tick( float DeltaTime ){
+//	local Rotator newRot;
 	
 	
-	newRot = Rotation;
-	newRot.Yaw = newRot.Yaw + DeltaTime * rotationPerSec / UnrRotToDeg;
-	if(newRot.Yaw > 65535)
-		newRot.Yaw = 0;
-	SetRotation(newRot);
-}
+//	newRot = Rotation;
+//	newRot.Yaw = newRot.Yaw + DeltaTime * rotationPerSec / UnrRotToDeg;
+//	if(newRot.Yaw > 65535)
+//		newRot.Yaw = 0;
+//	SetRotation(newRot);
+//}
 
 
 DefaultProperties
@@ -61,7 +72,7 @@ DefaultProperties
 
 	Begin Object Name=CollisionCylinder
 		CollisionRadius=+0040.000000
-		CollisionHeight=+0040.000000
+		CollisionHeight=+0045.000000
 	End Object
 	CylinderComponent=CollisionCylinder
 
@@ -80,8 +91,15 @@ DefaultProperties
 
 	rotationPerSec = 90.0f
 
+	Physics = PHYS_Rotating
+
+	RotationRate = (Pitch=16384, Yaw=8192, Roll=0)
+
+
 	//Para no considerarlo como punto de ruta para la IA
 	bBlocked = true
+
+	honey = 1;
 }
 
 
