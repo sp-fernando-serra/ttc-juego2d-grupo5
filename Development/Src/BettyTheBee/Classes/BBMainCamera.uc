@@ -65,8 +65,8 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 					loc_actual=Loc;
 					//`log("camera"@Loc);
 					Loc = VLerp(loc_anterior,Loc,0.1);
-					Loc.X=loc_actual.X;
-					Loc.Y=loc_actual.Y;
+					//Loc.X=loc_actual.X;
+					//Loc.Y=loc_actual.Y;
 
 
 					Loc += FreeCamOffset >> Rot;

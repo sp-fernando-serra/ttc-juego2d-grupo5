@@ -110,6 +110,8 @@ var() SkeletalMeshComponent grenadeMesh;
 
 var() SkeletalMeshComponent hojaSlide;
 
+var int lastSlideRollJumping;
+
 //-----------------------------------------------------------------------------------------------
 //-----------------------------------NOTIFYS-----------------------------------------------------
 
@@ -176,8 +178,8 @@ simulated event lanzaGranada(){
 
 simulated function name GetDefaultCameraMode(PlayerController RequestedBy)
 {
-	return 'ThirdPerson';
-	//return 'third';
+	//return 'default';
+	return 'thirdperson';
 	//return none;
 }
 
@@ -321,7 +323,7 @@ simulated function prepareJump(bool bUpdating){
 	if(!bPreparingJump && Physics != PHYS_Falling){
 		bPreparingJump = true;
 		//When this animation ends it activates a notify called StartJump for jumping
-		fullBodySlot.PlayCustomAnim(preJumpAnimName,1.0f,0.0f,0.0f,false,true);
+		fullBodySlot.PlayCustomAnim(preJumpAnimName,2.0f,0.0f,0.0f,false,true);
 		fullBodySlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Default,RBA_Default,RBA_Default);
 	}
 	else if ( !bUpdating && CanDoubleJump()&& (Abs(Velocity.Z) < DoubleJumpThreshold) && IsLocallyControlled() )
@@ -342,6 +344,17 @@ function bool CanDoubleJump()
 
 function bool DoJump( bool bUpdating )
 {
+	// This extra jump allows a jumping or dodging pawn to jump again mid-air
+	// (via thrusters). The pawn must be within +/- DoubleJumpThreshold velocity units of the
+	// apex of the jump to do this special move.
+	if ( !bUpdating && CanDoubleJump()&& (Abs(Velocity.Z) < DoubleJumpThreshold) && IsLocallyControlled() )
+	{
+		if ( PlayerController(Controller) != None )
+			PlayerController(Controller).bDoubleJump = true;
+		DoDoubleJump(bUpdating);
+		MultiJumpRemaining -= 1;
+		return true;
+	}
 	if (bJumpCapable && !bIsCrouched && !bWantsToCrouch && (Physics == PHYS_Walking || Physics == PHYS_Ladder || Physics == PHYS_Spider))
 	{
 		if ( Physics == PHYS_Spider )
@@ -987,96 +1000,157 @@ Landing:
 }
 
 
-state playerSlide
-{
+state playerSlide{
 
-	event Tick(float DeltaTime)
-	{
-		hojaSlideAdjust(DeltaTime);
-	}
-
-	simulated event StartJump()
-	{
-		Super.StartJump();
-		SlideSound.Stop();
-		bSlideJump=true;
-	}
-
-	event Landed(vector HitNormal, actor FloorActor)
-	{
-		Super.Landed(HitNormal, FloorActor);
-		bSlideJump=false;
-		SlideSound.Play();
-		GotoState('PlayerSlide');
-	}
-
-	function hojaSlideAdjust(float DeltaTime)
-	{
-
-		local Vector localForward,localFloor;
-		local Rotator desiredHojaRotation,floorRotation;
-		local Vector hojaTranslation;
-		local int RotSpeed;
-		
-		hojaTranslation=vect(0,0,-5);
-		localForward=vect(1,0,0);
-		
-		localFloor = Floor << Rotation; //normal del suelo, en sistema de referencia betty
-		floorRotation = Rotator(localFloor);
-
-		//angle = localFloor dot localForward;
-
-		if(localFloor dot localForward >0)	//bajando	
-		{
-			desiredHojaRotation.Roll=-floorRotation.Pitch+16384;
-		}
-		else                    // subiendo
-		{
-			desiredHojaRotation.Roll=floorRotation.Pitch-16384;
-		}
-
-		//desiredHojaRotation.Pitch=floorRotation.Yaw;	// otra orientacion de la hoja, pero no está hecho
-		
-		RotSpeed=40000;
-		if(bSlideJump){
-			hojaTranslation.Z=-40;
-			desiredHojaRotation.Pitch= hojaSlide.Rotation.Pitch + DeltaTime*100000;  // dar una vuelta en el aire
-			RotSpeed=2000000;
-		}
-		
-
-		//hojaSlide.SetRotation(desiredHojaRotation); //rotar hoja
-		hojaSlide.SetTranslation(hojaTranslation); //trasladar hoja
-		hojaSlide.SetRotation(RInterpTo(  hojaSlide.Rotation,desiredHojaRotation,DeltaTime,RotSpeed,true));
-		
-						
-//		WorldInfo.Game.Broadcast(self, floorRotation);
-
-	}
-	
 	event BeginState(name PreviousStateName){
 		super.BeginState(PreviousStateName);
+		bPreparingJump=false;
 		hojaSlide.SetScale(0.65);
 		Mesh.AttachComponentToSocket(hojaSlide, 'HojaSlide');
 		SlideSound = CreateAudioComponent(SlideCue);
 		SlideSound.Play();
 		fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING_START],1.0f,0.0f,0.0f,false,true);
-	}
+		}
 
-	event EndState(name NextStateName)
-	{
+	event EndState(name NextStateName){
 		super.EndState(NextStateName);
 		fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING_END],1.0f,0.0f,0.0f,false,true);
 		bPreparingJump=false;
+		bSlideJump = false;
+		lastSlideRollJumping = 0;
+		hojaSlide.SetRotation(rot(0,0,0));
 		Mesh.DetachComponent(hojaSlide);
 		SlideSound.Stop();
-		gotoState('idle');
+		//gotoState('idle');
 	}
 
+	event Tick(float DeltaTime){
+		super.Tick(DeltaTime);
+		hojaSlideAdjust(DeltaTime);
+	}
 
-Begin:
+	simulated event StartJump(){
+		Super.StartJump();
+		SlideSound.Stop();
+		bSlideJump=true;
+	}
+
+	event Landed(vector HitNormal, actor FloorActor){
+		Super.Landed(HitNormal, FloorActor);
+		bSlideJump=false;
+		lastSlideRollJumping = 0;
+		SlideSound.Play();
+		hojaSlide.SetRotation(rot(0,0,0));
+		GotoState('PlayerSlide');
+	}
+
+	function hojaSlideAdjust(float DeltaTime){
+
+		local Vector tempVector, tempNormal, traceEnd, traceStart, hojaLocation;
+		local Rotator desiredHojaRotation, tempRotator;
+		local Vector hojaTranslation;
+		local int RotSpeed;
+		local float VelSpeed;
+		local LinearColor tempColor;
+
+		local Vector X, Y, Z;
+		
+		Mesh.GetSocketWorldLocationAndRotation('HojaSlide', hojaLocation);
+
+		tempColor.R = 1.0;
+		tempColor.G = 0.0;
+		tempColor.B = 0.0;
+
+			
+		//Calculamos el desfase de altura de la hoja al estar en pendiente
+		hojaTranslation.Z -= GetCollisionRadius() * Tan(Acos(Floor dot vect(0,0,1)));
+		//Añadimos un pequeño desfase para no atravesar el suelo
+		hojaTranslation.Z += 3;
+
+		//Calculamos posicion de hoja en el salto (la hoja baja al saltar)		
+		if(bSlideJump){
+			traceStart = hojaLocation;
+			traceEnd = traceStart;
+			traceEnd.Z -= 1000;
+			Trace(tempVector, tempNormal, traceEnd, traceStart);
+			if(bDegub){ //Pintamos una linea representando el Trace y un punto donde colisiona
+				DrawDebugLine(traceStart, traceEnd, 255, 0, 0, false);
+				DrawDebugPoint(tempVector, 20.0, tempColor);
+			}
+			tempVector -= hojaLocation;
+			if(tempVector.Z < -80){
+				hojaTranslation.Z = -70;
+			}else{
+				hojaTranslation = tempVector;
+				hojaTranslation.Z += 10;
+			}
+			//Not use FInterp
+			VelSpeed = 0;
+		}else{
+			VelSpeed = 25.0f;
+		}
+
+		//Modificamos la rotacion, Primero creamos el sistema de coordenadas en global, haciendo 3 ejes perpendiculares
+		tempVector = vect(0,-1,0) >> Rotation;
+		X = Floor cross tempVector;
+		tempVector = vect(1,0,0) >> Rotation;
+		Y = Floor cross tempVector;
+		Z = Floor;
+
+		//Despues lo transformamos a local (la hoja ya gira en global al estar attachada a Betty)
+		X = X << Rotation;
+		Y = Y << Rotation;
+		Z = Z << Rotation;
+
+		//Si saltamos corregimos el fallo en el vector X y hacemos que los vectores Y y Z giren para simular un giro de la hoja
+		if(bSlideJump){
+			//Para no realizar la animacion de sliding mientras saltamos, sino la del jump
+			if(fullBodySlot.bIsPlayingCustomAnim)
+				fullBodySlot.StopCustomAnim(0.1f);
+ 			tempRotator.Roll = lastSlideRollJumping + 300 * DegToRad * RadToUnrRot * DeltaTime;
+			tempRotator.Pitch = 0;
+			tempRotator.Yaw = 0;
+
+			lastSlideRollJumping = tempRotator.Roll;
+			Z = Z << tempRotator;
+			Y = Y << tempRotator;
+
+			tempRotator.Roll = 0;
+			tempRotator.Pitch = 0;
+			tempRotator.Yaw = 30 * DegToRad * RadToUnrRot;
+
+			X = X << tempRotator;
+			//Not use RInterp
+			RotSpeed = 0;
+		}else{
+			RotSpeed = 180 * DegToRad * RadToUnrRot;
+		}
+
+		//Obtenemos el Rotator a partir de los tres ejes Ortogonales
+		desiredHojaRotation = OrthoRotation(X, Y, Z);
+
+		//Pintamos un sistema de coordenadas para comprobar la orientacion de la hoja
+		if(bDebug){
+			DrawDebugCoordinateSystem(hojaLocation + hojaTranslation, desiredHojaRotation + Rotation, 250);
+		}
+
+		//`log("R:" @ desiredHojaRotation.Roll @ " P:" @ desiredHojaRotation.Pitch @ " Y:" @ desiredHojaRotation.Yaw);
+
+		if(VelSpeed > 0)
+			hojaSlide.SetTranslation(VInterpTo(hojaslide.Translation, hojaTranslation, DeltaTime, VelSpeed)); //trasladar hoja
+		else
+			hojaSlide.SetTranslation(hojaTranslation);
+		if(RotSpeed > 0)
+			hojaSlide.SetRotation(RInterpTo(  hojaSlide.Rotation,desiredHojaRotation,DeltaTime,RotSpeed,true));
+		else
+			hojaSlide.SetRotation(desiredHojaRotation);
+
+	}
 	
-	//FinishAnim(slideAnimNames[SLIDING_START]);
+	
+
+
+Begin:	
 	FinishAnim(fullBodySlot.GetCustomAnimNodeSeq());
 
 	//if(PlayerController.PlayerInput.aStrafe > 0)
@@ -1087,11 +1161,10 @@ Begin:
 	//{
 	//	fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING_RIGHT],1.0f,0.0f,0.0f,false);
 	//}
-	//if(bSlideJump) fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING_JUMP],1.0f,0.0f,0.0f,true);
-	
+	//if(bSlideJump) fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING_JUMP],1.0f,0.0f,0.0f,true);	
 
-	fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING],1.0f,0.0f,0.0f,true);
-	//PlaySound(SlideSound);
+	fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING],1.0f,0.0f,0.0f,true);	
+Jumping:
 
 }
 
@@ -1121,7 +1194,7 @@ DefaultProperties
 		bOwnerNoSee=false
 		LightEnvironment=MyLightEnvironment;
 		SkeletalMesh=SkeletalMesh'Betty_slide.SkModels.hojaSlide'
-		End Object
+	End Object
 
 	hojaSlide=MyHojaSlide
 
@@ -1162,6 +1235,7 @@ DefaultProperties
 	AirControl=+0.35
 
 	MaxMultiJump = 1
+	MultiJumpRemaining = 1
 	MultiJumpBoost = -100;
 	//Default is 160.0
 	DoubleJumpThreshold=320.0
