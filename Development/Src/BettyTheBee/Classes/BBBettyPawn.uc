@@ -1073,7 +1073,7 @@ state playerSlide{
 			traceEnd = traceStart;
 			traceEnd.Z -= 1000;
 			Trace(tempVector, tempNormal, traceEnd, traceStart);
-			if(bDegub){ //Pintamos una linea representando el Trace y un punto donde colisiona
+			if(bDebug){ //Pintamos una linea representando el Trace y un punto donde colisiona
 				DrawDebugLine(traceStart, traceEnd, 255, 0, 0, false);
 				DrawDebugPoint(tempVector, 20.0, tempColor);
 			}

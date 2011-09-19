@@ -909,199 +909,199 @@ exec function gotoSlide()
 State PlayerSlide{
 	function PlayerMove( float DeltaTime ){
 
-	local vector	 X,Y,Z, NewAccel, localFloor,/*localVelocity,*/localVelocityNormal, localFloorProj;
-	local eDoubleClickDir	DoubleClickMove;
-	local bool	 bSaveJump;
-	local Rotator DeltaRot, ViewRotation, OldRotation, NewRot;
-	local float inclination;
+		local vector	 X,Y,Z, NewAccel, localFloor,/*localVelocity,*/localVelocityNormal, localFloorProj;
+		local eDoubleClickDir	DoubleClickMove;
+		local bool	 bSaveJump;
+		local Rotator DeltaRot, ViewRotation, OldRotation, NewRot;
+		local float inclination;
 	
-	localFloor= Pawn.Floor << Pawn.Rotation;
-	localFloorProj = Normal(vect(0,1,0) cross ( localFloor cross vect(0,1,0) ));
-	//localFloorProj= localFloorProj*VSize(localFloor)*sin(localFloor dot vect(0,1,0);
+		localFloor= Pawn.Floor << Pawn.Rotation;
+		localFloorProj = Normal(vect(0,1,0) cross ( localFloor cross vect(0,1,0) ));
+		//localFloorProj= localFloorProj*VSize(localFloor)*sin(localFloor dot vect(0,1,0);
 
-	//localVelocity = Pawn.Velocity << Pawn.Rotation;
-	//localVelocityNormal = Normal(localVelocity);
-	localVelocityNormal = vect(1,0,0);
+		//localVelocity = Pawn.Velocity << Pawn.Rotation;
+		//localVelocityNormal = Normal(localVelocity);
+		localVelocityNormal = vect(1,0,0);
 
-	inclination=localFloorProj dot localVelocityNormal;
-	//WorldInfo.Game.Broadcast(self,inclination );
+		inclination=localFloorProj dot localVelocityNormal;
+		//WorldInfo.Game.Broadcast(self,inclination );
 
-	if ( inclination < 0 ) //subiendo
-	{
-		if(slideSpeed>0) slideSpeed=slideSpeed-20*abs(inclination);
-		else slideSpeed=0;
-		
-	}
-	else
-	{
-  		if(slideSpeed<maxSlideSpeed)
-  		{
-  			slideSpeed=slideSpeed+30*abs(inclination);
-  		}
-	}
-
-	
-	
-	if(slideSpeed==0){ //PENDIENTE: hacer que betty de media vuelta!
-		NewRot.Yaw=32768; // 180º
-		NewRot.Pitch=0;
-		NewRot.Roll=0;
-		
-		//NINGUNA FUNCIONA
-		//Pawn.SetDesiredRotation(RInterpTo(Pawn.Rotation,NewRot,Deltatime,1000,true),false,false,Deltatime,true);		
-		//Pawn.FaceRotation(RInterpTo(Pawn.Rotation,NewRot,Deltatime,1,true),Deltatime);
-		//SetRotation(RInterpTo(Pawn.Rotation,NewRot,Deltatime,1000,true));		
-		//WorldInfo.Game.Broadcast(self,NewRot );
-	
-	}
-
-
-
-	if(bBettyMovement){
-		if( Pawn == None )
+		if ( inclination < 0 ) //subiendo
 		{
-			GotoState('Dead');
+			if(slideSpeed>0) slideSpeed=slideSpeed-20*abs(inclination);
+			else slideSpeed=0;
+		
 		}
 		else
 		{
-			//speed=slideSpeed;
-			if (PlayerInput.aForward > 0){
-				pawn.GroundSpeed = slideSpeed*1.5;
-			}
-			else if (PlayerInput.aForward <=0 && PlayerInput.aStrafe!=0)
-			Pawn.GroundSpeed = slideSpeed;
-			else 
-				pawn.GroundSpeed = slideSpeed*0.8;
-			
-			//if(PlayerInput.aStrafe > 0)
-			//{
-				
-			//}
-			//else if(PlayerInput.aStrafe < 0)
-			//{
-
-			//}
-
-			GetAxes(Pawn.Rotation,X,Y,Z);
-
-			//NewAccel = PlayerInput.aForward*X + PlayerInput.aStrafe*Y;
-			NewAccel.Z	= 0;
-
-			NewAccel = X*1935.502686 + /*PlayerInput.aForward*X +*/  PlayerInput.aStrafe*Y;
-			NewAccel = Pawn.AccelRate * Normal(NewAccel);
-
-			DoubleClickMove = PlayerInput.CheckForDoubleClickMove( DeltaTime/WorldInfo.TimeDilation );
-
-			
-			OldRotation = Rotation;
-			UpdateRotationCustom( DeltaTime , VSize(NewAccel) != 0);
-			
-			bDoubleJump = false;			
-
-			if( bPressedJump && Pawn.CannotJumpNow() )
-			{
-				bSaveJump = true;
-				bPressedJump = false;
-			}
-			else
-			{
-				bSaveJump = false;
-			}
-
-			if( Role < ROLE_Authority ) // then save this move and replicate it
-			{
-				
-				ReplicateMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);
-			}
-			else
-			{
-				if(!BBBettyPawn(Pawn).IsRolling()){
-					if(canUseRoll()  && PlayerInput.aStrafe>0 && PlayerInput.aForward == 0){
-						BBBettyPawn(Pawn).animRollRight();
-						reactivateTime[HN_Roll] = coldDowns[HN_Roll];
-					}
-					else if (canUseRoll()  && PlayerInput.aStrafe<0 && PlayerInput.aForward == 0){
-						BBBettyPawn(Pawn).animRollLeft();
-						reactivateTime[HN_Roll] = coldDowns[HN_Roll];
-					}
-					ProcessMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);					
-				}				
-			}
-			bPressedJump = bSaveJump;
+  			if(slideSpeed<maxSlideSpeed)
+  			{
+  				slideSpeed=slideSpeed+30*abs(inclination);
+  			}
 		}
+
+	
+	
+		if(slideSpeed==0){ //PENDIENTE: hacer que betty de media vuelta!
+			NewRot.Yaw=32768; // 180º
+			NewRot.Pitch=0;
+			NewRot.Roll=0;
 		
-	}else{
-		
+			//NINGUNA FUNCIONA
+			//Pawn.SetDesiredRotation(RInterpTo(Pawn.Rotation,NewRot,Deltatime,1000,true),false,false,Deltatime,true);		
+			//Pawn.FaceRotation(RInterpTo(Pawn.Rotation,NewRot,Deltatime,1,true),Deltatime);
+			//SetRotation(RInterpTo(Pawn.Rotation,NewRot,Deltatime,1000,true));		
+			//WorldInfo.Game.Broadcast(self,NewRot );
+	
+		}
+
+
+
+		if(bBettyMovement){
 			if( Pawn == None )
 			{
-			GotoState('Dead');
+				GotoState('Dead');
 			}
 			else
 			{
+				//speed=slideSpeed;
+				if (PlayerInput.aForward > 0){
+					pawn.GroundSpeed = slideSpeed*1.5;
+				}
+				else if (PlayerInput.aForward <=0 && PlayerInput.aStrafe!=0)
+				Pawn.GroundSpeed = slideSpeed;
+				else 
+					pawn.GroundSpeed = slideSpeed*0.8;
 			
-			if(PlayerInput.aForward!=0 || PlayerInput.aStrafe!=0){
-				speed = 400;
+				//if(PlayerInput.aStrafe > 0)
+				//{
+				
+				//}
+				//else if(PlayerInput.aStrafe < 0)
+				//{
+
+				//}
+
+				GetAxes(Pawn.Rotation,X,Y,Z);
+
+				//NewAccel = PlayerInput.aForward*X + PlayerInput.aStrafe*Y;
+				NewAccel.Z	= 0;
+
+				NewAccel = X*1935.502686 + /*PlayerInput.aForward*X +*/  PlayerInput.aStrafe*Y;
+				NewAccel = Pawn.AccelRate * Normal(NewAccel);
+
+				//DoubleClickMove = PlayerInput.CheckForDoubleClickMove( DeltaTime/WorldInfo.TimeDilation );
+
+			
+				OldRotation = Rotation;
+				UpdateRotationCustom( DeltaTime , VSize(NewAccel) != 0);
+			
+				bDoubleJump = false;			
+
+				if( bPressedJump && Pawn.CannotJumpNow() )
+				{
+					bSaveJump = true;
+					bPressedJump = false;
+				}
+				else
+				{
+					bSaveJump = false;
+				}
+
+				if( Role < ROLE_Authority ) // then save this move and replicate it
+				{
+				
+					//ReplicateMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);
+				}
+				else
+				{
+					if(!BBBettyPawn(Pawn).IsRolling()){
+						if(canUseRoll()  && PlayerInput.aStrafe>0 && PlayerInput.aForward == 0){
+							BBBettyPawn(Pawn).animRollRight();
+							reactivateTime[HN_Roll] = coldDowns[HN_Roll];
+						}
+						else if (canUseRoll()  && PlayerInput.aStrafe<0 && PlayerInput.aForward == 0){
+							BBBettyPawn(Pawn).animRollLeft();
+							reactivateTime[HN_Roll] = coldDowns[HN_Roll];
+						}
+						ProcessMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);					
+					}				
+				}
+				bPressedJump = bSaveJump;
 			}
-			pawn.GroundSpeed = speed;
+		
+		}else{
+		
+				if( Pawn == None )
+				{
+				GotoState('Dead');
+				}
+				else
+				{
+			
+				if(PlayerInput.aForward!=0 || PlayerInput.aStrafe!=0){
+					speed = 400;
+				}
+				pawn.GroundSpeed = speed;
 
-			GetAxes(Rotation,X,Y,Z);
+				GetAxes(Rotation,X,Y,Z);
 
-			//update viewrotation
+				//update viewrotation
 
-			ViewRotation = Rotation;
+				ViewRotation = Rotation;
 
-			// Calculate Delta to be applied on ViewRotation
-			DeltaRot.Yaw	= PlayerInput.aTurn;
-			DeltaRot.Pitch	= PlayerInput.aLookUp;
-			ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
-			SetRotation(ViewRotation);
+				// Calculate Delta to be applied on ViewRotation
+				DeltaRot.Yaw	= PlayerInput.aTurn;
+				DeltaRot.Pitch	= PlayerInput.aLookUp;
+				ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
+				SetRotation(ViewRotation);
 
-			// Update acceleration.
-			//NewAccel = PlayerInput.aForward*X + PlayerInput.aStrafe*Y;
-			NewAccel.Z	= 0;
-			NewAccel = 1*X+  PlayerInput.aStrafe*Y;
+				// Update acceleration.
+				//NewAccel = PlayerInput.aForward*X + PlayerInput.aStrafe*Y;
+				NewAccel.Z	= 0;
+				NewAccel = 1*X+  PlayerInput.aStrafe*Y;
 
 
 
-			// pawn face newaccel direction // 
+				// pawn face newaccel direction // 
 
-			OldRotation = Pawn.Rotation;
+				OldRotation = Pawn.Rotation;
 
-			if( Pawn != None )
+				if( Pawn != None )
 
-			{ if( NewAccel.X > 0.0 || NewAccel.X < 0.0 || NewAccel.Y > 0.0 || NewAccel.Y < 0.0 )
+				{ if( NewAccel.X > 0.0 || NewAccel.X < 0.0 || NewAccel.Y > 0.0 || NewAccel.Y < 0.0 )
 
-			NewRot = Rotator(NewAccel);
-			else
-			NewRot = Pawn.Rotation;	
+				NewRot = Rotator(NewAccel);
+				else
+				NewRot = Pawn.Rotation;	
 
+				}
+				Pawn.FaceRotation(RInterpTo(OldRotation,NewRot,Deltatime,100000,true),Deltatime);
+
+
+
+				NewAccel = Pawn.AccelRate * Normal(NewAccel);
+
+				DoubleClickMove = PlayerInput.CheckForDoubleClickMove( DeltaTime/WorldInfo.TimeDilation );
+
+				if( bPressedJump && Pawn.CannotJumpNow() )
+				{
+				bSaveJump = true;
+				bPressedJump = false;
+				}
+				else
+				{
+				bSaveJump = false;
+				}
+
+				ProcessMove(DeltaTime, NewAccel, DoubleClickMove,Rotation);
+
+
+			bPressedJump = bSaveJump;
 			}
-			Pawn.FaceRotation(RInterpTo(OldRotation,NewRot,Deltatime,100000,true),Deltatime);
-
-
-
-			NewAccel = Pawn.AccelRate * Normal(NewAccel);
-
-			DoubleClickMove = PlayerInput.CheckForDoubleClickMove( DeltaTime/WorldInfo.TimeDilation );
-
-			if( bPressedJump && Pawn.CannotJumpNow() )
-			{
-			bSaveJump = true;
-			bPressedJump = false;
-			}
-			else
-			{
-			bSaveJump = false;
-			}
-
-			ProcessMove(DeltaTime, NewAccel, DoubleClickMove,Rotation);
-
-
-		bPressedJump = bSaveJump;
 		}
-	}
 	
-}
+	}
 
 	function ProcessMove(float DeltaTime, vector NewAccel, eDoubleClickDir DoubleClickMove, rotator DeltaRot)
 	{
