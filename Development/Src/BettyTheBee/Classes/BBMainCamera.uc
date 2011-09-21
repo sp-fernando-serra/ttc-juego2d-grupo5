@@ -1,9 +1,20 @@
 class BBMainCamera extends Camera;
+
 //Initializing static variables
 var float Dist;
 
 var float z_anterior;
 var vector loc_anterior,loc_actual;
+/** Used to interpolate cam or use direct translation */
+var bool bInterpolateCam;
+/** Interpolate cam in X if bInterpolateCam = true && bInterpolateDirection[X] = true */
+var bool bInterpolateCamX;
+/** Interpolate cam in Y if bInterpolateCam = true && bInterpolateDirection[Y] = true */
+var bool bInterpolateCamY;
+/** Interpolate cam in Z if bInterpolateCam = true && bInterpolateDirection[Z] = true */
+var bool bInterpolateCamZ;
+/** Speed to interpolate between camera positions if bInterpolateCam */
+var float InterpolationSpeed;
 
 
 function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
@@ -63,17 +74,25 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 
 					OutVT.Target.GetActorEyesViewPoint(Loc, Rot);
 					loc_actual=Loc;
-					//`log("camera"@Loc);
-					Loc = VLerp(loc_anterior,Loc,0.1);
-					//Loc.X=loc_actual.X;
-					//Loc.Y=loc_actual.Y;
-
-
+					//If bInterpolateCam and the las position is different from (0,0,0); that's to avoid interpolation at the beginning of the game
+					if(bInterpolateCam && VSize(loc_anterior) != 0){
+						Loc = VInterpTo(loc_anterior, Loc, DeltaTime, InterpolationSpeed);
+						if(!bInterpolateCamX){
+							Loc.X=loc_actual.X;
+						}
+						if(!bInterpolateCamY){
+							Loc.Y=loc_actual.Y;
+						}
+						if(!bInterpolateCamZ){
+							Loc.Z=loc_actual.Z;
+						}
+					}
+					//Add offset to put the cam away from the player
 					Loc += FreeCamOffset >> Rot;
-					
+					//Save location to use with Interpolation in next frame
 					loc_anterior=Loc;
 
-					Pos = Loc - Vector(Rot) * Dist; /*Instead of using FreeCamDistance here, which would cause the camera to jump by the entire increment, we use Dist, which increments in small steps to the desired value of FreeCamDistance using the Lerp function above*/
+					Pos = Loc - Vector(Rot) * Dist; /*Instead of using FreeCamDistance here, which would cause the camera to jump by the entire increment, we use Dist, which increments in small steps to the desired value of FreeCamDistance using the Lerp function below*/
 
 
 					if (CameraStyle == 'FreeCam')
@@ -120,4 +139,13 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 DefaultProperties
 {
 	FreeCamDistance = 370.0f //Distance of the camera to the player
+
+
+	bInterpolateCam = true;
+
+	bInterpolateCamX = true;
+	bInterpolateCamY = true;
+	bInterpolateCamZ = true;
+
+	InterpolationSpeed = 50.0f;
 }
