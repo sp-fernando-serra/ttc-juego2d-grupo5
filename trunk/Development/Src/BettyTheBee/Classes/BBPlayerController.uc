@@ -990,7 +990,7 @@ State PlayerSlide{
 				NewAccel = X*1935.502686 + /*PlayerInput.aForward*X +*/  PlayerInput.aStrafe*Y;
 				NewAccel = Pawn.AccelRate * Normal(NewAccel);
 
-				//DoubleClickMove = PlayerInput.CheckForDoubleClickMove( DeltaTime/WorldInfo.TimeDilation );
+				DoubleClickMove = PlayerInput.CheckForDoubleClickMove( DeltaTime/WorldInfo.TimeDilation );
 
 			
 				OldRotation = Rotation;
