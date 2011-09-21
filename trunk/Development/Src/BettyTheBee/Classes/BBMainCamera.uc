@@ -119,5 +119,5 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 
 DefaultProperties
 {
-	FreeCamDistance = 192.f //Distance of the camera to the player
+	FreeCamDistance = 370.0f //Distance of the camera to the player
 }

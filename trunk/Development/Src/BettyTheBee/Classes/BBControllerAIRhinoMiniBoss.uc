@@ -254,64 +254,70 @@ Begin:
 		GotoState('Idle',,,false);
 	}
 
-Targeting:
+	while(Pawn != none){
 
-	Sleep(0);
-	while(Pawn.Physics != PHYS_Walking) //delay movement until our feet are solidly on the ground -- helps prevent bad navmesh return values in case we're falling and are not currently on the navmesh.
-	{
 		Sleep(0);
-	}
-	//only go somewhere if we have somewhere to go...
-	if(Target != none){
+		while(Pawn.Physics != PHYS_Walking) //delay movement until our feet are solidly on the ground -- helps prevent bad navmesh return values in case we're falling and are not currently on the navmesh.
+		{
+			Sleep(0);
+		}
+		//only go somewhere if we have somewhere to go...
+		if(Target != none){
 		
-		//only bother moving if we're not in attack range or don't have line-of-sight
-		if(!IsWithinAttackRange(Target) && GeneratePathToActor(Target)){
-			//just in case...
+			//only bother moving if we're not in attack range or don't have line-of-sight
+			if(!IsWithinAttackRange(Target) && GeneratePathToActor(Target)){
+				//just in case...
+				ClearTimer('CheckIndirectReachability');
+				ClearTimer('CheckDirectReachability');
+
+				//If Target is directly Reachable
+				CurrentTargetIsReachable = NavigationHandle.ActorReachable(Target);
+				if(CurrentTargetIsReachable){
+					SetTimer(0.3, true,'CheckDirectReachability'); //keep checking periodically if the target becomes NOT directly reachable
+					Focus = Target;
+					if(Target != none && NavigationHandle.ActorReachable(Target) ){
+						MoveToward(Target, Target, attackDistance * attackDistanceFactor);						
+					}else{
+						`log(self @ "Target:" @ Target.GetHumanReadableName() @ "is reachable but out of NavMesh");
+						break;
+					}
+				}else{  //Actor is NOT directly reachable
+					SetTimer(0.3, true,'CheckIndirectReachability'); //keep checking periodically if the target becomes directly reachable
+					Focus = Target;
+					//If path exists
+					if(NavigationHandle.GetNextMoveLocation( NextMoveLocation, Pawn.GetCollisionRadius())){
+						MoveTo(NextMoveLocation,Target);
+					}else{
+						`log(self @ "Can't find path to" @ Target);
+					}
+				}
+			}
+			//finished or cancelled our movements, so go ahead and clear these timers
 			ClearTimer('CheckIndirectReachability');
 			ClearTimer('CheckDirectReachability');
 
-			//If Target is directly Reachable
-			CurrentTargetIsReachable = NavigationHandle.ActorReachable(Target);
-			if(CurrentTargetIsReachable){
-				SetTimer(0.3, true,'CheckDirectReachability'); //keep checking periodically if the target becomes NOT directly reachable
-				Focus = Target;
-				if(Target != none)
-					MoveToward(Target, Target, attackDistance * attackDistanceFactor);
-			}else{  //Actor is NOT directly reachable
-				SetTimer(0.3, true,'CheckIndirectReachability'); //keep checking periodically if the target becomes directly reachable
-				Focus = Target;
-				//If path exists
-				if(NavigationHandle.GetNextMoveLocation( NextMoveLocation, Pawn.GetCollisionRadius())){
-					MoveTo(NextMoveLocation,Target);
-				}else{
-					`log(self @ "Can't find path to" @ Target);
+			//if the target is now directly reachable AND within line of sight, then let's attack baby attack!
+			if(IsWithinAttackRange(Target)){
+			
+				MoveToward(Target,Target,attackDistance * attackDistanceFactor ,false,false);
+				FinishRotation();
+			
+				//and if we're STILL within range (since we have lost range when finishing our latent rotation), then actually attack
+				if(IsWithinAttackRange(Target))
+				{
+					if(AttackType == RAT_Normal)
+						PushState('Attacking');
+					else if(AttackType == RAT_Charge)
+						GotoState('Charging');
 				}
 			}
 		}
-		//finished or cancelled our movements, so go ahead and clear these timers
-		ClearTimer('CheckIndirectReachability');
-		ClearTimer('CheckDirectReachability');
-
-		//if the target is now directly reachable AND within line of sight, then let's attack baby attack!
-		if(IsWithinAttackRange(Target)){
-			
-			MoveToward(Target,Target,attackDistance * attackDistanceFactor ,false,false);
-			FinishRotation();
-			
-			//and if we're STILL within range (since we have lost range when finishing our latent rotation), then actually attack
-			if(IsWithinAttackRange(Target))
-			{
-				if(AttackType == RAT_Normal)
-					PushState('Attacking');
-				else if(AttackType == RAT_Charge)
-					GotoState('Charging');
-			}
+		else{ //if we don't have a target, go to idle state
+			`log(self @ "ChasePlayer without Target assigned");
+			break;
 		}
 	}
-	else //if we don't have a target, wait a little bit before we check again for another one
-		Sleep(0.3);	
-
-	goto 'Targeting';
+	GotoState('Idle');
 }
 
 

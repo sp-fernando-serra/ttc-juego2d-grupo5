@@ -4,7 +4,7 @@ var BBSaveGame lastLoadedGame;
 /** Self explanatory. Last checkpoint touched; where player respawns once dead */
 var BBCheckPoint currentCheckPoint;
 
-`define saveExtension   ".txt"
+`define saveExtension   ".bsg"
 
 `define saveFolder   "..//..//"
 

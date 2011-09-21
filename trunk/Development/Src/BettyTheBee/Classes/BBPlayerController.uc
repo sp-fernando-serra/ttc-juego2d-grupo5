@@ -5,7 +5,7 @@ var float speed, sideSpeed, backSpeed, slideSpeed, maxSlideSpeed;
 var BBEnemyPawn targetedPawn;
 var bool bCombatStance;
 
-var BBBettyPawn MyBettyPawn;
+//var BBBettyPawn MyBettyPawn;
 
 var rotator myRotation,myDesiredRotation;
 var bool bLastStrafe, bLastForward,bLastBackward;
@@ -89,11 +89,11 @@ simulated event PostBeginPlay() //This event is triggered when play begins
 exec function NextWeapon() /*The "exec" command tells UDK that this function can be called by the console or keybind.
 We'll go over how to change the function of keys later (if, for instance, you didn't want you use the scroll wheel, but page up and down for zooming instead.)*/
 {
-	if (PlayerCamera.FreeCamDistance < 512) //Checks that the the value FreeCamDistance, which tells the camera how far to offset from the view target, isn't further than we want the camera to go. Change this to your liking.
+	if (PlayerCamera.FreeCamDistance < 370) //Checks that the the value FreeCamDistance, which tells the camera how far to offset from the view target, isn't further than we want the camera to go. Change this to your liking.
 	{
 		//`Log("MouseScrollDown"); //Another log message to tell us what's happening in the code
 		PlayerCamera.FreeCamDistance += 64*(PlayerCamera.FreeCamDistance/256); 
-		if(PlayerCamera.FreeCamDistance>370) PlayerCamera.FreeCamDistance=370;
+		if(PlayerCamera.FreeCamDistance > 370) PlayerCamera.FreeCamDistance = 370;
 		/*This portion increases the camera distance.
 By taking a base zoom increment (64) and multiplying it by the current distance (d) over 256, we decrease the zoom increment for when the camera is close,
 (d < 256), and increase it for when it's far away (d > 256).
@@ -104,11 +104,11 @@ Just a little feature to make the zoom feel better. You can tweak the values or 
 //RUEDA RATON
 exec function PrevWeapon()
 {
-	if (PlayerCamera.FreeCamDistance > 64) //Checking if the distance is at our minimum distance
+	if (PlayerCamera.FreeCamDistance > 180) //Checking if the distance is at our minimum distance
 	{
 		//`Log("MouseScrollUp");
 		PlayerCamera.FreeCamDistance -= 64*(PlayerCamera.FreeCamDistance/256); //Once again scaling the zoom for distance
-		if(PlayerCamera.FreeCamDistance<180) PlayerCamera.FreeCamDistance=180;
+		if(PlayerCamera.FreeCamDistance < 180) PlayerCamera.FreeCamDistance = 180;
 	}
 }
 
