@@ -671,6 +671,21 @@ event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector
 	}
 }
 
+/**Function called by HandleMomentum (called by TakeDamage) and used to change te velocity of Pawn.
+ * Only used with Rhino Charges.
+ */
+function AddVelocity( vector NewVelocity, vector HitLocation, class<DamageType> damageType, optional TraceHitInfo HitInfo )
+{
+	if ( bIgnoreForces || (NewVelocity == vect(0,0,0)) )
+		return;
+	if ( (Physics == PHYS_Walking)
+		|| (((Physics == PHYS_Ladder) || (Physics == PHYS_Spider)) && (NewVelocity.Z > Default.JumpZ)) )
+		SetPhysics(PHYS_Falling);
+	if ( (Velocity.Z > Default.JumpZ) && (NewVelocity.Z > 0) )
+		NewVelocity.Z *= 0.5;
+	Velocity = NewVelocity;
+}
+
 /**
   * Event called after actor's base changes.
 */

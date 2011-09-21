@@ -201,7 +201,10 @@ function alertPawnPresence(Pawn SeenPlayer){
 auto state Idle{
 	event BeginState(name PreviousStateName){
 		super.BeginState(PreviousStateName);
-		if(Pawn != none) Pawn.GotoState('');
+		if(Pawn != none){
+			BBEnemyPawn(Pawn).customAnimSlot.StopCustomAnim(0.15f);
+			Pawn.GotoState('');
+		}
 		Enemy = none;
 	}
 
@@ -336,7 +339,7 @@ Begin:
 				if(CurrentTargetIsReachable){
 					SetTimer(0.3, true,'CheckDirectReachability'); //keep checking periodically if the target becomes NOT directly reachable
 					Focus = Target;
-					if(Target != none && NavigationHandle.PointCheck(Target.Location, Pawn.GetCollisionExtent())){
+					if(Target != none && NavigationHandle.ActorReachable(Target) ){
 						MoveToward(Target, Target, attackDistance * attackDistanceFactor);						
 					}else{
 						`log(self @ "Target:" @ Target.GetHumanReadableName() @ "is reachable but out of NavMesh");
@@ -376,7 +379,6 @@ Begin:
 			`log(self @ "ChasePlayer without Target assigned");
 			break;
 		}
-
 	}
 	GotoState('Idle');
 }
