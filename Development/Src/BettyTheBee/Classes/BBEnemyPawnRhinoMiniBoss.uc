@@ -106,6 +106,30 @@ event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector
 	}
 }
 
+/**	Handling Toggle event from Kismet. */
+simulated function OnToggle(SeqAct_Toggle Action)
+{
+	// Turn ON
+	if (Action.InputLinks[0].bHasImpulse)
+	{
+		bAggressive = true;
+		bHidden = false;
+	}
+	// Turn OFF
+	else if (Action.InputLinks[1].bHasImpulse)
+	{
+		bAggressive = false;
+		bHidden = true;
+	}
+	// Toggle
+	else if (Action.InputLinks[2].bHasImpulse)
+	{
+		bAggressive = !bAggressive;
+		bHidden = !bHidden;
+	}
+	BBControllerAIRhinoMiniBoss(Controller).OnToggle();
+}
+
 
 
 state ChasePlayer{
