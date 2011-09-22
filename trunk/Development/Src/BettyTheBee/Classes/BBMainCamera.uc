@@ -55,9 +55,6 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 		if( Pawn(OutVT.Target) == None || !Pawn(OutVT.Target).CalcCamera(DeltaTime, OutVT.POV.Location, OutVT.POV.Rotation, OutVT.POV.FOV) )
 			
 		{
-			// don't apply modifiers when using these debug camera modes.
-			bDoNotApplyModifiers = TRUE;
-
 			switch(CameraStyle)
 			{
 				case 'ThirdPerson' : //Enters here as long as CameraStyle is still set to ThirdPerson
@@ -140,6 +137,8 @@ DefaultProperties
 {
 	FreeCamDistance = 370.0f //Distance of the camera to the player
 
+
+	bDoNotApplyModifiers = false;
 
 	bInterpolateCam = true;
 
