@@ -90,7 +90,7 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 					//Add offset to put the cam away from the player
 					Loc += FreeCamOffset >> Rot;
 					//Save location to use with Interpolation in next frame
-					loc_anterior=Loc;
+					loc_anterior = Loc;
 
 					Pos = Loc - Vector(Rot) * Dist; /*Instead of using FreeCamDistance here, which would cause the camera to jump by the entire increment, we use Dist, which increments in small steps to the desired value of FreeCamDistance using the Lerp function below*/
 
@@ -147,5 +147,5 @@ DefaultProperties
 	bInterpolateCamY = true;
 	bInterpolateCamZ = true;
 
-	InterpolationSpeed = 50.0f;
+	InterpolationSpeed = 7.5f;
 }
