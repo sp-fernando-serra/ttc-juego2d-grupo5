@@ -15,8 +15,15 @@ event Touch(Actor Other, PrimitiveComponent OtherComp, Vector HitLocation, Vecto
 	//	bPrimaryStart = true;
 	//}
 
+	
+	if (FindEventsOfClass(class'SeqEvent_Touch'))
+	{
+		//NotifyTriggered();
+	}
+
 	BBGameInfo(WorldInfo.Game).currentCheckPoint = self;
 	BBGameInfo(WorldInfo.Game).SaveGameCheckpoint();
+	
 }
 
 
