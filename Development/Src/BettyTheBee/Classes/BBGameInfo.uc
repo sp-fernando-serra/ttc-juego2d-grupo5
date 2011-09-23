@@ -37,7 +37,7 @@ event PostLogin( PlayerController NewPlayer ){
 * @param Player is the controller for whom we are choosing a playerstart
 * @param InTeam specifies the Player's team (if the player hasn't joined a team yet)
 * @param IncomingName specifies the tag of a teleporter to use as the Playerstart
-* @returns NavigationPoint chosen as player start (usually a PlayerStart)
+* @return NavigationPoint chosen as player start (usually a PlayerStart)
  */
 function NavigationPoint FindPlayerStart( Controller Player, optional byte InTeam, optional string IncomingName )
 {
