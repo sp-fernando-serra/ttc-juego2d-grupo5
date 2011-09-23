@@ -1,6 +1,8 @@
 class BBCheckPoint extends PlayerStart placeable
 	classGroup(BBActor);
 
+var () editconst const CylinderComponent myCylinderComponent<DisplayName = Cylinder Component>;
+
 event Touch(Actor Other, PrimitiveComponent OtherComp, Vector HitLocation, Vector HitNormal){
 	//local BBCheckPoint tempCheckPoint;
 	//if(BBBettyPawn(Other) != none){
@@ -35,7 +37,7 @@ DefaultProperties
 	End Object
 
 	CollisionComponent=CollisionCylinder
-	CylinderComponent=CollisionCylinder
+	myCylinderComponent=CollisionCylinder
 	Components.Add(CollisionCylinder)
 
 	bCollideActors=true
