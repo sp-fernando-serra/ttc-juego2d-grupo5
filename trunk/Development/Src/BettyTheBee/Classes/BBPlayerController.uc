@@ -1,7 +1,21 @@
 class BBPlayerController extends UDKPlayerController;
 
+/** Used to determine what type of movement yo use. TRUE = Strafing movement; FALSE = No-strafing movement */
 var bool bBettyMovement;
-var float speed, sideSpeed, backSpeed, slideSpeed, maxSlideSpeed;
+/** Speed when moving forward */
+var float speed;
+/** Speed for strafing moves */
+var float sideSpeed;
+/** Speed for back movement */
+var float backSpeed;
+/** Speed in sliding state. This will change over the time */
+var float slideSpeed;
+/** Max value for slideSpeed */
+var float maxSlideSpeed;
+/** Amount to add/substract every second to slideSpeed */
+var float slideSpeedIncrement, slideSpeedDecrement;
+
+
 var BBEnemyPawn targetedPawn;
 var bool bCombatStance;
 
@@ -71,7 +85,7 @@ var float coldDowns[EHabilityNames];
 var float reactivateTime[EHabilityNames];
 
 /** cached result of GetPlayerViewPoint() */
-var Actor CalcViewActor;
+//var Actor CalcViewActor;
 
 simulated event PostBeginPlay() //This event is triggered when play begins
 {
@@ -907,200 +921,151 @@ exec function gotoSlide()
 }
 
 State PlayerSlide{
+
+	event BeginState(Name PreviousStateName)
+	{
+		super.BeginState(PreviousStateName);
+		bSliding=true;
+		Pawn.GotoState('PlayerSlide');
+		slideSpeed = VSize(Pawn.Velocity);
+	}
+
+	event EndState(Name NextStateName)
+	{
+		super.EndState(NextStateName);
+		Pawn.GroundSpeed=speed;
+		Pawn.GotoState('idle');
+		bSliding=false;
+		Pawn.AccelRate = Pawn.default.AccelRate;
+	}
+
 	function PlayerMove( float DeltaTime ){
 
-		local vector	 X,Y,Z, NewAccel, localFloor,/*localVelocity,*/localVelocityNormal, localFloorProj;
+		local vector	 X,Y,Z, NewAccel, localFloor, traceStart, traceEnd;
 		local eDoubleClickDir	DoubleClickMove;
 		local bool	 bSaveJump;
-		local Rotator DeltaRot, ViewRotation, OldRotation, NewRot;
+		local Rotator OldRotation;
 		local float inclination;
 	
 		localFloor= Pawn.Floor << Pawn.Rotation;
-		localFloorProj = Normal(vect(0,1,0) cross ( localFloor cross vect(0,1,0) ));
+		//localFloorProj = Normal(vect(0,1,0) cross ( localFloor cross vect(0,1,0) ));
 		//localFloorProj= localFloorProj*VSize(localFloor)*sin(localFloor dot vect(0,1,0);
 
 		//localVelocity = Pawn.Velocity << Pawn.Rotation;
 		//localVelocityNormal = Normal(localVelocity);
-		localVelocityNormal = vect(1,0,0);
+		//localVelocityNormal = vect(1,0,0);
 
-		inclination=localFloorProj dot localVelocityNormal;
+		if(bDebug){ //Pintamos una linea representando el localFloorProj
+			traceStart = Pawn.Location;
+			traceStart.Z -= Pawn.GetCollisionHeight();
+			traceEnd = Pawn.Floor;
+			traceEnd *= 200;
+			traceEnd = traceStart + traceEnd;
+			DrawDebugLine(traceStart, traceEnd, 255, 0, 0, false);
+		}
+
+		//inclination=localFloorProj dot localVelocityNormal;
 		//WorldInfo.Game.Broadcast(self,inclination );
 
-		if ( inclination < 0 ) //subiendo
-		{
-			if(slideSpeed>0) slideSpeed=slideSpeed-20*abs(inclination);
-			else slideSpeed=0;
+		//Scalar product between Floor and Pawn face direcction
+		inclination = localFloor dot vect(1,0,0);
+		if(!BBBettyPawn(Pawn).bSlideJump){
+
+			//Modificamos la velocidad segun la inclinacion del suelo
+			if ( inclination < 0 ) //subiendo
+			{
+				slideSpeedIncrement = 0;
+
+				slideSpeed -= (slideSpeedDecrement + 300) * DeltaTime;
+				slideSpeedDecrement += -inclination * 100 * DeltaTime;
+				
+			}
+			else if (inclination > 0)
+			{
+				slideSpeedDecrement = 0;
+
+				slideSpeed += (slideSpeedIncrement + 400) * DeltaTime;
+				slideSpeedIncrement += inclination * 150 * DeltaTime;
+			}else{      //inclination == 0
+				slideSpeedDecrement = 0;
+				slideSpeedIncrement = 0;
+
+				//Decrement slideSpeed for finally stop if sliding in plain floor
+				slideSpeed -= 300 * DeltaTime;
+			}
+		}
+
+		//Modificamos la velocidad maxima segun la entrada de teclado
+		if(PlayerInput.aForward > 0){
+			maxSlideSpeed = FInterpConstantTo(maxSlideSpeed, default.maxSlideSpeed + 300, DeltaTime, 300);
+		}else if(PlayerInput.aForward < 0){	
+			maxSlideSpeed = FInterpConstantTo(maxSlideSpeed, default.maxSlideSpeed - 300, DeltaTime, 300);			
+		}else{
+			maxSlideSpeed = FInterpConstantTo(maxSlideSpeed, default.maxSlideSpeed, DeltaTime, 300);
+		}
 		
+
+		//Slide speed always between 0 and MaxSlideSpeeed
+		slideSpeed = FClamp(slideSpeed, 0, maxSlideSpeed);
+		
+		//`log(slideSpeed @ "-" @ VSize(Pawn.Velocity));
+
+		Pawn.GroundSpeed = slideSpeed;
+	
+		//if(slideSpeed==0){ //PENDIENTE: hacer que betty de media vuelta!
+		//	NewRot.Yaw=32768; // 180º
+		//	NewRot.Pitch=0;
+		//	NewRot.Roll=0;
+		
+		//	//NINGUNA FUNCIONA
+		//	//Pawn.SetDesiredRotation(RInterpTo(Pawn.Rotation,NewRot,Deltatime,1000,true),false,false,Deltatime,true);		
+		//	//Pawn.FaceRotation(RInterpTo(Pawn.Rotation,NewRot,Deltatime,1,true),Deltatime);
+		//	//SetRotation(RInterpTo(Pawn.Rotation,NewRot,Deltatime,1000,true));		
+		//	//WorldInfo.Game.Broadcast(self,NewRot );
+	
+		//}
+		
+		if( Pawn == None )
+		{
+			GotoState('Dead');
 		}
 		else
 		{
-  			if(slideSpeed<maxSlideSpeed)
-  			{
-  				slideSpeed=slideSpeed+30*abs(inclination);
-  			}
-		}
+			GetAxes(Pawn.Rotation,X,Y,Z);
 
-	
-	
-		if(slideSpeed==0){ //PENDIENTE: hacer que betty de media vuelta!
-			NewRot.Yaw=32768; // 180º
-			NewRot.Pitch=0;
-			NewRot.Roll=0;
-		
-			//NINGUNA FUNCIONA
-			//Pawn.SetDesiredRotation(RInterpTo(Pawn.Rotation,NewRot,Deltatime,1000,true),false,false,Deltatime,true);		
-			//Pawn.FaceRotation(RInterpTo(Pawn.Rotation,NewRot,Deltatime,1,true),Deltatime);
-			//SetRotation(RInterpTo(Pawn.Rotation,NewRot,Deltatime,1000,true));		
-			//WorldInfo.Game.Broadcast(self,NewRot );
-	
-		}
+			//Forced to go forward regardless of PlayerInput. 2200.0 its a mean value of PlayerInput.aForward
+			NewAccel = 2200.0 * X + PlayerInput.aStrafe * Y;
+			NewAccel.Z	= 0;
+			NewAccel = Pawn.AccelRate * Normal(NewAccel);
 
+			DoubleClickMove = PlayerInput.CheckForDoubleClickMove( DeltaTime/WorldInfo.TimeDilation );
+			
+			OldRotation = Rotation;
+			UpdateRotationCustom( DeltaTime , VSize(NewAccel) != 0);
+			
+			bDoubleJump = false;
 
-
-		if(bBettyMovement){
-			if( Pawn == None )
+			if( bPressedJump && Pawn.CannotJumpNow() )
 			{
-				GotoState('Dead');
+				bSaveJump = true;
+				bPressedJump = false;
 			}
 			else
 			{
-				//speed=slideSpeed;
-				if (PlayerInput.aForward > 0){
-					pawn.GroundSpeed = slideSpeed*1.5;
-				}
-				else if (PlayerInput.aForward <=0 && PlayerInput.aStrafe!=0)
-				Pawn.GroundSpeed = slideSpeed;
-				else 
-					pawn.GroundSpeed = slideSpeed*0.8;
-			
-				//if(PlayerInput.aStrafe > 0)
-				//{
-				
-				//}
-				//else if(PlayerInput.aStrafe < 0)
-				//{
-
-				//}
-
-				GetAxes(Pawn.Rotation,X,Y,Z);
-
-				//NewAccel = PlayerInput.aForward*X + PlayerInput.aStrafe*Y;
-				NewAccel.Z	= 0;
-
-				NewAccel = X*1935.502686 + /*PlayerInput.aForward*X +*/  PlayerInput.aStrafe*Y;
-				NewAccel = Pawn.AccelRate * Normal(NewAccel);
-
-				DoubleClickMove = PlayerInput.CheckForDoubleClickMove( DeltaTime/WorldInfo.TimeDilation );
-
-			
-				OldRotation = Rotation;
-				UpdateRotationCustom( DeltaTime , VSize(NewAccel) != 0);
-			
-				bDoubleJump = false;			
-
-				if( bPressedJump && Pawn.CannotJumpNow() )
-				{
-					bSaveJump = true;
-					bPressedJump = false;
-				}
-				else
-				{
-					bSaveJump = false;
-				}
-
-				if( Role < ROLE_Authority ) // then save this move and replicate it
-				{
-				
-					//ReplicateMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);
-				}
-				else
-				{
-					if(!BBBettyPawn(Pawn).IsRolling()){
-						if(canUseRoll()  && PlayerInput.aStrafe>0 && PlayerInput.aForward == 0){
-							BBBettyPawn(Pawn).animRollRight();
-							reactivateTime[HN_Roll] = coldDowns[HN_Roll];
-						}
-						else if (canUseRoll()  && PlayerInput.aStrafe<0 && PlayerInput.aForward == 0){
-							BBBettyPawn(Pawn).animRollLeft();
-							reactivateTime[HN_Roll] = coldDowns[HN_Roll];
-						}
-						ProcessMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);					
-					}				
-				}
-				bPressedJump = bSaveJump;
-			}
-		
-		}else{
-		
-				if( Pawn == None )
-				{
-				GotoState('Dead');
-				}
-				else
-				{
-			
-				if(PlayerInput.aForward!=0 || PlayerInput.aStrafe!=0){
-					speed = 400;
-				}
-				pawn.GroundSpeed = speed;
-
-				GetAxes(Rotation,X,Y,Z);
-
-				//update viewrotation
-
-				ViewRotation = Rotation;
-
-				// Calculate Delta to be applied on ViewRotation
-				DeltaRot.Yaw	= PlayerInput.aTurn;
-				DeltaRot.Pitch	= PlayerInput.aLookUp;
-				ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
-				SetRotation(ViewRotation);
-
-				// Update acceleration.
-				//NewAccel = PlayerInput.aForward*X + PlayerInput.aStrafe*Y;
-				NewAccel.Z	= 0;
-				NewAccel = 1*X+  PlayerInput.aStrafe*Y;
-
-
-
-				// pawn face newaccel direction // 
-
-				OldRotation = Pawn.Rotation;
-
-				if( Pawn != None )
-
-				{ if( NewAccel.X > 0.0 || NewAccel.X < 0.0 || NewAccel.Y > 0.0 || NewAccel.Y < 0.0 )
-
-				NewRot = Rotator(NewAccel);
-				else
-				NewRot = Pawn.Rotation;	
-
-				}
-				Pawn.FaceRotation(RInterpTo(OldRotation,NewRot,Deltatime,100000,true),Deltatime);
-
-
-
-				NewAccel = Pawn.AccelRate * Normal(NewAccel);
-
-				DoubleClickMove = PlayerInput.CheckForDoubleClickMove( DeltaTime/WorldInfo.TimeDilation );
-
-				if( bPressedJump && Pawn.CannotJumpNow() )
-				{
-				bSaveJump = true;
-				bPressedJump = false;
-				}
-				else
-				{
 				bSaveJump = false;
-				}
-
-				ProcessMove(DeltaTime, NewAccel, DoubleClickMove,Rotation);
-
-
-			bPressedJump = bSaveJump;
 			}
-		}
-	
+
+			if( Role < ROLE_Authority ) // then save this move and replicate it
+			{
+				
+				//ReplicateMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);
+			}
+			else
+			{
+				ProcessMove(DeltaTime, NewAccel, DoubleClickMove, OldRotation - Rotation);
+			}
+			bPressedJump = bSaveJump;
+		}	
 	}
 
 	function ProcessMove(float DeltaTime, vector NewAccel, eDoubleClickDir DoubleClickMove, rotator DeltaRot)
@@ -1116,32 +1081,9 @@ State PlayerSlide{
 			Pawn.SetRemoteViewPitch( Rotation.Pitch );
 		}
 		Pawn.Acceleration = NewAccel;
-		
+
 		CheckJumpOrDuck();
 	}
-
-	event BeginState(Name PreviousStateName)
-	{
-		super.BeginState(PreviousStateName);
-		//BBBettyPawn(Pawn).slide(0);
-		//Pawn.SetPhysics(PHYS_Flying);
-		bSliding=true;
-		Pawn.GotoState('PlayerSlide');
-		
-	}
-
-	event EndState(Name NextStateName)
-	{
-		super.EndState(NextStateName);
-		Pawn.GroundSpeed=speed;
-		Pawn.GotoState('idle');
-		bSliding=false;
-		//BBBettyPawn(Pawn).slide(2);
-	}
-
-Begin:
-	//BBBettyPawn(Pawn).slide(1);
-
 }
 
 
@@ -1306,6 +1248,8 @@ Begin:
 
 DefaultProperties
 {
+	bDebug = false;
+
 	CameraClass=class 'BBMainCamera' //Telling the player controller to use your custom camera script
 	DefaultFOV=90.f //Telling the player controller what the default field of view (FOV) should be
 

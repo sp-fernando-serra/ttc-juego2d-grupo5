@@ -34,6 +34,8 @@ function UpdateViewTarget(out TViewTarget OutVT, float DeltaTime)
 	// Default FOV on viewtarget
 	OutVT.POV.FOV = DefaultFOV;
 
+	bDoNotApplyModifiers = false;
+
 	// Viewing through a camera actor.
 	CamActor = CameraActor(OutVT.Target);
 	if( CamActor != None )
@@ -137,8 +139,6 @@ DefaultProperties
 {
 	FreeCamDistance = 370.0f //Distance of the camera to the player
 
-
-	bDoNotApplyModifiers = false;
 
 	bInterpolateCam = true;
 

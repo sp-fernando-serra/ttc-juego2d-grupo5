@@ -1122,7 +1122,8 @@ state playerSlide{
 			//Para no realizar la animacion de sliding mientras saltamos, sino la del jump
 			if(fullBodySlot.bIsPlayingCustomAnim)
 				fullBodySlot.StopCustomAnim(0.1f);
- 			tempRotator.Roll = lastSlideRollJumping + 300 * DegToRad * RadToUnrRot * DeltaTime;
+			//Hacemos girar la hoja 500º cada segundo
+ 			tempRotator.Roll = lastSlideRollJumping + 500 * DegToRad * RadToUnrRot * DeltaTime;
 			tempRotator.Pitch = 0;
 			tempRotator.Yaw = 0;
 
@@ -1130,6 +1131,7 @@ state playerSlide{
 			Z = Z << tempRotator;
 			Y = Y << tempRotator;
 
+			//Corregimos el error en la rotacion de la hoja del salto por el movimiento del socket (añadimos 30º al Yaw)
 			tempRotator.Roll = 0;
 			tempRotator.Pitch = 0;
 			tempRotator.Yaw = 30 * DegToRad * RadToUnrRot;
@@ -1237,7 +1239,7 @@ DefaultProperties
 	GroundSpeed = 400.0f;
 
 	//Default +02048.000000
-	//AccelRate = 64.0f
+	//AccelRate = 512.0f
 
 	AirSpeed = 1200.0f;
 
