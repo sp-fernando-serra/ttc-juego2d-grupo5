@@ -326,7 +326,7 @@ simulated function prepareJump(bool bUpdating){
 		fullBodySlot.PlayCustomAnim(preJumpAnimName,2.0f,0.0f,0.0f,false,true);
 		fullBodySlot.GetCustomAnimNodeSeq().SetRootBoneAxisOption(RBA_Default,RBA_Default,RBA_Default);
 	}
-	else if ( !bUpdating && CanDoubleJump()&& (Abs(Velocity.Z) < DoubleJumpThreshold) && IsLocallyControlled() )
+	else if ( !bUpdating && CanDoubleJump()&& (Velocity.Z < DoubleJumpThreshold) && IsLocallyControlled() )
 	{
  		if ( PlayerController(Controller) != None )
 			PlayerController(Controller).bDoubleJump = true;
@@ -347,7 +347,7 @@ function bool DoJump( bool bUpdating )
 	// This extra jump allows a jumping or dodging pawn to jump again mid-air
 	// (via thrusters). The pawn must be within +/- DoubleJumpThreshold velocity units of the
 	// apex of the jump to do this special move.
-	if ( !bUpdating && CanDoubleJump()&& (Abs(Velocity.Z) < DoubleJumpThreshold) && IsLocallyControlled() )
+	if ( !bUpdating && CanDoubleJump()&& (Velocity.Z < DoubleJumpThreshold) && IsLocallyControlled() )
 	{
 		if ( PlayerController(Controller) != None )
 			PlayerController(Controller).bDoubleJump = true;

@@ -993,6 +993,9 @@ State PlayerSlide{
 				//Decrement slideSpeed for finally stop if sliding in plain floor
 				slideSpeed -= 300 * DeltaTime;
 			}
+		}else if(PlayerInput.aForward > 0 && slideSpeed < 100){     //Si estamso saltando y apretando hacia adelante y con muy poca velocidad
+			//Damos un pequeño impulso
+			slideSpeed = 150;
 		}
 
 		//Modificamos la velocidad maxima segun la entrada de teclado
