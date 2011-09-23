@@ -68,7 +68,7 @@ var array<ParticleSystemComponent> frenesiPSCS;
 var bool bStoppedByHit;
 /** When get hitted the pawn stops his movement "hitStopTime" seconds */
 var float hitStopTime;
-
+/** Only can do a AirAttack if Velocity.Z < AirAttackThreshold */
 var float AirAttackThreshold;
 
 var SoundCue FrenesiSound;
@@ -652,8 +652,8 @@ function bool canAttack(){
 }
 
 function bool canAirAttack(){
-
-	if(Pawn.Physics == PHYS_Falling && (Abs(Pawn.Velocity.Z) < AirAttackThreshold) && !IsInState('Air_Attack') && !IsInState('Grenade_Attack') && !bSliding) return true;	
+	
+	if(Pawn.Physics == PHYS_Falling && (Pawn.Velocity.Z < AirAttackThreshold) && !IsInState('Air_Attack') && !IsInState('Grenade_Attack') && !bSliding) return true;	
 	return false;
 }
 
@@ -1273,7 +1273,7 @@ DefaultProperties
 	RotationSpeed=150000;
 
 	MinRespawnDelay = 3.0f
-	AirAttackThreshold = 320.0f;
+	AirAttackThreshold = 600.0f;       //Puesto a un valor grande para que limite poco
 
 	costHeal = 20;
 	amountHealed = 3;
