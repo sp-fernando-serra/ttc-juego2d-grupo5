@@ -1,4 +1,4 @@
-class BBSlideVolume extends PhysicsVolume placeable classGroup(BBActor);
+class BBSlideVolume extends Volume placeable classGroup(BBActor);
 
 simulated event PostInitAnimTree(SkeletalMeshComponent SkelComp)
 {
@@ -18,6 +18,6 @@ simulated event UnTouch( Actor Other )
 
 DefaultProperties
 {
-	GroundFriction=0.8; 
-	bPhysicsOnContact=true;
+	//GroundFriction=0.8; 
+	//bPhysicsOnContact=true;
 }
