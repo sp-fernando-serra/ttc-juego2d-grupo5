@@ -83,6 +83,10 @@ var ParticleSystem Frenesi2PS;
 var ParticleSystem FootstepPS;
 /** ParticleSystem used when landed*/
 var ParticleSystem LandedPS;
+/** ParticleSystem used when sliding */
+var ParticleSystem SlidingPS;
+/** ParticleSystemComponent used to save the slidingPS */
+var ParticleSystemComponent SlidingPSC;
 
 //Sounds
 /** Sound for equipping the Sword */
@@ -1019,13 +1023,17 @@ state playerSlide{
 
 	event BeginState(name PreviousStateName){
 		super.BeginState(PreviousStateName);
+
 		bPreparingJump=false;
 		hojaSlide.SetScale(0.65);
 		Mesh.AttachComponentToSocket(hojaSlide, 'HojaSlide');
+		
 		SlideSound = CreateAudioComponent(SlideCue);
 		SlideSound.Play();
 		fullBodySlot.PlayCustomAnim(slideAnimNames[SLIDING_START],1.0f,0.0f,0.0f,false,true);
-		}
+
+		SlidingPSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(SlidingPS,Mesh, 'HojaSlide', true);
+	}
 
 	event EndState(name NextStateName){
 		super.EndState(NextStateName);
@@ -1036,6 +1044,8 @@ state playerSlide{
 		hojaSlide.SetRotation(rot(0,0,0));
 		Mesh.DetachComponent(hojaSlide);
 		SlideSound.Stop();
+		SlidingPSC.SetActive(false);
+		SlidingPSC = none;
 		//gotoState('idle');
 	}
 
@@ -1048,14 +1058,21 @@ state playerSlide{
 		Super.StartJump();
 		SlideSound.Stop();
 		bSlideJump=true;
+		SlidingPSC.SetActive(false);
+		SlidingPSC = none;
 	}
 
 	event Landed(vector HitNormal, actor FloorActor){
 		Super.Landed(HitNormal, FloorActor);
+
 		bSlideJump=false;
 		lastSlideRollJumping = 0;
 		SlideSound.Play();
 		hojaSlide.SetRotation(rot(0,0,0));
+		if(SlidingPSC == none || !SlidingPSC.bIsActive){
+			SlidingPSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(SlidingPS,Mesh, 'HojaSlide', true);
+		}
+
 		GotoState('PlayerSlide');
 	}
 
@@ -1157,8 +1174,11 @@ state playerSlide{
 			hojaSlide.SetTranslation(VInterpTo(hojaslide.Translation, hojaTranslation, DeltaTime, VelSpeed)); //trasladar hoja
 		else
 			hojaSlide.SetTranslation(hojaTranslation);
-		if(RotSpeed > 0)
+		if(RotSpeed > 0){
 			hojaSlide.SetRotation(RInterpTo(  hojaSlide.Rotation,desiredHojaRotation,DeltaTime,RotSpeed,true));
+			if(SlidingPSC != none)
+				SlidingPSC.SetRotation(desiredHojaRotation);
+		}
 		else
 			hojaSlide.SetRotation(desiredHojaRotation);
 
@@ -1235,6 +1255,8 @@ DefaultProperties
 
 	FootstepPS = ParticleSystem'Betty_Particles.PSWalkingGround'
 	LandedPS = ParticleSystem'Betty_Player.Particles.Landed_PS';
+
+	SlidingPS = ParticleSystem'Betty_slide.ParticleSystems.Sliding_PS';
 
 	GroundSpeed = 400.0f;
 
