@@ -1,29 +1,23 @@
-class BBCheckPoint extends PlayerStart placeable
+class BBCheckPoint extends Trigger placeable
 	classGroup(BBActor);
 
-var () editconst const CylinderComponent myCylinderComponent<DisplayName = Cylinder Component>;
+//var () editconst const CylinderComponent myCylinderComponent<DisplayName = Cylinder Component>;
+
+var () PlayerStart spawnPoint;
+
+event PostBeginPlay(){
+	super.PostBeginPlay();
+
+	if(spawnPoint == none){
+		`warn(GetHumanReadableName() @ "has no spawn Point designed");
+	}
+}
 
 event Touch(Actor Other, PrimitiveComponent OtherComp, Vector HitLocation, Vector HitNormal){
-	//local BBCheckPoint tempCheckPoint;
-	//if(BBBettyPawn(Other) != none){
-	//	foreach AllActors(class'BBCheckPoint', tempCheckPoint){
-	//		tempCheckPoint.bEnabled = false;
-	//		tempCheckPoint.bPrimaryStart = false;
-	//	}
-
-	//	bEnabled = true;
-	//	bPrimaryStart = true;
-	//}
-
+	super.Touch(Other, OtherComp, HitLocation, HitNormal);
 	
-	if (FindEventsOfClass(class'SeqEvent_Touch'))
-	{
-		//NotifyTriggered();
-	}
-
 	BBGameInfo(WorldInfo.Game).currentCheckPoint = self;
-	BBGameInfo(WorldInfo.Game).SaveGameCheckpoint();
-	
+	BBGameInfo(WorldInfo.Game).SaveGameCheckpoint();	
 }
 
 
@@ -44,15 +38,11 @@ DefaultProperties
 	End Object
 
 	CollisionComponent=CollisionCylinder
-	myCylinderComponent=CollisionCylinder
+	CylinderComponent=CollisionCylinder
 	Components.Add(CollisionCylinder)
 
 	bCollideActors=true
 	CollisionType=COLLIDE_TouchAllButWeapons
 	bNoDelete = true
-	bStatic = false
-
-
-	bPrimaryStart = false
-	bEnabled = false
+	bStatic = false	
 }

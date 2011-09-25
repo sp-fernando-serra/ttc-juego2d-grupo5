@@ -62,7 +62,7 @@ function NavigationPoint FindPlayerStart( Controller Player, optional byte InTea
 
 
 	if(currentCheckPoint != none)
-		BestStart = currentCheckPoint;
+		BestStart = currentCheckPoint.spawnPoint;
 	else{
 		// Find best playerstart
 		foreach WorldInfo.AllNavigationPoints(class'PlayerStart', P){
