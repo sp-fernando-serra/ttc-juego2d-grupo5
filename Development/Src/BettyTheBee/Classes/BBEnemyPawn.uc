@@ -100,6 +100,27 @@ event Tick(float DeltaTime){
 	}
 }
 
+/**	Handling Toggle event from Kismet. */
+simulated function OnToggle(SeqAct_Toggle Action)
+{
+	// Turn ON
+	if (Action.InputLinks[0].bHasImpulse)
+	{
+		bAggressive = true;
+	}
+	// Turn OFF
+	else if (Action.InputLinks[1].bHasImpulse)
+	{
+		bAggressive = false;
+	}
+	// Toggle
+	else if (Action.InputLinks[2].bHasImpulse)
+	{
+		bAggressive = !bAggressive;
+	}
+	BBControllerAI(Controller).OnToggle(Action);
+}
+
 function playPariclesFijado()
 {
 	 local string tipo_enemigo;

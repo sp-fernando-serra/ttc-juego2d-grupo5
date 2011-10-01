@@ -62,6 +62,26 @@ function Possess(Pawn aPawn, bool bVehicleTransition){
 	}
 }
 
+/**	Handling Toggle event from Kismet. */
+simulated function OnToggle(SeqAct_Toggle Action)
+{
+	// Turn ON
+	if (Action.InputLinks[0].bHasImpulse)
+	{
+		bAggressive = true;
+	}
+	// Turn OFF
+	else if (Action.InputLinks[1].bHasImpulse)
+	{
+		bAggressive = false;
+	}
+	// Toggle
+	else if (Action.InputLinks[2].bHasImpulse)
+	{
+		bAggressive = !bAggressive;
+	}
+}
+
 function bool IsWithinLineOfSight(Actor other){
 	local Vector hitLoc, hitNorm;
 	return Trace(hitLoc,hitNorm,other.Location,Pawn.Location,false) == none;
