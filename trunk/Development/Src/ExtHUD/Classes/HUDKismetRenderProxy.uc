@@ -3,9 +3,9 @@ class HUDKismetRenderProxy extends Actor;
 // Has the proxy been assigned to player controllers yet?
 var bool HasAddedToAllControllers;
 // List of HUD render events
-var PrivateWrite array<HUDKismetSeqEvent_RenderHUD> RenderHUDSequenceEvents;
+var PrivateWrite array<HUDKismetSeqAct_RegisterRender> RenderHUDSequenceEvents;
 
-function AddRenderHUDSequenceEvent(HUDKismetSeqEvent_RenderHUD RenderHUDSequenceEvent)
+function AddRenderHUDSequenceEvent(HUDKismetSeqAct_RegisterRender RenderHUDSequenceEvent)
 {
 	local int i;
 
@@ -23,6 +23,23 @@ function AddRenderHUDSequenceEvent(HUDKismetSeqEvent_RenderHUD RenderHUDSequence
 
 	// Add the render HUD sequence event into the array
 	RenderHUDSequenceEvents.AddItem(RenderHUDSequenceEvent);
+}
+
+function RemoveRenderHUDSequenceEvent(HUDKismetSeqAct_RegisterRender RenderHUDSequenceEvent)
+{
+	local int i;
+
+	// Check if the Render HUD sequence event already exists
+	if (RenderHUDSequenceEvents.Length > 0)
+	{
+		for (i = 0; i < RenderHUDSequenceEvents.Length; ++i)
+		{
+			if (RenderHUDSequenceEvents[i] == RenderHUDSequenceEvent)
+			{
+				RenderHUDSequenceEvents.RemoveItem(RenderHUDSequenceEvent);
+			}
+		}
+	}
 }
 
 function Tick(float DeltaTime)
