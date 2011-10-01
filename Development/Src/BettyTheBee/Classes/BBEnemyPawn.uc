@@ -307,7 +307,7 @@ simulated state Stunned{
 			if(controller != none)
 				Controller.Destroy();
 			//Activamos todos los eneventos de Pawn Dead
-			TriggerEventClass(class'SeqEvent_Death', self);
+			TriggerGlobalEventClass(class'SeqEvent_Death', self);
 			Destroy();
 		}
 	}
