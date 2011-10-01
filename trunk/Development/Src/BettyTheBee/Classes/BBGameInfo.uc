@@ -128,10 +128,13 @@ exec function bool LoadGameFromFile(string fileName){
 	//	return false;
 	tempSave = new class'BBSaveGame';
 	tempResult = class'Engine'.static.BasicLoadObject(tempSave, `saveFolder $ fileName $ `saveExtension, true, 0);
-	if(tempResult == false)
-		`warn("Error");
-	tempMapName = tempSave.GetMapName();
-	WorldInfo.GetALocalPlayerController().ClientTravel( tempMapName $ "?LoadPreviousGame=" $ fileName, TRAVEL_Partial );
+	if(tempResult == false){
+		`log("File" @ filename @ "doesn't exists. Restarting level from initial state");
+		WorldInfo.GetALocalPlayerController().ClientTravel( "?restart", TRAVEL_Relative );
+	}else{
+		tempMapName = tempSave.GetMapName();
+		WorldInfo.GetALocalPlayerController().ClientTravel( tempMapName $ "?LoadPreviousGame=" $ fileName, TRAVEL_Partial );
+	}
 	return tempResult;
 }
 
