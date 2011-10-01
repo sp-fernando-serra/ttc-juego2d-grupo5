@@ -34,7 +34,7 @@ event RegisterEvent()
 	// Add this HUD render sequence to the rendering proxy
 	if (RenderProxy != None)
 	{
-		RenderProxy.AddRenderHUDSequenceEvent(Self);
+		//RenderProxy.AddRenderHUDSequenceEvent(Self);
 	}
 }
 
