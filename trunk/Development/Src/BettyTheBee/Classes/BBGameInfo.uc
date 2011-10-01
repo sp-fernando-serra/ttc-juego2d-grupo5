@@ -86,6 +86,10 @@ function NavigationPoint FindPlayerStart( Controller Player, optional byte InTea
 	return BestStart;
 }
 
+//function RestartPlayer(Controller NewPlayer){
+//	RestartGame();
+//}
+
 /**Saves map state to a temp file called CheckPointSave
  * 
  */
@@ -110,7 +114,7 @@ exec function bool SaveGame(string fileName){
 }
 
 exec function bool LoadGameCheckpoint(){
-	return LoadGameFromFile("CheckPointSave");
+	return LoadGameFromFile("CheckPointSave");	
 }
 
 /**Changes current level and schedule a InitMapFromFile() when the level has been loaded
@@ -128,7 +132,6 @@ exec function bool LoadGameFromFile(string fileName){
 		`warn("Error");
 	tempMapName = tempSave.GetMapName();
 	WorldInfo.GetALocalPlayerController().ClientTravel( tempMapName $ "?LoadPreviousGame=" $ fileName, TRAVEL_Partial );
-
 	return tempResult;
 }
 

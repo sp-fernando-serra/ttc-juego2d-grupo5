@@ -840,15 +840,87 @@ Begin:
 	WorldInfo.SeamlessTravel("BB-BettyLevelMenu");
 }
 
-state Dead{
+state Dead
+{
+	ignores SeePlayer, HearNoise, KilledBy, NextWeapon, PrevWeapon;
+
+	simulated event ReplicatedEvent(name VarName)
+	{
+		// if we got a Pawn, get into the correct control state
+		// probably should be in global ReplicatedEvent() but minimizing risk here
+		if (VarName == nameof(Pawn) && Pawn != None && Pawn != AcknowledgedPawn)
+		{
+			ClientRestart(Pawn);
+		}
+		Global.ReplicatedEvent(VarName);
+	}
+
+	exec function ThrowWeapon()
+	{
+		//clientmessage("Throwweapon while dead, pawn "$Pawn$" health "$Pawn.health);
+	}
+
+	function bool IsDead()
+	{
+		return true;
+	}
+
+	reliable server function ServerReStartPlayer()
+	{
+		if ( !WorldInfo.Game.PlayerCanRestart( Self ) )
+			return;
+
+		super.ServerRestartPlayer();
+	}
+
+	exec function StartFire( optional byte FireModeNum )
+	{
+		if ( bFrozen )
+		{
+			if ( !IsTimerActive() || GetTimerCount() > MinRespawnDelay )
+				bFrozen = false;
+			return;
+		}
+		BBGameInfo(WorldInfo.Game).LoadGameCheckpoint();
+		//ServerReStartPlayer();
+	}
+
+	exec function Use()
+	{
+		StartFire(0);
+	}
+
+	exec function Jump()
+	{
+		StartFire(0);
+	}
+
+	unreliable server function ServerMove
+	(
+		float TimeStamp,
+		vector Accel,
+		vector ClientLoc,
+		byte NewFlags,
+		byte ClientRoll,
+		int View
+	)
+	{
+		Global.ServerMove(
+					TimeStamp,
+					Accel,
+					ClientLoc,
+					0,
+					ClientRoll,
+					View);
+	}
 
 	function PlayerMove(float DeltaTime)
 	{
 		local vector X,Y,Z;
 		local rotator DeltaRot, ViewRotation;
 
-		if ( !bFrozen )
-		{
+		//if ( !bFrozen )
+		//{
 			if ( bPressedJump )
 			{
 				StartFire( 0 );
@@ -864,32 +936,97 @@ state Dead{
 			SetRotation(ViewRotation);
 			if ( Role < ROLE_Authority ) // then save this move and replicate it
 					ReplicateMove(DeltaTime, vect(0,0,0), DCLICK_None, rot(0,0,0));
-		}
-		else if ( !IsTimerActive() || GetTimerCount() > MinRespawnDelay )
-		{
-			bFrozen = false;
-		}
+		//}
+		//else if ( !IsTimerActive() || GetTimerCount() > MinRespawnDelay )
+		//{
+		//	bFrozen = false;
+		//}
 
 		ViewShake(DeltaTime);
 	}
 
-//function FindGoodView()
-//	{
-		
-//	}
+	//function FindGoodView()
+	//{
+	//	local vector cameraLoc;
+	//	local rotator cameraRot, ViewRotation;
+	//	local int tries, besttry;
+	//	local float bestdist, newdist;
+	//	local int startYaw;
+	//	local Actor TheViewTarget;
+
+	//	ViewRotation = Rotation;
+	//	ViewRotation.Pitch = 56000;
+	//	tries = 0;
+	//	besttry = 0;
+	//	bestdist = 0.0;
+	//	startYaw = ViewRotation.Yaw;
+	//	TheViewTarget = GetViewTarget();
+
+	//	for (tries=0; tries<16; tries++)
+	//	{
+	//		cameraLoc = TheViewTarget.Location;
+	//		SetRotation(ViewRotation);
+	//		GetPlayerViewPoint( cameraLoc, cameraRot );
+	//		newdist = VSize(cameraLoc - TheViewTarget.Location);
+	//		if (newdist > bestdist)
+	//		{
+	//			bestdist = newdist;
+	//			besttry = tries;
+	//		}
+	//		ViewRotation.Yaw += 4096;
+	//	}
+
+	//	ViewRotation.Yaw = startYaw + besttry * 4096;
+	//	SetRotation(ViewRotation);
+	//}
+
+	event Timer()
+	{
+		if (!bFrozen)
+			return;
+
+		bFrozen = false;
+		bPressedJump = false;
+	}
+
+	event BeginState(Name PreviousStateName)
+	{
+		//if ( (Pawn != None) && (Pawn.Controller == self) )
+		//	Pawn.Controller = None;
+		//Pawn = None;
+		FOVAngle = DesiredFOV;
+		Enemy = None;
+		bFrozen = true;
+		bPressedJump = false;
+		//FindGoodView();
+	    SetTimer(MinRespawnDelay, false);
+		CleanOutSavedMoves();
+	}
+
+	event EndState(Name NextStateName)
+	{
+		CleanOutSavedMoves();
+		Velocity = vect(0,0,0);
+		Acceleration = vect(0,0,0);
+	    if ( !PlayerReplicationInfo.bOutOfLives )
+			ResetCameraMode();
+		bPressedJump = false;
+	    if ( myHUD != None )
+		{
+			myHUD.SetShowScores(false);
+		}
+	}
 
 Begin:
+	if ( LocalPlayer(Player) != None )
+	{
+		if (myHUD != None)
+		{
+			myHUD.PlayerOwnerDied();
+		}
+	}
 	BBHUD(myHUD).ASvida(String(BBBettyPawn(Pawn).Health));
 	`log("Player Muerto");
-	//WorldInfo.Game.Broadcast(self,"You are Dead!");
-	//WorldInfo.Game.Broadcast(self,"Restarting level in...");
-	//WorldInfo.Game.Broadcast(self,"3");
-	//Sleep(1);
-	//WorldInfo.Game.Broadcast(self,"2");
-	//Sleep(1);
-	//WorldInfo.Game.Broadcast(self,"1");
-	//Sleep(1);
-	//WorldInfo.SeamlessTravel("BB-BettyLevelMenu");
 }
 
 
