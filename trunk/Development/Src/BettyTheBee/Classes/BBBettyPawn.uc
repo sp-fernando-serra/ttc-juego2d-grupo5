@@ -1175,9 +1175,9 @@ state playerSlide{
 		else
 			hojaSlide.SetTranslation(hojaTranslation);
 		if(RotSpeed > 0){
-			hojaSlide.SetRotation(RInterpTo(  hojaSlide.Rotation,desiredHojaRotation,DeltaTime,RotSpeed,true));
+			hojaSlide.SetRotation(RInterpTo(hojaSlide.Rotation, desiredHojaRotation, DeltaTime, RotSpeed, true));
 			if(SlidingPSC != none)
-				SlidingPSC.SetRotation(desiredHojaRotation);
+				SlidingPSC.SetRotation(RInterpTo(SlidingPSC.Rotation, desiredHojaRotation, DeltaTime, RotSpeed, true));
 		}
 		else
 			hojaSlide.SetRotation(desiredHojaRotation);
