@@ -306,6 +306,8 @@ simulated state Stunned{
 			WorldInfo.MyEmitterPool.SpawnEmitter(DeadPS, Location, Rotation);
 			if(controller != none)
 				Controller.Destroy();
+			//Activamos todos los eneventos de Pawn Dead
+			TriggerEventClass(class'SeqEvent_Death', self);
 			Destroy();
 		}
 	}
