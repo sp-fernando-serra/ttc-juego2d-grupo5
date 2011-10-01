@@ -437,7 +437,7 @@ function UpdateRotationCustom( float DeltaTime, bool updatePawnRot){
 			NewRotation = ViewRotation;
 			NewRotation.Roll = Rotation.Roll;
 			if ( Pawn != None && updatePawnRot)						
-					Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, RotationSpeed, true), DeltaTime);
+				Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, RotationSpeed, true), DeltaTime);
 
 			break;
 
@@ -453,7 +453,7 @@ function UpdateRotationCustom( float DeltaTime, bool updatePawnRot){
 				NewRotation = ViewRotation;
 				NewRotation.Roll = Rotation.Roll;
 				if ( Pawn != None && updatePawnRot)						
-						Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, RotationSpeed, true), DeltaTime);
+					Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, RotationSpeed, true), DeltaTime);
 			}
 			break;
 		}	
@@ -941,32 +941,14 @@ State PlayerSlide{
 
 	function PlayerMove( float DeltaTime ){
 
-		local vector	 X,Y,Z, NewAccel, localFloor, traceStart, traceEnd;
+		local vector	 X,Y,Z, NewAccel, localFloor;
 		local eDoubleClickDir	DoubleClickMove;
 		local bool	 bSaveJump;
 		local Rotator OldRotation;
-		local float inclination;
+		local float inclination, tempXAccel;
 	
 		localFloor= Pawn.Floor << Pawn.Rotation;
-		//localFloorProj = Normal(vect(0,1,0) cross ( localFloor cross vect(0,1,0) ));
-		//localFloorProj= localFloorProj*VSize(localFloor)*sin(localFloor dot vect(0,1,0);
-
-		//localVelocity = Pawn.Velocity << Pawn.Rotation;
-		//localVelocityNormal = Normal(localVelocity);
-		//localVelocityNormal = vect(1,0,0);
-
-		if(bDebug){ //Pintamos una linea representando el localFloorProj
-			traceStart = Pawn.Location;
-			traceStart.Z -= Pawn.GetCollisionHeight();
-			traceEnd = Pawn.Floor;
-			traceEnd *= 200;
-			traceEnd = traceStart + traceEnd;
-			DrawDebugLine(traceStart, traceEnd, 255, 0, 0, false);
-		}
-
-		//inclination=localFloorProj dot localVelocityNormal;
-		//WorldInfo.Game.Broadcast(self,inclination );
-
+		
 		//Scalar product between Floor and Pawn face direcction
 		inclination = localFloor dot vect(1,0,0);
 		if(!BBBettyPawn(Pawn).bSlideJump){
@@ -1035,11 +1017,18 @@ State PlayerSlide{
 		else
 		{
 			GetAxes(Pawn.Rotation,X,Y,Z);
+			//Calculamos un ratio de velocidad sobre velocidad maxima para luego utilizarlo en la aceleracion y asi
+			//limitar la capacidad de movimiento lateral segun la velocidad actual (mas velocidad menos capacidad de strafe)
+			tempXAccel = Pawn.GroundSpeed / (default.maxSlideSpeed + 300);
 
 			//Forced to go forward regardless of PlayerInput. 2200.0 its a mean value of PlayerInput.aForward
-			NewAccel = 2200.0 * X + PlayerInput.aStrafe * Y;
+			//COn el tempXAccel determinamos la velocidad de Strafe segun la velocidad actual (mayor velocidad menor strafe)
+			NewAccel = (0600.0 + 6000.0 * tempXAccel) * X + PlayerInput.aStrafe * Y;
 			NewAccel.Z	= 0;
+
 			NewAccel = Pawn.AccelRate * Normal(NewAccel);
+
+			
 
 			DoubleClickMove = PlayerInput.CheckForDoubleClickMove( DeltaTime/WorldInfo.TimeDilation );
 			
@@ -1086,6 +1075,31 @@ State PlayerSlide{
 		Pawn.Acceleration = NewAccel;
 
 		CheckJumpOrDuck();
+	}
+
+	function UpdateRotationCustom( float DeltaTime, bool updatePawnRot){
+		local Rotator	DeltaRot, newRotation, ViewRotation;	
+
+		ViewRotation = Rotation;
+		if (Pawn!=none && updatePawnRot)
+		{
+			Pawn.SetDesiredRotation(ViewRotation);		
+		}
+
+		// Calculate Delta to be applied on ViewRotation
+		DeltaRot.Yaw	= PlayerInput.aTurn;
+		DeltaRot.Pitch	= PlayerInput.aLookUp;
+
+		ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
+		ViewShake( deltaTime );
+
+		NewRotation = ViewRotation;
+		NewRotation.Roll = Rotation.Roll;
+		if ( Pawn != None && updatePawnRot)
+			Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, RotationSpeed, true), DeltaTime);
+
+		SetRotation(ViewRotation);
+
 	}
 }
 

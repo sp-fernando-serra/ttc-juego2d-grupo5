@@ -3,6 +3,8 @@ class BBGameInfo extends GameInfo;
 var BBSaveGame lastLoadedGame;
 /** Self explanatory. Last checkpoint touched; where player respawns once dead */
 var BBCheckPoint currentCheckPoint;
+/** When Spawning decals, use this for never spawn two decals with the same Depthbias */
+var float depthBiasLastDecal;
 
 `define saveExtension   ".bsg"
 
@@ -158,5 +160,7 @@ DefaultProperties
 	PlayerControllerClass = class 'BettyTheBee.BBPlayerController' //Setting the Player Controller to your custom script
 	HUDType=class'BettyTheBee.BBHUD'
 	DefaultPawnClass = class 'BettyTheBee.BBBettyPawn' //Setting the Pawn to your custom script
+
+	depthBiasLastDecal = - 0.000060f;
 
 }
