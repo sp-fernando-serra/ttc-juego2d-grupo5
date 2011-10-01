@@ -63,7 +63,7 @@ simulated function PostBeginPlay()
 
 	super.PostBeginPlay();
 	SightRadius = PerceptionDistance;
-	SetPhysics(PHYS_Walking);	
+	SetPhysics(PHYS_Walking);
 	
 	//Mesh.GetSocketWorldLocationAndRotation('centro', SocketLocation, SocketRotation, 0 /* Use 1 if you wish to return this in component space*/ );
 	//Mesh.AttachComponentToSocket(ParticlesComponent_enemigoFijado, 'centro');
@@ -315,7 +315,6 @@ simulated state Stunned{
 Begin:
 	Sleep(timeStunned);
 	Controller.GotoState('Idle');
-	//GotoState('');
 }
 
 simulated state Dying{
