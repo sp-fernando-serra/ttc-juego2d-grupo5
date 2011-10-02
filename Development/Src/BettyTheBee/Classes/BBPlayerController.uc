@@ -174,6 +174,16 @@ exec function GetGrenade(){
 }
 
 
+exec function skipMatinee(){
+	local MatineeActor tempMatinee;
+
+	foreach AllActors(class'MatineeActor', tempMatinee){
+		if(tempMatinee.bIsPlaying && tempMatinee.InterpAction.bIsSkippable){
+			tempMatinee.InterpAction.SetPosition(tempMatinee.InterpAction.InterpData.InterpLength);
+		}
+	}
+}
+
 
 
 //BOTON IZQUIERDO RATON (DOWN)
