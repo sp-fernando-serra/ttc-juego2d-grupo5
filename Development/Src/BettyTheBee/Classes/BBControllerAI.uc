@@ -80,6 +80,9 @@ simulated function OnToggle(SeqAct_Toggle Action)
 	{
 		bAggressive = !bAggressive;
 	}
+	if(!bAggressive){
+		GotoState('Idle');
+	}
 }
 
 function bool IsWithinLineOfSight(Actor other){
@@ -264,8 +267,8 @@ Begin:
 		SetFocalPoint(vect(0,0,0));
 			
 	}
-	//Esperamos 5 segundos antes de volver a comprobar si podemos llegar a la start location
-	Sleep(5.0f);
+	//Esperamos 2 segundos antes de volver a comprobar si podemos llegar a la start location
+	Sleep(2.0f);
 	goto 'Begin';
 
 }
