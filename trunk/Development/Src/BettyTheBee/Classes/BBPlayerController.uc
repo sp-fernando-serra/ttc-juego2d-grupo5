@@ -657,13 +657,13 @@ function AnimNodeSequence getActiveAnimNode()
 function bool canAttack(){
 	local BBBettyPawn tempPawn;
 	tempPawn = BBBettyPawn(Pawn);
-	if(Pawn.Physics != PHYS_Falling && !IsInState('Grenade_Attack') && !bStoppedByHit && !bSliding && !tempPawn.bPreparingJump) return true;	
+	if(Pawn.Physics != PHYS_Falling && !IsInState('Grenade_Attack') && !bCinematicMode && !bStoppedByHit && !bSliding && !tempPawn.bPreparingJump) return true;	
 	return false;
 }
 
 function bool canAirAttack(){
 	
-	if(Pawn.Physics == PHYS_Falling && (Pawn.Velocity.Z < AirAttackThreshold) && !IsInState('Air_Attack') && !IsInState('Grenade_Attack') && !bSliding) return true;	
+	if(Pawn.Physics == PHYS_Falling && (Pawn.Velocity.Z < AirAttackThreshold) && !IsInState('Air_Attack') && !IsInState('Grenade_Attack') && !bCinematicMode && !bSliding) return true;	
 	return false;
 }
 
@@ -681,26 +681,26 @@ function bool canCombo()
 
 simulated function bool canThrowGrenade(){
 	
-	if(reactivateTime[HN_Grenade] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && !bStoppedByHit &&  Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costGrenade  && !bSliding) return true;
+	if(reactivateTime[HN_Grenade] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && !bCinematicMode && !bStoppedByHit &&  Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costGrenade  && !bSliding) return true;
 	else return false;
 }
 
 simulated function bool canUseHeal(){
-	if(reactivateTime[HN_Heal] == 0 && (IsInState('PlayerWalking') || IsInState('PlayerSlide') || IsInState('CombatStance')) && !bStoppedByHit &&  Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costHeal) return true;
+	if(reactivateTime[HN_Heal] == 0 && (IsInState('PlayerWalking') || IsInState('PlayerSlide') || IsInState('CombatStance')) && !bCinematicMode && !bStoppedByHit &&  Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costHeal) return true;
 	else return false;
 }
 
 simulated function bool canUseFrenesi(){
-	if(reactivateTime[HN_Frenesi] == 0 && frenesiDuration == 0 && (IsInState('PlayerWalking') || IsInState('PlayerSlide')  || IsInState('CombatStance')) && !bStoppedByHit &&  Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costFrenesi) return true;
+	if(reactivateTime[HN_Frenesi] == 0 && frenesiDuration == 0 && (IsInState('PlayerWalking') || IsInState('PlayerSlide')  || IsInState('CombatStance')) && !bCinematicMode && !bStoppedByHit &&  Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costFrenesi) return true;
 	else return false;
 }
 
 simulated function bool canUseRoll(){
-	if(broll && reactivateTime[HN_Roll] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && !bStoppedByHit &&  Pawn.Physics != PHYS_Falling  && !bSliding) return true;
+	if(broll && reactivateTime[HN_Roll] == 0 && (IsInState('PlayerWalking') || IsInState('CombatStance')) && !bCinematicMode && !bStoppedByHit &&  Pawn.Physics != PHYS_Falling  && !bSliding) return true;
 	else return false;
 }
 simulated function bool canJump(){
-	if(!bStoppedByHit) return true;
+	if(!bStoppedByHit && !bCinematicMode) return true;
 	else return false;
 }
 
