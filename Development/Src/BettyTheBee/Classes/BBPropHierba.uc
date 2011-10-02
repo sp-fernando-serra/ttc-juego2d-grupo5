@@ -1,7 +1,8 @@
 class BBPropHierba extends BBProp placeable classGroup(BBActor);
 
-var BBBettyPawn tempPawn;
-var Vector PawnLocation;
+//var BBBettyPawn tempPawn;
+var Actor temp;
+var Vector ActorLocation;
 var float distance;
 
 var name windAnimName;
@@ -46,9 +47,9 @@ state playerInside
 
 Begin:
 	
-	PawnLocation=tempPawn.Location;
+	ActorLocation=temp.Location;
 	Sleep(0.25);
-	if(tempPawn.Location!=PawnLocation){
+	if(temp.Location!=ActorLocation){
 		gotoState('movedByPlayer');
 	}
 	goto 'Begin';
@@ -59,7 +60,8 @@ auto state idle
 {
 	event Touch( Actor Other, PrimitiveComponent OtherComp, vector HitLocation, vector HitNormal )
 	{
-		tempPawn = BBBettyPawn(Other);
+		//tempPawn = BBBettyPawn(Other);
+		temp = Other;
 		gotoState('movedByPlayer');
 	}
 	
@@ -116,5 +118,7 @@ DefaultProperties
 	CollisionType = COLLIDE_BlockAll
 	bStatic = False
 	bMovable = false
+
+	bNoEncroachCheck=false
 
 }
