@@ -11,7 +11,7 @@ var () KeyPoint SpawnPoint1;
 var () KeyPoint SpawnPoint2;
 
 var class<BBEnemyPawnAnt2> AntClass;
-/** NOT USED. Ant2 Actor to use as a template when Spawning Ants */
+///** NOT USED. Ant2 Actor to use as a template when Spawning Ants */
 //var () BBEnemyPawnAnt2 AntTemplate;
 
 var BBEnemyPawnAnt2 SpawnedAnt1;
@@ -25,11 +25,23 @@ event PostBeginPlay(){
 simulated function AntHillSpawn(BBSeqAct_AntHillSpawn actionSpawn){
 	SpawnedAnt1 = Spawn(AntClass,,,SpawnPoint1.Location, SpawnPoint1.Rotation,/*AntTemplate*/);
 	SpawnedAnt2 = Spawn(AntClass,,,SpawnPoint2.Location, SpawnPoint2.Rotation,/*AntTemplate*/);
+
+	SpawnedAnt1.antHill = self;
+	SpawnedAnt2.antHill = self;
 	
 	//Controller spawned automatically only for level placed Enemies
 	//Spawning custom controller for this pawns.
 	SpawnedAnt1.SpawnDefaultController();
 	SpawnedAnt2.SpawnDefaultController();
+}
+
+simulated event DestroyedAnt(BBEnemyPawn ant){
+	if(ant == SpawnedAnt1){
+		SpawnedAnt1 = none;
+	}
+	else if(ant == SpawnedAnt1){
+		SpawnedAnt2 = none;
+	}
 }
 
 simulated function AntHillDamaged(){
