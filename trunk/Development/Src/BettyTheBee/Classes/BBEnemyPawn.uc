@@ -25,6 +25,8 @@ var () Route MyRoutePoints;
 
 /** Time this pawn remains stunned*/
 var () float timeStunned;
+/** Reference to AntHill if this enemy has spawned by a AntHill */
+var BBAntHill antHill;
 
 var bool bIsDying;
 var class<BBDamageType> MyDamageType;
@@ -98,6 +100,12 @@ event Tick(float DeltaTime){
 		if(bDrawHearing)
 			DrawDebugSphere(Location,HearingThreshold,16,0.0,100.0,150.0,false);
 	}
+}
+
+simulated event Destroyed(){
+	super.Destroyed();
+	if(antHill != none)
+		antHill.DestroyedAnt(self);
 }
 
 /**	Handling Toggle event from Kismet. */
