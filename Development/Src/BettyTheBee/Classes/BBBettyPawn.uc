@@ -694,7 +694,7 @@ function AddVelocity( vector NewVelocity, vector HitLocation, class<DamageType> 
 
 /**
   * Event called after actor's base changes.
-*/
+ */
 singular event BaseChange(){
 	local DynamicSMActor Dyn;
 

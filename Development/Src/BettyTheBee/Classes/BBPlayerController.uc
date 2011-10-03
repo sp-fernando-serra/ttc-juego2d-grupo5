@@ -1139,6 +1139,12 @@ State PlayerSlide{
 
 		//Slide speed always between 0 and MaxSlideSpeeed
 		slideSpeed = FClamp(slideSpeed, 0, maxSlideSpeed);
+
+		if(BBSlideTruboVolume(Pawn.PhysicsVolume) != none){
+			slideSpeed = BBSlideTruboVolume(Pawn.PhysicsVolume).speedToForce;
+			slideSpeedDecrement = 0;
+			slideSpeedIncrement = 0;
+		}
 		
 		//`log(slideSpeed @ "-" @ VSize(Pawn.Velocity));
 
@@ -1156,6 +1162,10 @@ State PlayerSlide{
 		//	//WorldInfo.Game.Broadcast(self,NewRot );
 	
 		//}
+
+		if(BBSlideTruboVolume(Pawn.PhysicsVolume) != none){
+			Pawn.GroundSpeed = BBSlideTruboVolume(Pawn.PhysicsVolume).speedToForce;
+		}
 		
 		if( Pawn == None )
 		{
@@ -1249,13 +1259,6 @@ State PlayerSlide{
 
 	}
 }
-
-
-
-//exec function gotoFuria()
-//{
-//GotoState('Furia');
-//}
 
 exec function gotoWalk()
 {
