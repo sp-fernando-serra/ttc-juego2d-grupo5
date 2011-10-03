@@ -129,6 +129,43 @@ simulated function OnToggle(SeqAct_Toggle Action)
 	BBControllerAI(Controller).OnToggle(Action);
 }
 
+/**
+  * Event called after actor's base changes.
+*/
+singular event BaseChange(){
+	local DynamicSMActor Dyn;
+
+	// Pawns can only set base to non-pawns, or pawns which specifically allow it.
+	// Otherwise we do some damage and jump off.
+	if (Pawn(Base) != None)
+	{
+		if( !Pawn(Base).CanBeBaseForPawn(Self) )
+		{
+			//Pawn(Base).CrushedBy(self);
+			JumpOffPawn();
+		}
+	}
+
+	// If it's a KActor, see if we can stand on it.
+	Dyn = DynamicSMActor(Base);
+	if( Dyn != None && !Dyn.CanBasePawn(self) )
+
+	{
+		JumpOffPawn();
+	}
+}
+
+//Base change - if new base is pawn or decoration, damage based on relative mass and old velocity
+// Also, non-players will jump off pawns immediately
+function JumpOffPawn()
+{
+	Velocity += VRand();
+	Velocity.Z = 0;
+	Velocity = (400 + CylinderComponent.CollisionRadius) * Normal(Velocity);
+	Velocity.Z = 600 + CylinderComponent.CollisionHeight;
+	SetPhysics(PHYS_Falling);
+}
+
 function playPariclesFijado()
 {
 	 local string tipo_enemigo;

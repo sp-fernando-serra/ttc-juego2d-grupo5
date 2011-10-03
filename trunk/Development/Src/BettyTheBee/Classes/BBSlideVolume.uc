@@ -18,6 +18,9 @@ simulated event UnTouch( Actor Other )
 
 DefaultProperties
 {
+	bColored=true
+	BrushColor=(B=225,G=255,R=0,A=255)
+
 	//GroundFriction=0.8; 
 	//bPhysicsOnContact=true;
 }
