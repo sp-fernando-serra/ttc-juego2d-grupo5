@@ -45,12 +45,15 @@ simulated event DestroyedAnt(BBEnemyPawn ant){
 }
 
 simulated function AntHillDamaged(){
-	health--;
-	if(health > 0){
-		TriggerGlobalEventClass(class'BBSeqEvent_AntHillDamaged', self);
-	}else{
-		TriggerGlobalEventClass(class'BBSeqEvent_AntHillDestroyed', self);
+	if(SpawnedAnt1 == none && SpawnedAnt2 == none && health > 0){
+		health--;
+		if(health > 0){
+			TriggerGlobalEventClass(class'BBSeqEvent_AntHillDamaged', self);
+		}else{
+			TriggerGlobalEventClass(class'BBSeqEvent_AntHillDestroyed', self);
+		}
 	}
+	
 }
 
 simulated function bool StopsProjectile(Projectile P){
