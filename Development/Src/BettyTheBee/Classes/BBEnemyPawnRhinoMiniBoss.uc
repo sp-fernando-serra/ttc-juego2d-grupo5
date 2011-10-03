@@ -270,6 +270,8 @@ simulated state Stunned{
 						PC.ClientPlayForceFeedbackWaveform(damageType.default.KilledFFWaveform);
 					}
 					// pawn died
+					//Activamos todos los eneventos de Pawn Dead
+					TriggerGlobalEventClass(class'SeqEvent_Death', self);
 					Killer = SetKillInstigator(InstigatedBy, DamageType);
 					TearOffMomentum = momentum;
 					Died(Killer, damageType, HitLocation);
