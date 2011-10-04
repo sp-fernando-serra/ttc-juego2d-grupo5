@@ -189,7 +189,7 @@ function NotifyKilled(Controller Killer, Controller Killed, pawn KilledPawn, cla
 event SeePlayer(Pawn SeenPlayer){
 	local BBEnemyPawn pawnToAlert;
 	
-	if(bAggressive){
+	if(bAggressive && !SeenPlayer.Controller.IsDead()){
 		StopLatentExecution();
 		thePlayer = BBPawn(SeenPlayer);
 		distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);

@@ -203,7 +203,7 @@ event NotifyChargeFinished(bool playerHurt){
 
 event SeePlayer(Pawn SeenPlayer){
 		
-	if(bAggressive){
+	if(bAggressive && !SeenPlayer.Controller.IsDead()){
 		StopLatentExecution();
 		thePlayer = BBPawn(SeenPlayer);
 		distanceToPlayer = CheckDistanceTo(thePlayer);

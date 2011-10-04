@@ -21,6 +21,10 @@ event bool Update(float DeltaTime){
 			}
 		}
 	}
+	if(InputLinks[1].bHasImpulse && bActive){
+		AbortFor(none);
+		return false;
+	}
 	return true;
 }
 
@@ -29,40 +33,37 @@ event Activated()
 {
 	local WorldInfo WorldInfo;
 	local HUDKismetRenderProxy FoundRenderProxy;
-	if(InputLinks[0].bHasImpulse){
-		//Activate this item
-		bActive = true;
-		activeTime = maxActiveTime;
+	
+	//Activate this item
+	bActive = true;
+	activeTime = maxActiveTime;
 
-		// Get the world info
-		WorldInfo = class'WorldInfo'.static.GetWorldInfo();
+	// Get the world info
+	WorldInfo = class'WorldInfo'.static.GetWorldInfo();
 
-		// Abort if the world info isn't found
-		if (WorldInfo == None)
-		{
-			return;
-		}
+	// Abort if the world info isn't found
+	if (WorldInfo == None)
+	{
+		return;
+	}
 
-		// Find a render proxy to associate with this render HUD event
-		ForEach WorldInfo.DynamicActors(class'HUDKismetRenderProxy', FoundRenderProxy)
-		{
-			RenderProxy = FoundRenderProxy;
-			break;
-		}
+	// Find a render proxy to associate with this render HUD event
+	ForEach WorldInfo.DynamicActors(class'HUDKismetRenderProxy', FoundRenderProxy)
+	{
+		RenderProxy = FoundRenderProxy;
+		break;
+	}
 
-		// If a render proxy hasn't been found, then create a render proxy
-		if (RenderProxy == None)
-		{
-			RenderProxy = WorldInfo.Spawn(class'HUDKismetRenderProxy');
-		}
+	// If a render proxy hasn't been found, then create a render proxy
+	if (RenderProxy == None)
+	{
+		RenderProxy = WorldInfo.Spawn(class'HUDKismetRenderProxy');
+	}
 
-		// Add this HUD render sequence to the rendering proxy
-		if (RenderProxy != None)
-		{
-			RenderProxy.AddRenderHUDSequenceEvent(Self);
-		}
-	}else if(InputLinks[1].bHasImpulse && bActive){
-		AbortFor(none);
+	// Add this HUD render sequence to the rendering proxy
+	if (RenderProxy != None)
+	{
+		RenderProxy.AddRenderHUDSequenceEvent(Self);
 	}
 }
 
