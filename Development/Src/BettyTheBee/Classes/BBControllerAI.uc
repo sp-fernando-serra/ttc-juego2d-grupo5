@@ -459,6 +459,7 @@ state Stunned{
 	simulated event BeginState(name PreviousStateName){
 		super.BeginState(PreviousStateName);
 		StopLatentExecution();
+		TriggerGlobalEventClass(class'BBSeqEvent_PawnStunned',pawn);
 		Focus = none;
 		Pawn.ZeroMovementVariables();
 		Pawn.GotoState('Stunned');
