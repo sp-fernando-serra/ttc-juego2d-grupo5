@@ -10,7 +10,8 @@ var float activeTime;
 var() float maxActiveTime;
 
 event bool Update(float DeltaTime){
-	if(bActive){
+	//Miramos el active time ya que si vale 0 no desactivmos nunca el texto
+	if(bActive && activeTime > 0){
 		activeTime -= DeltaTime;
 		if(activeTime <= 0){
 			bActive = false;
@@ -28,37 +29,40 @@ event Activated()
 {
 	local WorldInfo WorldInfo;
 	local HUDKismetRenderProxy FoundRenderProxy;
+	if(InputLinks[0].bHasImpulse){
+		//Activate this item
+		bActive = true;
+		activeTime = maxActiveTime;
 
-	//Activate this item
-	bActive = true;
-	activeTime = maxActiveTime;
+		// Get the world info
+		WorldInfo = class'WorldInfo'.static.GetWorldInfo();
 
-	// Get the world info
-	WorldInfo = class'WorldInfo'.static.GetWorldInfo();
+		// Abort if the world info isn't found
+		if (WorldInfo == None)
+		{
+			return;
+		}
 
-	// Abort if the world info isn't found
-	if (WorldInfo == None)
-	{
-		return;
-	}
+		// Find a render proxy to associate with this render HUD event
+		ForEach WorldInfo.DynamicActors(class'HUDKismetRenderProxy', FoundRenderProxy)
+		{
+			RenderProxy = FoundRenderProxy;
+			break;
+		}
 
-	// Find a render proxy to associate with this render HUD event
-	ForEach WorldInfo.DynamicActors(class'HUDKismetRenderProxy', FoundRenderProxy)
-	{
-		RenderProxy = FoundRenderProxy;
-		break;
-	}
+		// If a render proxy hasn't been found, then create a render proxy
+		if (RenderProxy == None)
+		{
+			RenderProxy = WorldInfo.Spawn(class'HUDKismetRenderProxy');
+		}
 
-	// If a render proxy hasn't been found, then create a render proxy
-	if (RenderProxy == None)
-	{
-		RenderProxy = WorldInfo.Spawn(class'HUDKismetRenderProxy');
-	}
-
-	// Add this HUD render sequence to the rendering proxy
-	if (RenderProxy != None)
-	{
-		RenderProxy.AddRenderHUDSequenceEvent(Self);
+		// Add this HUD render sequence to the rendering proxy
+		if (RenderProxy != None)
+		{
+			RenderProxy.AddRenderHUDSequenceEvent(Self);
+		}
+	}else if(InputLinks[1].bHasImpulse && bActive){
+		AbortFor(none);
 	}
 }
 
@@ -96,6 +100,7 @@ defaultproperties
 	ObjCategory="ExtHUD"
 
 	OutputLinks(0)=(LinkDesc="Out")
+	InputLinks(1)=(LinkDesc="Abort")
 
 	VariableLinks(0)=(ExpectedType=class'SeqVar_Object',bHidden=true,LinkDesc="PlayerController",bWriteable=true,PropertyName=PlayerController)
 	VariableLinks(1)=(ExpectedType=class'SeqVar_Vector',bHidden=true,LinkDesc="Camera Position",bWriteable=true,PropertyName=CameraPosition)

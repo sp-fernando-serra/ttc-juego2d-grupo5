@@ -92,7 +92,7 @@ state Attacking{
 	Target = thePlayer;
 	while(Target != none && thePlayer.Health > 0)
 	{   				
-		distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);		
+		distanceToPlayer = VSize(thePlayer.Location - Pawn.Location) - Pawn.GetCollisionRadius() - thePlayer.GetCollisionRadius();		
 				
         if (distanceToPlayer > attackDistance )            
         { 
@@ -117,12 +117,12 @@ Begin:
 
 	while(thePlayer.Health > 0)
 	{   				
-		distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);		
+		distanceToPlayer = VSize(thePlayer.Location - Pawn.Location) - Pawn.GetCollisionRadius() - thePlayer.GetCollisionRadius();		
 				
         if (distanceToPlayer > fearDistance )            
         { 
 			Focus = thePlayer;
-            GotoState('Attacking');
+            Pawn.GotoState('Attacking');
 			break;
         }
 		Sleep(0.25);

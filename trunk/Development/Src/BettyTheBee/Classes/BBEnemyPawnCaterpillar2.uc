@@ -14,7 +14,7 @@ var () Vector randomness;
 var () float fearDistance;
 
 var name attackBeginAnime;
-var name attackEndAnime;
+//var name attackEndAnime;
 var name fearAnimName;
 
 //simulated function PostBeginPlay()
@@ -69,20 +69,28 @@ Begin:
 	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());
 Attack:
 	customAnimSlot.PlayCustomAnim(attackAnimName,1.0f,0.25f,0.25f,false,true);
-	Sleep(customAnimSlot.GetCustomAnimNodeSeq().GetTimeLeft() - 0.05f);
-	customAnimSlot.StopAnim();	
+	//Sleep(customAnimSlot.GetCustomAnimNodeSeq().GetTimeLeft() - 0.05f);
+	//customAnimSlot.StopAnim();
+	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());
 	Sleep(timeBetweenShots + randomTimeBetweenShots * FRand());
 	goto 'Attack';
 FinishAttack:
 	//Playing stop attack anim and going to fear.
-	customAnimSlot.PlayCustomAnim(attackEndAnime,1.0f,0.0f,0.25f,false,true);
-	FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());
+	//customAnimSlot.PlayCustomAnim(attackEndAnime,1.0f,0.0f,0.25f,false,true);
+	//FinishAnim(customAnimSlot.GetCustomAnimNodeSeq());
 	GotoState('Fearing');
 }
 
 state Fearing{
-Begin:
-	customAnimSlot.PlayCustomAnim(fearAnimName, 1.0f, 0.25, 0.25, true, true);
+	simulated event BeginState(name PreviousStateName){
+		super.BeginState(PreviousStateName);
+		customAnimSlot.PlayCustomAnim(fearAnimName, 1.0f, 0.25, 0.25, true, true);
+	}
+
+	simulated event EndState(name NextStateName){
+		super.EndState(NextStateName);
+		customAnimSlot.PlayCustomAnim(attackBeginAnime,1.0f,0.25f,0.25f,false,true);
+	}
 }
 
 
@@ -143,7 +151,7 @@ DefaultProperties
 	//Name of diferent animations for playing in custom node (esta aqui porque en defaultProperties no funciona)
 	attackAnimName = "Oruga_Attack_seq";
 	attackBeginAnime = "Oruga_Alert_up_seq";
-    attackEndAnime = "Oruga_Down_seq";
+    //attackEndAnime = "Oruga_Down_seq";
 	//dyingAnimName = "Die";
 	fearAnimName = "Oruga_Afraid_seq";
 
