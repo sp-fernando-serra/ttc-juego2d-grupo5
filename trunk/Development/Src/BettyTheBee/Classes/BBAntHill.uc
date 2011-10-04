@@ -39,8 +39,11 @@ simulated event DestroyedAnt(BBEnemyPawn ant){
 	if(ant == SpawnedAnt1){
 		SpawnedAnt1 = none;
 	}
-	else if(ant == SpawnedAnt1){
+	else if(ant == SpawnedAnt2){
 		SpawnedAnt2 = none;
+	}
+	if(SpawnedAnt1 == none && SpawnedAnt2 == none){
+		TriggerGlobalEventClass(class'BBSeqEvent_AntHillPawnsDied',self);
 	}
 }
 

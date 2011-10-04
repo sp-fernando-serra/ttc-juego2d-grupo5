@@ -43,7 +43,7 @@ function Possess(Pawn aPawn, bool bVehicleTransition){
 event SeePlayer(Pawn SeenPlayer){
 	local BBEnemyPawn pawnToAlert;
 	
-	if(bAggressive){
+	if(bAggressive && !SeenPlayer.Controller.IsDead()){
 		StopLatentExecution();
 		thePlayer = BBPawn(SeenPlayer);
 		distanceToPlayer = VSize(thePlayer.Location - Pawn.Location);

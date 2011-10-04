@@ -673,7 +673,7 @@ event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector
 			EndRoll();
 		super.TakeDamage(Damage, InstigatedBy, HitLocation, Momentum, DamageType, HitInfo, DamageCauser);
 		SetInvulnerable(true);
-		Worldinfo.Game.Broadcast(self,Name$": "$Damage$ " done by "$DamageCauser.Name $ " Life: "$Health);
+		//Worldinfo.Game.Broadcast(self,Name$": "$Damage$ " done by "$DamageCauser.Name $ " Life: "$Health);
 	}
 }
 
