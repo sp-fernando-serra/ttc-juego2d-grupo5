@@ -47,8 +47,14 @@ function startAnimacioItem(){
 //Called every tick the HUD should be updated
 event PostRender()
 {
-	super.PostRender();
-	if(WorldInfo.GetMapName()!="BettyLevelMenu")  HudMovie.TickHUD();	
+	if(bShowHUD){
+		super.PostRender();
+		if(WorldInfo.GetMapName()!="BettyLevelMenu")  HudMovie.TickHUD();
+	}else{      //Aunque no pintemos el HUD llamamos a PostRender() con bSHowHUD = true para pintar el canvas
+		bShowHUD = true;
+		super.PostRender();
+		bShowHUD = false;
+	}
 }
 
 

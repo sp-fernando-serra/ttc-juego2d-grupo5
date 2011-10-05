@@ -163,6 +163,10 @@ exec function myMoveto(Vector Loc, Rotator Rot)
 	SetRotation(Rot);
 }
 
+exec function intro(){
+	ClientPlayMovie("Intro");
+}
+
 
 exec function GetSword(){
 	BBBettyPawn(Pawn).GetUnequipped();
