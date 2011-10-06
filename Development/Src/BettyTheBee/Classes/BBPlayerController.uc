@@ -1314,8 +1314,8 @@ ignores SeePlayer, HearNoise, Bump;
 		Global.PlayerTick(DeltaTime);
 		if(TargetedPawn!=None)
 		{
-			if(TargetedPawn.Health <=0)
-				GotoState('PlayerWalking');
+			//if(TargetedPawn.Health <=0)
+			//	GotoState('PlayerWalking');
 		}else{
 			GotoState('PlayerWalking');
 		}
