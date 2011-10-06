@@ -339,7 +339,7 @@ DefaultProperties
 	ControllerClass = class'BettyTheBee.BBControllerAIRhinoMiniBoss';
 
 	DrawScale = 1.5;
-	FootstepPS = ParticleSystem'Betty_Particles.PSWalkingGround'
+	FootstepPS = ParticleSystem'Betty_rhino.Particles.PSWalkingGroundRhino'
 
 	RightFootStepCue=SoundCue'Betty_rhino.Sounds.FxRhinoPaw0_Cue'
 	LeftFootStepCue=SoundCue'Betty_rhino.Sounds.FxRhinoPaw1_Cue'
