@@ -90,6 +90,8 @@ var ParticleSystem SlidingPS;
 /** ParticleSystemComponent used to save the slidingPS */
 var ParticleSystemComponent SlidingPSC;
 
+var ParticleSystem AirAttackPS;
+
 //Sounds
 /** Sound for equipping the Sword */
 var SoundCue EquipSwordCue;
@@ -395,6 +397,7 @@ function bool DoJump( bool bUpdating )
 
 function DoDoubleJump( bool bUpdating )
 {
+	local Vector tempLocation;
 	if ( !bIsCrouched && !bWantsToCrouch )
 	{
 		if ( !IsLocallyControlled() || AIController(Controller) != None )
@@ -404,6 +407,10 @@ function DoDoubleJump( bool bUpdating )
 		Velocity.Z = JumpZ + MultiJumpBoost;
 		//UTInventoryManager(InvManager).OwnerEvent('MultiJump');
 		SetPhysics(PHYS_Falling);
+		
+		tempLocation = Location;
+		tempLocation.Z -= GetCollisionHeight();
+		WorldInfo.MyEmitterPool.SpawnEmitter(AirAttackPS, tempLocation);
 		PlayLandedPS();
 		PlaySound(DoubleJumpCue);
 		//BaseEyeHeight = DoubleJumpEyeHeight;
@@ -1001,7 +1008,11 @@ state AirAttack{
 	}
 
 	event Landed(vector HitNormal, actor FloorActor){
+		local vector tempLocation;
 		super.Landed(HitNormal, FloorActor);
+		tempLocation = Location;
+		tempLocation.Z -= GetCollisionHeight() - 10;
+		WorldInfo.MyEmitterPool.SpawnEmitter(AirAttackPS, tempLocation);
 		GotoState('AirAttack', 'Landing');
 	}
 
@@ -1373,6 +1384,8 @@ DefaultProperties
 	LandedPS = ParticleSystem'Betty_Player.Particles.Landed_PS';
 
 	SlidingPS = ParticleSystem'Betty_slide.ParticleSystems.Sliding_PS';
+
+	AirAttackPS = ParticleSystem'Betty_Player.Particles.AirAttack_PS';
 
 	GroundSpeed = 400.0f;
 
