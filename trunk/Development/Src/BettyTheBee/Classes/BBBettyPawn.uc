@@ -1426,7 +1426,7 @@ DefaultProperties
 
 
 	Health = 5;
-	itemsMiel = 500;
+	itemsMiel = 0;
 
 	collectableItems = 0;
 

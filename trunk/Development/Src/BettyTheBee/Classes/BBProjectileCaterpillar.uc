@@ -244,7 +244,7 @@ DefaultProperties
 	MyDamageType=class'BBDamageType_EnemyPawn'
 
 	bWorldGeometry=false
-	Speed=1500
+	Speed=3500
 	MaxSpeed=0
 	Physics=PHYS_Falling;
 	CustomGravityScaling=0.5

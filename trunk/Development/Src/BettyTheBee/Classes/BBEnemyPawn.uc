@@ -398,7 +398,7 @@ defaultproperties
 	//Max distance to hear a 1.0 noise
 	HearingThreshold = +600.0
 
-	timeStunned = 5.0f;
+	timeStunned = 8.0f;
 
 	RotationRate=(Pitch=40000,Yaw=40000,Roll=20000)
 
