@@ -1,7 +1,4 @@
-class BBMielPickupItem extends PickupFactory placeable; 
-
-/** Amount of Honey this item have. The item will be larger if Honey is bigger */
-var() int honey<ClampMin=1 | ClampMax=15>;
+class BBPickupCollectable extends PickupFactory placeable; 
 
 var		SoundCue			PickupSound;
 
@@ -11,12 +8,9 @@ var float rotationPerSec;
 var ParticleSystem destellos_PS;
 var ParticleSystemComponent destellos_PSC;
 
-event postBeginPlay(){
-	super.PostBeginPlay();
-	
-	//El item es mas grande cuanta mas miel da
-	SetDrawScale(1.0 + honey/10.0);
-}
+//event postBeginPlay(){
+//	super.PostBeginPlay();
+//}
 
 function SpawnCopyFor( Pawn Recipient )
 {
@@ -24,32 +18,13 @@ function SpawnCopyFor( Pawn Recipient )
 
 	tempPawn = BBBettyPawn(Recipient);
 	if(tempPawn != none){
-		// Give health to recipient
-		tempPawn.itemsMiel += honey;
-		if(tempPawn.itemsMiel > 999){
-			BBBettyPawn(Recipient).itemsMiel=999;
-		}	
-
-		BBHUD(BBPlayerController(tempPawn.Controller).myHUD).startAnimacioItem();
+		tempPawn.CollectableCaught(self);
 		PlaySound( PickupSound );
 		destellos_PSC = WorldInfo.MyEmitterPool.SpawnEmitter(destellos_PS,Location);		
 	}else{
 		`warn("Honey Item caught by:" @ Recipient.GetHumanReadableName());
 	}
 }
-
-
-
-//function Tick( float DeltaTime ){
-//	local Rotator newRot;
-	
-	
-//	newRot = Rotation;
-//	newRot.Yaw = newRot.Yaw + DeltaTime * rotationPerSec / UnrRotToDeg;
-//	if(newRot.Yaw > 65535)
-//		newRot.Yaw = 0;
-//	SetRotation(newRot);
-//}
 
 
 DefaultProperties
@@ -63,10 +38,10 @@ DefaultProperties
 		bAcceptsLights=true
 		CollideActors=false
 		BlockActors=false
-        StaticMesh=StaticMesh'Betty_item.Models.Item'
+        StaticMesh=StaticMesh'Betty_item.Models.SpecialItem'
         bNotifyRigidBodyCollision=true
 		LightEnvironment=theLightEnvironment
-		Scale3D=(X=1.0f,Y=0.4f,Z=1.0f)
+		Scale = 2;
 	End Object
 	PickupMesh=ItemEsfera
 	Components.Add(ItemEsfera)
@@ -79,11 +54,7 @@ DefaultProperties
 
 	bMovable = true;
 	bStatic = false;
-	/*Begin Object class=CylinderComponent Name=BettyCollision
-		CollisionRadius=+5
-	End Object
-	*/
-
+	
 	InventoryType=class'BettyTheBee.BBInventory'
 
 	PickupSound=SoundCue'Betty_Sounds.Pickup_cue'
@@ -94,13 +65,9 @@ DefaultProperties
 
 	Physics = PHYS_Rotating
 
-	RotationRate = (Pitch=16384, Yaw=8192, Roll=0)
+	RotationRate = (Pitch=0, Yaw=8192, Roll=0)
 
 
 	//Para no considerarlo como punto de ruta para la IA
 	bBlocked = true
-
-	honey = 1;
 }
-
-
