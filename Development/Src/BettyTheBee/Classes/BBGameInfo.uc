@@ -6,6 +6,10 @@ var BBCheckPoint currentCheckPoint;
 /** When Spawning decals, use this for never spawn two decals with the same Depthbias */
 var float depthBiasLastDecal;
 
+var int previousLevelHoney;
+
+var int previousLevelHealth;
+
 `define saveExtension   ".bsg"
 
 `define saveFolder   "..//..//"
@@ -24,6 +28,12 @@ event InitGame(string Options, out string ErrorMessage){
 		loadGameFileName = ParseOption(Options, "LoadPreviousGame");	
 		InitMapFromFile(loadGameFileName);
 	}
+	if(HasOption(Options, "HoneyItems")){
+		previousLevelHoney = GetIntOption(Options, "HoneyItems", -1);	
+	}
+	if(HasOption(Options, "HealtPoints")){
+		previousLevelHealth = GetIntOption(Options, "HealtPoints", -1);
+	}
 }
 
 event PostLogin( PlayerController NewPlayer ){
@@ -31,6 +41,12 @@ event PostLogin( PlayerController NewPlayer ){
 
 	if(lastLoadedGame != none){
 		lastLoadedGame.LoadBettyInfo(WorldInfo);
+	}
+	if(previousLevelHealth >= 1){
+		NewPlayer.Pawn.Health = previousLevelHealth;
+	}
+	if(previousLevelHealth >= 0){
+		BBBettyPawn(NewPlayer.Pawn).itemsMiel = previousLevelHoney;
 	}
 }
 
@@ -142,7 +158,14 @@ exec function bool LoadGameFromFile(string fileName){
  * @param mapName Name of next map to load
  */
 exec function LoadGame(string mapName){
-	WorldInfo.GetALocalPlayerController().ClientTravel( mapName, TRAVEL_Absolute );
+	local BBBettyPawn tempPawn;
+
+	tempPawn = BBBettyPawn(GetALocalPlayerController().Pawn);
+	if(tempPawn != none){
+		WorldInfo.GetALocalPlayerController().ClientTravel( mapName $ "?HealtPoints=" $ tempPawn.Health $ "?HoneyItems=" $ tempPawn.itemsMiel, TRAVEL_Absolute );
+	}else{
+		WorldInfo.GetALocalPlayerController().ClientTravel( mapName, TRAVEL_Absolute );
+	}
 }
 
 /**Charge information of a File in this current map.
