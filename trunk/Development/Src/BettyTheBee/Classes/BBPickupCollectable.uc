@@ -19,6 +19,7 @@ function SpawnCopyFor( Pawn Recipient )
 	tempPawn = BBBettyPawn(Recipient);
 	if(tempPawn != none){
 		tempPawn.CollectableCaught(self);
+		BBHUD(BBPlayerController(tempPawn.Controller).myHUD).startAnimacioColeccionable();
 		PlaySound( PickupSound );
 		destellos_PSC = WorldInfo.MyEmitterPool.SpawnEmitter(destellos_PS,Location);		
 	}else{

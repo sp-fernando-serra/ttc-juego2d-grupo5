@@ -47,6 +47,11 @@ function startAnimacioItem(){
 	HudMovie.animacioItem();
 }
 
+function startAnimacioColeccionable(){
+	
+	HudMovie.animacioColeccionable();
+}
+
 function startCollectableCaughtAnimation(BBPickupCollectable collectableItem){
 	bDrawCollectable = true;
 	SetTimer(4.0, false, 'stopDrawCollectables');
