@@ -171,6 +171,12 @@ function animacioItem(){
 
 }
 
+function animacioColeccionable(){	
+
+	ActionScriptVoid("coleccionable");
+
+}
+
 function sonido(String sonido)
 {
 //texto_ayuda("ddddd",50);
