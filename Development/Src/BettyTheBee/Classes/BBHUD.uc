@@ -99,13 +99,13 @@ simulated function drawCollectables(){
 	numCollectables = BBBettypawn(PlayerOwner.Pawn).collectableItems;
 	maxCollectables = BBBettypawn(PlayerOwner.Pawn).maxCollectableItems;
 
-	Canvas.SetPos(Canvas.ClipX * 0.9, Canvas.ClipY * 0.25);
-	Canvas.DrawMaterialTile(collectableHUDMat, Canvas.ClipX * 0.1, Canvas.ClipX * 0.1);
+	Canvas.SetPos(Canvas.ClipX * 0.55, Canvas.ClipY * 0.837);
+	Canvas.DrawMaterialTile(collectableHUDMat, 100, 100);
 
 
 	Canvas.Font = defaultFont;
 	Canvas.TextSize(numCollectables @ "/" @ maxCollectables, lenX, lenY);
-	Canvas.SetPos(0.9 * Canvas.ClipX - lenX, Canvas.ClipY * 0.25);	
+	Canvas.SetPos(0.55 * Canvas.ClipX - lenX, Canvas.ClipY * 0.837);	
 	Canvas.SetDrawColor(255, 241, 85);
 	Canvas.DrawText(numCollectables @ "/" @ maxCollectables);
 }
