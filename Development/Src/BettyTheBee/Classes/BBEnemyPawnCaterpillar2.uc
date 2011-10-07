@@ -142,6 +142,9 @@ DefaultProperties
 	AttackDistance = 1200;
 	AttackDamage = 2;
 
+	HealthMax = 20;
+	Health = 20;
+
 	timeBetweenShots = 2;
 	randomTimeBetweenShots = 1;
 	randomness=(X=0.1,Y=0.1,Z=0.05);

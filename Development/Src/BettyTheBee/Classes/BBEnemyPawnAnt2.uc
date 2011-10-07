@@ -77,6 +77,9 @@ DefaultProperties
 	AttackDistance = 40;
 	AttackDamage = 1;
 
+	HealthMax = 50;
+	Health = 50;
+
 	//Name of diferent animations for playing in custom node (esta aqui porque en defaultProperties no funciona)
 	attackAnimName = "Ant_Attack_2_seq";
 	searchingAnimName = "Ant_Searching_seq";

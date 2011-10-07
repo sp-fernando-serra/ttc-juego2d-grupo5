@@ -1088,7 +1088,10 @@ State PlayerSlide{
 	{
 		super.EndState(NextStateName);
 		Pawn.GroundSpeed=speed;
-		Pawn.GotoState('idle');
+		//@HACK: If nexstate is Dead, do not go to Idle state
+		if(NextStateName != 'Dead'){
+			Pawn.GotoState('idle');
+		}
 		bSliding=false;
 		Pawn.AccelRate = Pawn.default.AccelRate;
 	}
@@ -1446,18 +1449,18 @@ DefaultProperties
 	MinRespawnDelay = 3.0f
 	AirAttackThreshold = 600.0f;       //Puesto a un valor grande para que limite poco
 
-	costHeal = 20;
+	costHeal = 5;
 	amountHealed = 3;
 	HealDamageType = class'DamageType';
-	costFrenesi = 30;
+	costFrenesi = 10;
 	frenesiMaxDuration = 10.0;
 	frenesiSpeedFactor = 1.5f;
 	frenesiSlomoFactor = 1.0f;
-	costGrenade = 5;
+	costGrenade = 2;
 	
 	//Heal, Frenesi, Roll, Grenade
-	coldDowns[HN_Heal] = 1.0f;
-	coldDowns[HN_Frenesi] = 1.0f;
-	coldDowns[HN_Roll] = 3.0f;
-	coldDowns[HN_Grenade] = 5.0f;
+	coldDowns[HN_Heal] = 20.0f;
+	coldDowns[HN_Frenesi] = 30.0f;
+	coldDowns[HN_Roll] = 2.0f;
+	coldDowns[HN_Grenade] = 3.0f;
 }
