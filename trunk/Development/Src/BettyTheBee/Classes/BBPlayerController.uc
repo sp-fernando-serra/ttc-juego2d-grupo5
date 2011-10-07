@@ -695,8 +695,11 @@ simulated function bool canUseHeal(){
 }
 
 simulated function bool canUseFrenesi(){
-	if(reactivateTime[HN_Frenesi] == 0 && frenesiDuration == 0 && (IsInState('PlayerWalking') || IsInState('PlayerSlide')  || IsInState('CombatStance')) && !bCinematicMode && !bStoppedByHit &&  Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costFrenesi) return true;
-	else return false;
+	//if(reactivateTime[HN_Frenesi] == 0 && frenesiDuration == 0 && (IsInState('PlayerWalking') || IsInState('PlayerSlide')  || IsInState('CombatStance')) && !bCinematicMode && !bStoppedByHit &&  Pawn.Physics != PHYS_Falling && BBBettyPawn(Pawn).itemsMiel >= costFrenesi) return true;
+	//else return false;
+
+	//Frenesi desactivado temporalmente
+	return false;
 }
 
 simulated function bool canUseRoll(){

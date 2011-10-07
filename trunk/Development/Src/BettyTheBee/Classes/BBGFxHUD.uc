@@ -105,11 +105,11 @@ function TickHUD()
 	}
 	else mc_transp_granada.SetBool("_visible",false);
 
-	if(BBPlayerController(PC).reactivateTime[HN_Frenesi]!=0) {
-		mc_mask_furia.SetFloat("_yscale", (100*(1-BBPlayerController(PC).reactivateTime[HN_Frenesi]/BBPlayerController(PC).coldDowns[HN_Frenesi])));
-		mc_transp_furia.SetBool("_visible",true);
-	}
-	else mc_transp_furia.SetBool("_visible",false);
+	//if(BBPlayerController(PC).reactivateTime[HN_Frenesi]!=0) {
+	//	mc_mask_furia.SetFloat("_yscale", (100*(1-BBPlayerController(PC).reactivateTime[HN_Frenesi]/BBPlayerController(PC).coldDowns[HN_Frenesi])));
+	//	mc_transp_furia.SetBool("_visible",true);
+	//}
+	//else mc_transp_furia.SetBool("_visible",false);
 
 
 	txt_mum_items.SetString("text", string(UTP.itemsMiel));

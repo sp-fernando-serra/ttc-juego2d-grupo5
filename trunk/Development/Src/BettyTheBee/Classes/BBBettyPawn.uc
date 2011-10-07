@@ -1,6 +1,8 @@
 class BBBettyPawn extends BBPawn;
 
 var int itemsMiel;//contador de items 'Mel'
+var int collectableItems;
+var int maxCollectableItems;
 
 var bool bIsRolling;
 var bool bIsInvulnerable;
@@ -203,26 +205,31 @@ event Tick(float DeltaTime){
 
 }
 
-//event PostBeginPlay()
-//{
-//	//local Vector SocketLocation;
-//	//local Rotator SocketRotation;
+event PostBeginPlay()
+{
+	local BBPickupCollectable tempCollectable;
+	//local Vector SocketLocation;
+	//local Rotator SocketRotation;
 
-//	super.PostBeginPlay();
+	super.PostBeginPlay();
 
-//	//Mesh.GetSocketWorldLocationAndRotation('center', SocketLocation, SocketRotation, 0 /* Use 1 if you wish to return this in component space*/ );
-//	Mesh.AttachComponentToSocket(ParticlesComponent_humo_correr, 'center');
-//	Mesh.AttachComponentToSocket(ParticlesComponent_ini_correr, 'center');
-//	ParticlesComponent_ini_correr.SetActive(false);
-//	//ParticlesComponent_humo_correr.SetActive(false);
-//	//ParticlesComponent_humo_correr.DeactivateSystem();
+	//Mesh.GetSocketWorldLocationAndRotation('center', SocketLocation, SocketRotation, 0 /* Use 1 if you wish to return this in component space*/ );
+	//Mesh.AttachComponentToSocket(ParticlesComponent_humo_correr, 'center');
+	//Mesh.AttachComponentToSocket(ParticlesComponent_ini_correr, 'center');
+	//ParticlesComponent_ini_correr.SetActive(false);
+	//ParticlesComponent_humo_correr.SetActive(false);
+	//ParticlesComponent_humo_correr.DeactivateSystem();
 	
 	
 	
-//	//ParticlesComponent_humo_correr.SetTemplate(ParticlesSystem_humo_correr[0]);
+	//ParticlesComponent_humo_correr.SetTemplate(ParticlesSystem_humo_correr[0]);
+	maxCollectableItems = 0;
+	foreach DynamicActors(class'BBPickupCollectable', tempCollectable){
+		maxCollectableItems++;
+	}
 	
 		
-//}
+}
 
 
 //function play_humo_correr(){
@@ -476,6 +483,11 @@ event Landed(vector HitNormal, actor FloorActor)
 	PlayLandedPS();
 	MakeNoise(1.0);
 	SetBaseEyeheight();
+}
+
+simulated function CollectableCaught(BBPickupCollectable collectableItem){
+	collectableItems++;
+	BBHUD(PlayerController(Controller).myHUD).startCollectableCaughtAnimation(collectableItem);	
 }
 
 simulated function healUsed(){
@@ -1415,6 +1427,9 @@ DefaultProperties
 
 	Health = 5;
 	itemsMiel = 500;
+
+	collectableItems = 0;
+
 	bCanPickupInventory = true;
 	InventoryManagerClass = class'BettyTheBee.BBInventoryManager';
 
