@@ -53,6 +53,11 @@ var ParticleSystemComponent Exclamacion_PSC;
 
 var ParticleSystem DeadPS;
 
+var SoundCue DeadCue;
+
+var SoundCue StunnedCue;
+var AudioComponent StunnedAudio;
+
 var(Debug) bool bDrawVision;
 var(Debug) bool bDrawHearing;
 var(Debug) bool bDrawAttackRange;
@@ -337,18 +342,23 @@ simulated state Stunned{
 		super.BeginState(PreviousStateName);
 		//Controller.GotoState('Stunned');
 		stunnedPSC = WorldInfo.MyEmitterPool.SpawnEmitterMeshAttachment(stunnedPS, Mesh, 'exclamacion', true, , rot(90,0,0));
+		StunnedAudio = CreateAudioComponent(StunnedCue, true, true, true,,true);
 		customAnimSlot.PlayCustomAnim(stunnedAnimName,1.0f,0.25f,0.0f,true,true);		
 	}
 
 	simulated event EndState(name NextStateName){
 		super.EndState(NextStateName);
 		stunnedPSC.SetActive(false);
+		if(StunnedAudio != none){
+			StunnedAudio.Stop();
+		}
 		Health = HealthMax;
 	}
 
 	event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser){
 		if(class<BBDamageType_AirAttack>(DamageType) != none){
 			WorldInfo.MyEmitterPool.SpawnEmitter(DeadPS, Location, Rotation);
+			PlaySound(DeadCue);
 			if(controller != none)
 				Controller.Destroy();
 			//Activamos todos los eneventos de Pawn Dead
@@ -407,6 +417,9 @@ defaultproperties
 	Exclamacion_PS=ParticleSystem'Betty_ant.PS.PS_exclamacion'
 
 	stunnedPS = ParticleSystem'Betty_ant.PS.StunnedStars_PS';
+
+	DeadCue = SoundCue'Betty_ant.Sounds.FxEnemigoNubePolvo_Cue';
+	StunnedCue = SoundCue'Betty_ant.Sounds.FxEnemigoAturdido_Cue';
 
 	MyDamageType = class'BBDamageType_EnemyPawn'
 

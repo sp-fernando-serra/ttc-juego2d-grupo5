@@ -4,6 +4,7 @@ struct export BettyInfo
 {
 	var int Health;
 	var int Honey;
+	var int collectables;
 };
 
 struct export EnemyInfo
@@ -97,16 +98,23 @@ function protected SaveBettyInfo(WorldInfo WorldInformation){
 	if(tempPawn != none){
 		bettyData.Health = tempPawn.Health;
 		bettyData.Honey = tempPawn.itemsMiel;
+		bettyData.collectables = tempPawn.collectableItems;
 	}
 }
 
 function protected SavePickups(WorldInfo WorldInformation){
 	local BBMielPickupItem tempItem;
+	local BBPickupCollectable tempItem2;
 	local PickupInfo tempInfo;
 
 	foreach WorldInformation.DynamicActors(class'BBMielPickupItem', tempItem){
 		tempInfo.itemName = tempItem.Name;
-		tempInfo.bIsActive = tempItem.IsInState('Pickup');
+		tempInfo.bIsActive = tempItem.IsInState('Pickup') || tempItem.IsInState('Sleeping');
+		pickupsInfo.AddItem(tempInfo);
+	}
+	foreach WorldInformation.DynamicActors(class'BBPickupCollectable', tempItem2){
+		tempInfo.itemName = tempItem2.Name;
+		tempInfo.bIsActive = tempItem2.IsInState('Pickup');
 		pickupsInfo.AddItem(tempInfo);
 	}
 }
@@ -130,11 +138,12 @@ function protected SaveEnemies(WorldInfo WorldInformation){
 function LoadBettyInfo(WorldInfo WorldInformation){
 	WorldInformation.GetALocalPlayerController().Pawn.Health = bettyData.Health;
 	BBBettyPawn(WorldInformation.GetALocalPlayerController().Pawn).itemsMiel = bettyData.Honey;
+	BBBettyPawn(WorldInformation.GetALocalPlayerController().Pawn).collectableItems = bettyData.collectables;
 }
 
 function protected LoadPickups(WorldInfo WorldInformation){
 	local BBMielPickupItem tempItem;
-	
+	local BBPickupCollectable tempItem2;
 	local int tempIndex;
 
 	foreach WorldInformation.DynamicActors(class'BBMielPickupItem', tempItem){
@@ -143,6 +152,13 @@ function protected LoadPickups(WorldInfo WorldInformation){
 			tempItem.ShutDown();
 		else if(tempIndex != -1)
 			tempItem.Reset();
+	}
+	foreach WorldInformation.DynamicActors(class'BBPickupCollectable', tempItem2){
+		tempIndex = pickupsInfo.Find('itemName', tempItem2.Name);
+		if(tempIndex != -1 && !pickupsInfo[tempIndex].bIsActive)
+			tempItem2.ShutDown();
+		else if(tempIndex != -1)
+			tempItem2.Reset();
 	}
 }
 

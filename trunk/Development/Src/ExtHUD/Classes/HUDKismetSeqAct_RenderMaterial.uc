@@ -20,7 +20,7 @@ function Render(Canvas Canvas)
 	if (WorldInfo != None && (WorldInfo.IsConsoleBuild(CONSOLE_Mobile) || WorldInfo.IsConsoleBuild(CONSOLE_IPhone)))
 	{
 		// Check if the user has set the material kismet node link
-		if (VariableLinks[0].LinkedVariables.Length > 0)
+		if (VariableLinks.Length > 0 && VariableLinks[0].LinkedVariables.Length > 0)
 		{
 			SeqVar_Object = SeqVar_Object(VariableLinks[0].LinkedVariables[0]);
 
@@ -70,7 +70,7 @@ function Render(Canvas Canvas)
 		if (Canvas != None && (UsingActualSize || UsingRelativeSize) && (UsingActualPosition || UsingRelativePosition))
 		{
 			// Check if the user has set the material kismet node link
-			if (VariableLinks[0].LinkedVariables.Length > 0)
+			if (VariableLinks.Length > 0 && VariableLinks[0].LinkedVariables.Length > 0)
 			{
 				SeqVar_Object = SeqVar_Object(VariableLinks[0].LinkedVariables[0]);
 

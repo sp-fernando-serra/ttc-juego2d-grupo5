@@ -42,7 +42,7 @@ DefaultProperties
         StaticMesh=StaticMesh'Betty_item.Models.SpecialItem'
         bNotifyRigidBodyCollision=true
 		LightEnvironment=theLightEnvironment
-		Scale = 2;
+		Scale = 3;
 	End Object
 	PickupMesh=ItemEsfera
 	Components.Add(ItemEsfera)

@@ -41,12 +41,13 @@ event PostLogin( PlayerController NewPlayer ){
 
 	if(lastLoadedGame != none){
 		lastLoadedGame.LoadBettyInfo(WorldInfo);
-	}
-	if(previousLevelHealth >= 1){
-		NewPlayer.Pawn.Health = previousLevelHealth;
-	}
-	if(previousLevelHealth >= 0){
-		BBBettyPawn(NewPlayer.Pawn).itemsMiel = previousLevelHoney;
+	}else{
+		if(previousLevelHealth >= 1){
+			NewPlayer.Pawn.Health = previousLevelHealth;
+		}
+		if(previousLevelHealth >= 0){
+			BBBettyPawn(NewPlayer.Pawn).itemsMiel = previousLevelHoney;
+		}
 	}
 }
 
@@ -145,8 +146,8 @@ exec function bool LoadGameFromFile(string fileName){
 	tempSave = new class'BBSaveGame';
 	tempResult = class'Engine'.static.BasicLoadObject(tempSave, `saveFolder $ fileName $ `saveExtension, true, 0);
 	if(tempResult == false){
-		`log("File" @ filename @ "doesn't exists. Restarting level from initial state");
-		WorldInfo.GetALocalPlayerController().ClientTravel( "?restart", TRAVEL_Relative );
+		`log("File" @ filename @ "doesn't exists. Load aborted");
+		//WorldInfo.GetALocalPlayerController().ClientTravel( "?restart", TRAVEL_Relative );
 	}else{
 		tempMapName = tempSave.GetMapName();
 		WorldInfo.GetALocalPlayerController().ClientTravel( tempMapName $ "?LoadPreviousGame=" $ fileName, TRAVEL_Partial );
@@ -157,11 +158,11 @@ exec function bool LoadGameFromFile(string fileName){
 /**Changes current level
  * @param mapName Name of next map to load
  */
-exec function LoadGame(string mapName){
+exec function LoadGame(string mapName, optional bool bRestartPlayerStats = false){
 	local BBBettyPawn tempPawn;
 
 	tempPawn = BBBettyPawn(GetALocalPlayerController().Pawn);
-	if(tempPawn != none){
+	if(tempPawn != none && !bRestartPlayerStats){
 		WorldInfo.GetALocalPlayerController().ClientTravel( mapName $ "?HealtPoints=" $ tempPawn.Health $ "?HoneyItems=" $ tempPawn.itemsMiel, TRAVEL_Absolute );
 	}else{
 		WorldInfo.GetALocalPlayerController().ClientTravel( mapName, TRAVEL_Absolute );

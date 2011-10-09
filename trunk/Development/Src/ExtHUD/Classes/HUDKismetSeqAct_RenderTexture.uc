@@ -90,7 +90,7 @@ function Render(Canvas Canvas)
 	if (Canvas != None && (UsingActualSize || UsingRelativeSize) && (UsingActualPosition || UsingRelativePosition))
 	{
 		// Check if the user has set the texture kismet node link
-		if (VariableLinks[0].LinkedVariables.Length > 0)
+		if (VariableLinks.Length > 0 && VariableLinks[0].LinkedVariables.Length > 0)
 		{
 			SeqVar_Object = SeqVar_Object(VariableLinks[0].LinkedVariables[0]);
 
