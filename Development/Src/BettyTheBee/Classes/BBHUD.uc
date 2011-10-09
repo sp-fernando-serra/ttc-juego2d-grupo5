@@ -122,16 +122,17 @@ simulated function drawCollectables(){
 }
 
 simulated function drawControls(){
-	local LinearColor tempColor;
+	//local LinearColor tempColor;
 	local float tempScale;
 
-	tempColor.R = 0.75;
-	tempColor.G = 0.6;
-	tempColor.B = 0.6;
+	//tempColor.R = 0.5;
+	//tempColor.G = 0.5;
+	//tempColor.B = 0.5;
+	Canvas.SetDrawColor(255, 255, 255, 255);
 	tempScale = 0.75;
 	Canvas.SetPos(Canvas.ClipX *0.5 - controlsTexture.SizeX * 0.5 * tempScale, Canvas.ClipY * 0.5 - controlsTexture.SizeY * 0.5 * tempScale);
-	//Canvas.DrawTexture(controlsTexture, 0.5);
-	Canvas.DrawTile(controlsTexture, controlsTexture.GetSurfaceWidth() * tempScale, controlsTexture.GetSurfaceHeight() * tempScale, 0, 0, controlsTexture.GetSurfaceWidth(), controlsTexture.GetSurfaceHeight(), tempColor,,BLEND_Masked);
+	Canvas.DrawTextureBlended(controlsTexture, tempScale, BLEND_Masked);
+	//Canvas.DrawTile(controlsTexture, controlsTexture.GetSurfaceWidth() * tempScale, controlsTexture.GetSurfaceHeight() * tempScale, 0, 0, controlsTexture.GetSurfaceWidth(), controlsTexture.GetSurfaceHeight(), tempColor,,BLEND_Masked);
 }
 
 function playFromCheckpoint(){
