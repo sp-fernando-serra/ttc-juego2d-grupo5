@@ -160,9 +160,9 @@ function PlayGame()
 
 function ExitGame(String mapa)
 {
-
-	ConsoleCommand(mapa);
-   //GetPC().SetPause(false);
+	BBGameInfo(GetPC().WorldInfo.Game).LoadGame("BB-BettylevelMenu", true);
+	//ConsoleCommand(mapa);
+	//GetPC().SetPause(false);
 }
 
 function animacioItem(){	

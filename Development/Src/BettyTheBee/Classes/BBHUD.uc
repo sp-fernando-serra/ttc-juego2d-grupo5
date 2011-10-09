@@ -11,8 +11,12 @@ var Font defaultFont;
 
 var MaterialInterface collectableHUDMat;
 
+var Texture2D controlsTexture;
+
 /** True for painting collectable items on HUD */
 var bool bDrawCollectable;
+
+var bool bShowControls;
 
 //Called when this is destroyed
 singular event Destroyed()
@@ -52,6 +56,10 @@ function startAnimacioColeccionable(){
 	HudMovie.animacioColeccionable();
 }
 
+function showControls(bool show){
+	bShowControls = show;
+}
+
 function startCollectableCaughtAnimation(BBPickupCollectable collectableItem){
 	bDrawCollectable = true;
 	SetTimer(4.0, false, 'stopDrawCollectables');
@@ -66,6 +74,9 @@ event PostRender()
 {
 	if(bDrawCollectable && bShowHUD){
 		drawCollectables();
+	}
+	if(bShowControls && bShowHUD){
+		drawControls();
 	}
 	if(bShowHUD){
 		super.PostRender();
@@ -110,6 +121,19 @@ simulated function drawCollectables(){
 	Canvas.DrawText(numCollectables @ "/" @ maxCollectables);
 }
 
+simulated function drawControls(){
+	local LinearColor tempColor;
+	local float tempScale;
+
+	tempColor.R = 0.75;
+	tempColor.G = 0.6;
+	tempColor.B = 0.6;
+	tempScale = 0.75;
+	Canvas.SetPos(Canvas.ClipX *0.5 - controlsTexture.SizeX * 0.5 * tempScale, Canvas.ClipY * 0.5 - controlsTexture.SizeY * 0.5 * tempScale);
+	//Canvas.DrawTexture(controlsTexture, 0.5);
+	Canvas.DrawTile(controlsTexture, controlsTexture.GetSurfaceWidth() * tempScale, controlsTexture.GetSurfaceHeight() * tempScale, 0, 0, controlsTexture.GetSurfaceWidth(), controlsTexture.GetSurfaceHeight(), tempColor,,BLEND_Masked);
+}
+
 function playFromCheckpoint(){
 	BBGameInfo(WorldInfo.Game).LoadGameCheckpoint();
 }
@@ -118,4 +142,6 @@ DefaultProperties
 {
 	collectableHUDMat = Material'BettyInterface.interface_hud.CollectableHUD_Mat'
 	defaultFont = Font'BettyInterface.Fonts.HoboLarge_Font';
+
+	controlsTexture = Texture2D'BettyInterface.interface_menu.controles'
 }
