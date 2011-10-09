@@ -216,7 +216,8 @@ DefaultProperties
     Components.Add(BaseMesh)
 	Mesh = BaseMesh;
 
-    Damage=25
+	//Enough to stun a ant 
+    Damage=50
     //MomentumTransfer=0
 
 	//bWorldGeometry=false

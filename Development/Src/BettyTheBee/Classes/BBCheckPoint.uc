@@ -5,6 +5,11 @@ class BBCheckPoint extends Trigger placeable
 
 var () PlayerStart spawnPoint;
 
+var SoundCue ActivationCue;
+
+var float activationTime;
+var bool bActivable;
+
 event PostBeginPlay(){
 	super.PostBeginPlay();
 
@@ -15,9 +20,17 @@ event PostBeginPlay(){
 
 event Touch(Actor Other, PrimitiveComponent OtherComp, Vector HitLocation, Vector HitNormal){
 	super.Touch(Other, OtherComp, HitLocation, HitNormal);
-	
-	BBGameInfo(WorldInfo.Game).currentCheckPoint = self;
-	BBGameInfo(WorldInfo.Game).SaveGameCheckpoint();	
+	if(bActivable){
+		PlaySound(ActivationCue);
+		BBGameInfo(WorldInfo.Game).currentCheckPoint = self;
+		BBGameInfo(WorldInfo.Game).SaveGameCheckpoint();
+		bActivable = false;
+		setTimer(activationTime, false);
+	}
+}
+
+event Timer(){
+	bActivable = true;
 }
 
 
@@ -44,5 +57,10 @@ DefaultProperties
 	bCollideActors=true
 	CollisionType=COLLIDE_TouchAllButWeapons
 	bNoDelete = true
-	bStatic = false	
+	bStatic = false
+
+	ActivationCue = SoundCue'Betty_item.Sounds.FxCheckpoint0_Cue';
+	activationTime = 3;
+	bActivable = true;
+
 }

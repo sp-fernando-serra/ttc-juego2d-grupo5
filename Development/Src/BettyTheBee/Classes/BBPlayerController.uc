@@ -1398,20 +1398,21 @@ state Grenade_Attack
 	exec function EButtonUP( )
 	{	
 	
-		if(BBBettyPawn(Pawn).itemsMiel-5>=0){
+		//if(canThrowGrenade()){
 			GotoState('Grenade_Attack','Lanzar');
 			if ( BBBettyPawn(Pawn) != None )
 			{
-			BBBettyPawn(Pawn).StartFire( 1 );
-			BBBettyPawn(Pawn).StopFire( 1 );
+				BBBettyPawn(Pawn).StartFire( 1 );
+				BBBettyPawn(Pawn).StopFire( 1 );
 			}
-		}else PopState();
+		//}else PopState();
 
 	}
 
 Lanzar:
 	if(reactivateTime[HN_Grenade] == 0){
 		reactivateTime[HN_Grenade] = coldDowns[HN_Grenade];
+		BBBettyPawn(Pawn).itemsMiel -= costGrenade;
 		lanzarAttack();
 		FinishAnim(getActiveAnimNode());
 	}

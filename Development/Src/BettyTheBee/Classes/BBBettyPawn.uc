@@ -114,6 +114,7 @@ var SoundCue HitSound;
 /** Sound played when betty slides*/
 var AudioComponent SlideSound;
 var SoundCue SlideCue;
+var SoundCue AirAttackFinishCue;
 
 
 var() SkeletalMeshComponent grenadeMesh;
@@ -542,15 +543,10 @@ simulated function StartFire(byte FireModeNum)
 			
 			switch (Weapon.Class){		
 			case (class'BBWeaponSword'):
-					if(FireModeNum==0)super.StartFire(FireModeNum);
-					else{
-						itemsMiel-=5;
-						super.StartFire(FireModeNum);
-					}
+					super.StartFire(FireModeNum);
 				break;
 			case (class'BBWeaponNone'):
 					if(FireModeNum==1){
-						itemsMiel-=5;
 						super.StartFire(FireModeNum);
 					}
 				break;
@@ -1025,6 +1021,7 @@ state AirAttack{
 		tempLocation = Location;
 		tempLocation.Z -= GetCollisionHeight() - 10;
 		WorldInfo.MyEmitterPool.SpawnEmitter(AirAttackPS, tempLocation);
+		PlaySound(AirAttackFinishCue);
 		GotoState('AirAttack', 'Landing');
 	}
 
@@ -1489,11 +1486,10 @@ DefaultProperties
 
 	HitSound=SoundCue'Betty_Player.Sounds.FxGolpeBetty_Cue'
 
-	//Begin Object Class=AudioComponent Name=MySlideSound
 	SlideCue=SoundCue'Betty_slide.Sounds.FxSlide2_Cue'
-	//End Object
-	//SlideSound=MySlideSound
-	//Components.Add(MySlideSound)
+
+	AirAttackFinishCue = SoundCue'Betty_Player.Sounds.FxAirAttackFinish_Cue';
+	
 	
 	
 	Begin Object Class=SkeletalMeshComponent Name=grenade

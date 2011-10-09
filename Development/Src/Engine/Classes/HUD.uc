@@ -410,10 +410,10 @@ event PostRender()
 		if ( !bShowScores )
 		{
 			DrawHud();
-
-			DisplayConsoleMessages();
-			DisplayLocalMessages();
-			DisplayKismetMessages();
+			//Commented for Release Build
+			//DisplayConsoleMessages();
+			//DisplayLocalMessages();
+			//DisplayKismetMessages();
 		}
 	}
 

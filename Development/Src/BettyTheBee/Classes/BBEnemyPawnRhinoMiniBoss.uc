@@ -257,6 +257,8 @@ simulated state Stunned{
 		//Take damage because we are stunned only if bDamageTakenInThisStun == false
 		if(!bDamageTakenInThisStun){
 			Damage = Max(Damage, 0);
+			//Limit damage done to Rhino, grenades only does 25 damage to Rhino
+			Damage = Min(Damage, 25);
 			if(Damage > 0){
 				playDamaged();
 				if(Health > 0){
