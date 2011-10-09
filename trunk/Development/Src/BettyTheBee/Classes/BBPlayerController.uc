@@ -39,6 +39,8 @@ var float radioLockon;
 //velocidad de rotacion de betty para giros mas suaves(en modo normal...no mario64)
 var float RotationSpeed;
 
+var float LockOnRotationSpeed;
+
 var bool block;
 var bool bSliding;
 
@@ -165,6 +167,17 @@ exec function myMoveto(Vector Loc, Rotator Rot)
 
 exec function intro(){
 	ClientPlayMovie("Intro");
+}
+
+exec function ToggleControls(){	
+	// Pause if not already
+	if( !IsPaused() && !BBHUD(myHUD).bShowControls){
+		SetPause(true);
+		BBHUD(myHUD).showControls(true);
+	}else if(IsPaused() && BBHUD(myHUD).bShowControls){
+		SetPause(false);
+		BBHUD(myHUD).showControls(false);
+	}
 }
 
 
@@ -442,6 +455,10 @@ function UpdateRotationCustom( float DeltaTime, bool updatePawnRot){
 	DeltaRot.Yaw	= PlayerInput.aTurn;
 	DeltaRot.Pitch	= PlayerInput.aLookUp;
 
+	//if(targetedPawn != none){
+	//	DeltaRot.Yaw = 0;
+	//}
+
 	ProcessViewRotation( DeltaTime, ViewRotation, DeltaRot );
 	ViewShake( deltaTime );
 	//`log(TargetedPawn);
@@ -460,8 +477,8 @@ function UpdateRotationCustom( float DeltaTime, bool updatePawnRot){
 			if(TargetedPawn!=none){ //estamos fijados a un enemigo
 				NewRotation=rotator(TargetedPawn.GetTargetLocation() - Pawn.GetTargetLocation());
 				if ( Pawn != None )
-					Pawn.FaceRotation(NewRotation, deltatime);
-				ViewRotation.Yaw=NewRotation.Yaw;
+					Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, LockOnRotationSpeed), DeltaTime);
+				ViewRotation.Yaw=FInterpTo(ViewRotation.Yaw, NewRotation.Yaw, DeltaTime, LockOnRotationSpeed);
 			}
 			else{ //no estamos fijados a un enemigo
 				NewRotation = ViewRotation;
@@ -472,8 +489,8 @@ function UpdateRotationCustom( float DeltaTime, bool updatePawnRot){
 			break;
 		}	
 
-	SetRotation(ViewRotation);	
-
+	SetRotation(ViewRotation);
+	//SetRotation(RInterpTo(Rotation, ViewRotation, DeltaTime, RotationSpeed/100000));
 }
 
 
@@ -1446,6 +1463,7 @@ DefaultProperties
 	//bPlay_humo_correr=true;
 
 	RotationSpeed=150000;
+	LockOnRotationSpeed = 15;
 
 	MinRespawnDelay = 3.0f
 	AirAttackThreshold = 600.0f;       //Puesto a un valor grande para que limite poco
