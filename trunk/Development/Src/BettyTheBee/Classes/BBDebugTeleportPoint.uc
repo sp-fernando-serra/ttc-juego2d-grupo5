@@ -31,6 +31,7 @@ DefaultProperties
 	Begin Object Class=CylinderComponent Name=CollisionCylinder LegacyClassName=NavigationPoint_NavigationPointCylinderComponent_Class
 		CollisionRadius=+0025.000000
 		CollisionHeight=+0045.000000
+		bAlwaysRenderIfSelected=true
 	End Object
 	CollisionComponent=CollisionCylinder
 	CylinderComponent=CollisionCylinder

@@ -93,6 +93,9 @@ var array<BBDebugTeleportPoint> debugTeleportsArray;
 
 var int debugActualTeleportPoint;
 
+var bool bDebugMode;
+var bool bFreecam;
+
 simulated event PostBeginPlay() //This event is triggered when play begins
 {
 	local BBDebugTeleportPoint tempTeleport;
@@ -153,8 +156,8 @@ exec function ThirdPersonCam(){
 }
 
 exec function ExecSpectatorMode()
-{   
-	GoToState('mySpectatorMode');
+{
+		GoToState('mySpectatorMode');
 }
 
 exec function StaticCam (int camNum){
@@ -173,15 +176,17 @@ exec function StaticCam (int camNum){
 }
 
 exec function myMoveto(Vector Loc, Rotator Rot)
-{   
-	Pawn.SetLocation(Loc);
-	Pawn.SetRotation(Rot);
+{  
+	if(Pawn != none){
+		Pawn.SetLocation(Loc);
+		Pawn.SetRotation(Rot);
+	}
 }
 
 exec function intro(){
 	ClientPlayMovie("Intro");
 }
-
+//F1
 exec function ToggleControls(){	
 	// Pause if not already
 	if( !IsPaused() && !BBHUD(myHUD).bShowControls){
@@ -192,24 +197,82 @@ exec function ToggleControls(){
 		BBHUD(myHUD).showControls(false);
 	}
 }
-
-exec function nextTeleportPoint(){
-	if(debugTeleportsArray.Length > 0){
-		debugActualTeleportPoint++;
-		if(debugActualTeleportPoint >= debugTeleportsArray.Length){
-			debugActualTeleportPoint = 0;
-		}
-		myMoveto(debugTeleportsArray[debugActualTeleportPoint].Location, debugTeleportsArray[debugActualTeleportPoint].Rotation);
+//H
+exec function toggleDebugMode(){
+	bDebugMode = !bDebugMode;
+	BBConsole(LocalPlayer( Player ).ViewportClient.ViewportConsole).bDebugMode = bDebugMode;
+}
+//3
+exec function getLife(int amount){
+	if(bDebugMode){
+		pawn.Health += amount;
+		Pawn.Health = Min(Pawn.Health, Pawn.HealthMax);
 	}
 }
-
-exec function previousTeleportPoint(){
-	if(debugTeleportsArray.Length > 0){
-		debugActualTeleportPoint--;
-		if(debugActualTeleportPoint < 0){
-			debugActualTeleportPoint = debugTeleportsArray.Length - 1;
+//4
+exec function getHoney(int amount){
+	if(bDebugMode){
+		BBBettyPawn(Pawn).itemsMiel += amount;
+		BBBettyPawn(Pawn).itemsMiel = Min(BBBettyPawn(Pawn).itemsMiel, 999);
+	}
+}
+//5
+exec function myGodMode(){
+	if(bDebugMode){
+		bGodMode = !bGodMode;
+	}
+}
+//6
+exec function toggleFreeCam(){
+	if(bDebugMode){
+		if(bFreeCam){
+			ThirdPersonCam();
+		}else{
+			ExecSpectatorMode();
 		}
-		myMoveto(debugTeleportsArray[debugActualTeleportPoint].Location, debugTeleportsArray[debugActualTeleportPoint].Rotation);
+		bFreecam = !bFreecam;
+	}
+}
+//7
+exec function toggleFly(){
+	if(bDebugMode){
+		ConsoleCommand("Fly");
+	}
+}
+//8
+exec function toggleGhost(){
+	if(bDebugMode){
+		ConsoleCommand("Ghost");
+	}
+}
+//9
+exec function toggleWalk(){
+	if(bDebugMode){
+		ConsoleCommand("Walk");
+	}
+}
+//1
+exec function nextTeleportPoint(){
+	if(bDebugMode){
+		if(debugTeleportsArray.Length > 0){
+			debugActualTeleportPoint++;
+			if(debugActualTeleportPoint >= debugTeleportsArray.Length){
+				debugActualTeleportPoint = 0;
+			}
+			myMoveto(debugTeleportsArray[debugActualTeleportPoint].Location, debugTeleportsArray[debugActualTeleportPoint].Rotation);
+		}
+	}
+}
+//2
+exec function previousTeleportPoint(){
+	if(bDebugMode){
+		if(debugTeleportsArray.Length > 0){
+			debugActualTeleportPoint--;
+			if(debugActualTeleportPoint < 0){
+				debugActualTeleportPoint = debugTeleportsArray.Length - 1;
+			}
+			myMoveto(debugTeleportsArray[debugActualTeleportPoint].Location, debugTeleportsArray[debugActualTeleportPoint].Rotation);
+		}
 	}
 }
 
