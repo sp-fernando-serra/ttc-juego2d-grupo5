@@ -88,14 +88,27 @@ var float reactivateTime[EHabilityNames];
 
 /** cached result of GetPlayerViewPoint() */
 //var Actor CalcViewActor;
+/** Array of debugTeleportPoints to teleport between them when debugging */
+var array<BBDebugTeleportPoint> debugTeleportsArray;
+
+var int debugActualTeleportPoint;
 
 simulated event PostBeginPlay() //This event is triggered when play begins
 {
+	local BBDebugTeleportPoint tempTeleport;
 	//local BBGamePlayerCamera tempCamera;
 	super.PostBeginPlay();
 	//tempCamera = BBGamePlayerCamera(PlayerCamera);
 	//BBGameThirdPersonCamera(tempCamera.CurrentCamera).SetFocusOnActor(Pawn, '', vect2d(90,90), vect2d(100, 100),,,,, 5000);
+
+	//Save all debugTeleportArray points in the map
+	foreach DynamicActors(class'BBDebugTeleportPoint', tempTeleport){
+		debugTeleportsArray.AddItem(tempTeleport);
+	}
+	debugTeleportsArray.Sort(DebugTeleportSort);
 }
+
+delegate int DebugTeleportSort(BBDebugTeleportPoint A, BBDebugTeleportPoint B) { return A.order > B.order ? -1 : 0; }
 
 //-----------------------------------------------------------------------------------------------
 //--------------------------------FUNCIONES EXEC-------------------------------------------------
@@ -161,8 +174,8 @@ exec function StaticCam (int camNum){
 
 exec function myMoveto(Vector Loc, Rotator Rot)
 {   
-	SetLocation(Loc);
-	SetRotation(Rot);
+	Pawn.SetLocation(Loc);
+	Pawn.SetRotation(Rot);
 }
 
 exec function intro(){
@@ -177,6 +190,26 @@ exec function ToggleControls(){
 	}else if(IsPaused() && BBHUD(myHUD).bShowControls){
 		SetPause(false);
 		BBHUD(myHUD).showControls(false);
+	}
+}
+
+exec function nextTeleportPoint(){
+	if(debugTeleportsArray.Length > 0){
+		debugActualTeleportPoint++;
+		if(debugActualTeleportPoint >= debugTeleportsArray.Length){
+			debugActualTeleportPoint = 0;
+		}
+		myMoveto(debugTeleportsArray[debugActualTeleportPoint].Location, debugTeleportsArray[debugActualTeleportPoint].Rotation);
+	}
+}
+
+exec function previousTeleportPoint(){
+	if(debugTeleportsArray.Length > 0){
+		debugActualTeleportPoint--;
+		if(debugActualTeleportPoint < 0){
+			debugActualTeleportPoint = debugTeleportsArray.Length - 1;
+		}
+		myMoveto(debugTeleportsArray[debugActualTeleportPoint].Location, debugTeleportsArray[debugActualTeleportPoint].Rotation);
 	}
 }
 
@@ -265,7 +298,7 @@ exec function LockOn()
  //     Vect(1.f, 1.f, 1.f),, 
  //      TRACEFLAG_PhysicsVolumes
  //   )
-if (!bSliding)
+if (!bSliding && !Pawn.IsInState('Dying'))
 {
 
 	foreach WorldInfo.AllPawns( class 'BBEnemyPawn', A , BBBettyPawn(Pawn).Location, radioLockon)
@@ -323,15 +356,14 @@ if (!bSliding)
 //BOTON DERECHO RATON (UP)
 exec function LockOff()
 {
-	if (!bSliding)
+	if (!bSliding && !Pawn.IsInState('Dying'))
 	{
-
-	if(TargetedPawn != none){
-		array_enemigos.Remove(0,array_enemigos.length);
-		TargetedPawn.stopPariclesFijado();
-		TargetedPawn=none;
-	}
-	gotostate('PlayerWalking');
+		if(TargetedPawn != none){
+			array_enemigos.Remove(0,array_enemigos.length);
+			TargetedPawn.stopPariclesFijado();
+			TargetedPawn=none;
+		}
+		gotostate('PlayerWalking');
 	}
 }
 
@@ -478,7 +510,9 @@ function UpdateRotationCustom( float DeltaTime, bool updatePawnRot){
 				NewRotation=rotator(TargetedPawn.GetTargetLocation() - Pawn.GetTargetLocation());
 				if ( Pawn != None )
 					Pawn.FaceRotation(RInterpTo(Pawn.Rotation, NewRotation, DeltaTime, LockOnRotationSpeed), DeltaTime);
-				ViewRotation.Yaw=FInterpTo(ViewRotation.Yaw, NewRotation.Yaw, DeltaTime, LockOnRotationSpeed);
+				newRotation.Roll = ViewRotation.Roll;
+				newRotation.Pitch = ViewRotation.Pitch;				
+				ViewRotation=RInterpTo(ViewRotation, newRotation, DeltaTime, LockOnRotationSpeed);
 			}
 			else{ //no estamos fijados a un enemigo
 				NewRotation = ViewRotation;
@@ -1028,6 +1062,7 @@ state Dead
 		//if ( (Pawn != None) && (Pawn.Controller == self) )
 		//	Pawn.Controller = None;
 		//Pawn = None;
+
 		FOVAngle = DesiredFOV;
 		Enemy = None;
 		bFrozen = true;
@@ -1324,12 +1359,16 @@ ignores SeePlayer, HearNoise, Bump;
 				Pawn.ShouldCrouch(false);
 			}
 		}
-		TargetedPawn = None;
+		if(TargetedPawn != none){
+			array_enemigos.Remove(0,array_enemigos.length);
+			TargetedPawn.stopPariclesFijado();
+			TargetedPawn=none;
+		}		
 	}
 	
 	event PoppedState()
 	{
-		TargetedPawn = None;
+		EndState('');
 	}
 	
 	event PlayerTick(float DeltaTime)
@@ -1482,4 +1521,6 @@ DefaultProperties
 	coldDowns[HN_Frenesi] = 30.0f;
 	coldDowns[HN_Roll] = 2.0f;
 	coldDowns[HN_Grenade] = 3.0f;
+
+	debugActualTeleportPoint = -1;
 }
