@@ -5,6 +5,8 @@ class BBDebugTeleportPoint extends Actor
 /** Sort teleportPoints in array using this order. 0 is first element in the array */
 var() int order;
 
+var	CylinderComponent		CylinderComponent;
+
 DefaultProperties
 {
 	Begin Object Class=SpriteComponent Name=Sprite
